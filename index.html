@@ -996,7 +996,7 @@
           <div class="module-title">MedScan</div>
           <div class="module-sub">Análisis de imágenes</div>
         </div>
-        <div class="module-card" onclick="showToast('SOAP disponible en la app Android')">
+        <div class="module-card" onclick="switchTab('soap')">
           <div class="module-icon" style="background:rgba(16,185,129,0.15)">🎤</div>
           <div class="module-title">Dictado SOAP</div>
           <div class="module-sub">Notas de evolución</div>
@@ -1358,6 +1358,60 @@
     </div>
   </div>
 
+  <!-- ── SOAP Tab ── -->
+  <div class="tab-content" id="tab-soap">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(16,185,129,0.15)">🎤</div>
+      <div>
+        <div class="appbar-title">Dictado SOAP</div>
+      </div>
+      <div class="appbar-actions">
+        <button id="soap-copy-btn" onclick="copySOAP()" style="display:none;background:none;border:none;color:var(--blue);font-size:20px;cursor:pointer">📋</button>
+      </div>
+    </div>
+    <div style="padding:20px;overflow-y:auto;height:calc(100vh - 130px)">
+
+      <!-- Info banner -->
+      <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:12px;padding:14px;display:flex;gap:10px;margin-bottom:20px">
+        <span style="font-size:20px">🎤</span>
+        <span style="font-size:13px;color:var(--success);line-height:1.5">Dicta el caso clínico en lenguaje natural. La IA lo transforma en nota SOAP estructurada.</span>
+      </div>
+
+      <!-- Área de dictado -->
+      <div style="font-weight:600;margin-bottom:8px">Dictado clínico</div>
+      <div style="position:relative;margin-bottom:12px">
+        <textarea id="soap-input" style="width:100%;min-height:160px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 50px 14px 16px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;resize:none;line-height:1.5" 
+          placeholder="Paciente masculino de 35 años llega con dolor abdominal..."></textarea>
+        <button id="mic-btn" onclick="toggleSTT()" style="position:absolute;right:12px;top:12px;background:none;border:none;font-size:28px;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center">🎤</button>
+      </div>
+
+      <!-- Indicador escucha -->
+      <div id="stt-indicator" style="display:none;background:rgba(239,68,68,0.1);border-radius:8px;padding:10px 14px;display:none;align-items:center;gap:10px;margin-bottom:12px">
+        <div class="spinner" style="width:16px;height:16px;border-color:rgba(239,68,68,0.2);border-top-color:var(--danger)"></div>
+        <span style="color:var(--danger);font-size:13px">Escuchando... Habla claramente</span>
+      </div>
+
+      <!-- Cargar ejemplo -->
+      <div onclick="loadSOAPExample()" style="color:var(--blue);font-size:13px;cursor:pointer;margin-bottom:20px;text-decoration:underline">📋 Cargar ejemplo</div>
+
+      <!-- Botón generar -->
+      <button id="soap-gen-btn" onclick="generateSOAP()" style="width:100%;padding:15px;background:var(--success);border:none;border-radius:var(--radius-sm);color:white;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px">
+        ✨ Generar Nota SOAP
+      </button>
+
+      <!-- Resultado SOAP -->
+      <div id="soap-result" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:16px;font-weight:600">Nota SOAP generada</div>
+          <button onclick="copySOAP()" style="background:none;border:none;color:var(--blue);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px">📋 Copiar</button>
+        </div>
+        <div id="soap-note-content" style="background:var(--bg-surface);border:1px solid rgba(16,185,129,0.4);border-radius:14px;padding:16px;font-size:13px;line-height:1.8;color:var(--text-primary);white-space:pre-wrap"></div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">Lista para copiar al expediente médico</div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ── MedScan Tab ── -->
   <div class="tab-content" id="tab-medscan">
     <div class="appbar">
@@ -1682,6 +1736,7 @@ window.addEventListener('load', async () => {
   initECOE();
   renderCustomCases();
   initMedScan();
+  initSTT();
   setTimeout(async () => {
     if (token) {
       await loadProfile();
@@ -2365,6 +2420,94 @@ function endECOE() {
   document.getElementById('ecoe-selector').style.display = 'block';
   document.getElementById('ecoe-status').textContent = 'Selecciona un caso';
   document.getElementById('ecoe-end-btn').style.display = 'none';
+}
+
+// ── Dictado SOAP ──────────────────────────────────────────────
+let sttActive = false;
+let recognition = null;
+let soapNote = null;
+
+function initSTT() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'es-HN';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onresult = (e) => {
+    let transcript = '';
+    for (let i = 0; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    document.getElementById('soap-input').value = transcript;
+  };
+  recognition.onend = () => {
+    sttActive = false;
+    document.getElementById('mic-btn').textContent = '🎤';
+    document.getElementById('stt-indicator').style.display = 'none';
+  };
+}
+
+function toggleSTT() {
+  if (!recognition) {
+    showToast('Micrófono no disponible en este navegador');
+    return;
+  }
+  if (sttActive) {
+    recognition.stop();
+    sttActive = false;
+    document.getElementById('mic-btn').textContent = '🎤';
+    document.getElementById('stt-indicator').style.display = 'none';
+  } else {
+    recognition.start();
+    sttActive = true;
+    document.getElementById('mic-btn').textContent = '⏹';
+    document.getElementById('stt-indicator').style.display = 'flex';
+  }
+}
+
+function loadSOAPExample() {
+  document.getElementById('soap-input').value =
+    'Paciente masculino 40 años refiere dolor en fosa ilíaca derecha desde hace 18 horas, ' +
+    'comenzó periumbilical y migró a FID, fiebre de 38.5, náuseas, vómito x1, signo de ' +
+    'McBurney positivo, rebote positivo, peristalsis disminuida, leucocitos 15000. ' +
+    'Plan: analgesia, ayuno, cirugía esta noche.';
+}
+
+async function generateSOAP() {
+  const text = document.getElementById('soap-input').value.trim();
+  if (!text) { showToast('Escribe o dicta el caso clínico primero'); return; }
+  const btn = document.getElementById('soap-gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;margin:0 8px 0 0;border-color:rgba(255,255,255,0.2);border-top-color:white"></div> Generando nota SOAP...';
+
+  try {
+    const res = await fetch(`${API}/analysis/soap`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ dictation: text })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error al generar');
+    soapNote = data.soap_note;
+    document.getElementById('soap-note-content').textContent = soapNote;
+    document.getElementById('soap-result').style.display = 'block';
+    document.getElementById('soap-copy-btn').style.display = 'block';
+  } catch(e) {
+    showToast(`Error: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generar Nota SOAP';
+  }
+}
+
+function copySOAP() {
+  if (!soapNote) return;
+  navigator.clipboard.writeText(soapNote).then(() => {
+    showToast('✅ Nota copiada al portapapeles');
+  }).catch(() => {
+    showToast('No se pudo copiar. Selecciona el texto manualmente.');
+  });
 }
 
 // ── MedScan ───────────────────────────────────────────────────
