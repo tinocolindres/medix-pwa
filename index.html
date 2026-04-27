@@ -1370,21 +1370,7 @@
 
       <!-- Tipo de imagen -->
       <div style="font-weight:600;margin-bottom:10px">Tipo de imagen</div>
-      <div style="display:flex;overflow-x:auto;gap:8px;margin-bottom:20px;scrollbar-width:none;padding-bottom:4px">
-        ${[
-          {v:'prescription',l:'Receta',i:'📋'},
-          {v:'xray',l:'Radiografía',i:'🩻'},
-          {v:'lab_result',l:'Laboratorio',i:'🧪'},
-          {v:'ecg',l:'ECG',i:'💓'},
-          {v:'ultrasound',l:'Ultrasonido',i:'📡'},
-          {v:'other',l:'Otro',i:'🔍'},
-        ].map(t => `
-          <div onclick="selectScanType('${t.v}',this)" class="scan-type-btn ${t.v==='other'?'active':''}" data-value="${t.v}" style="padding:10px 14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:12px;text-align:center;cursor:pointer;flex-shrink:0;transition:all 0.2s">
-            <div style="font-size:22px">${t.i}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${t.l}</div>
-          </div>
-        `).join('')}
-      </div>
+      <div id="scan-types-container" style="display:flex;overflow-x:auto;gap:8px;margin-bottom:20px;scrollbar-width:none;padding-bottom:4px"></div>
 
       <!-- Upload área -->
       <div id="scan-upload-area" onclick="triggerScanUpload()" style="width:100%;min-height:180px;background:var(--bg-surface);border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;overflow:hidden">
@@ -1695,6 +1681,7 @@ window.addEventListener('load', async () => {
   initSilverman();
   initECOE();
   renderCustomCases();
+  initMedScan();
   setTimeout(async () => {
     if (token) {
       await loadProfile();
@@ -2383,6 +2370,26 @@ function endECOE() {
 // ── MedScan ───────────────────────────────────────────────────
 let selectedScanType = 'other';
 let selectedScanFile = null;
+
+const scanTypes = [
+  {v:'prescription',l:'Receta',i:'📋'},
+  {v:'xray',l:'Radiografía',i:'🩻'},
+  {v:'lab_result',l:'Laboratorio',i:'🧪'},
+  {v:'ecg',l:'ECG',i:'💓'},
+  {v:'ultrasound',l:'Ultrasonido',i:'📡'},
+  {v:'other',l:'Otro',i:'🔍'},
+];
+
+function initMedScan() {
+  const container = document.getElementById('scan-types-container');
+  container.innerHTML = scanTypes.map(t => `
+    <div onclick="selectScanType('${t.v}',this)" class="scan-type-btn" data-value="${t.v}" 
+      style="padding:10px 14px;background:${t.v==='other'?'rgba(139,92,246,0.15)':'var(--bg-surface)'};border:1.5px solid ${t.v==='other'?'var(--purple)':'var(--border)'};border-radius:12px;text-align:center;cursor:pointer;flex-shrink:0;transition:all 0.2s">
+      <div style="font-size:22px">${t.i}</div>
+      <div style="font-size:11px;color:${t.v==='other'?'var(--text-primary)':'var(--text-muted)'};margin-top:4px">${t.l}</div>
+    </div>
+  `).join('');
+}
 
 function selectScanType(type, el) {
   selectedScanType = type;
