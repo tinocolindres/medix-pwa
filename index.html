@@ -1006,7 +1006,7 @@
           <div class="module-title">Modo Guardia</div>
           <div class="module-sub">Calculadoras offline</div>
         </div>
-        <div class="module-card" onclick="showToast('ECOE disponible en la app Android')">
+        <div class="module-card" onclick="switchTab('ecoe')">
           <div class="module-icon" style="background:rgba(245,158,11,0.15)">🎭</div>
           <div class="module-title">Simulador ECOE</div>
           <div class="module-sub">Pacientes virtuales</div>
@@ -1287,6 +1287,65 @@
     </div>
   </div>
 
+  <!-- ── ECOE Tab ── -->
+  <div class="tab-content" id="tab-ecoe">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(245,158,11,0.15)">🎭</div>
+      <div>
+        <div class="appbar-title">Simulador ECOE</div>
+        <div class="appbar-sub" id="ecoe-status" style="color:var(--text-secondary)">Selecciona un caso</div>
+      </div>
+      <div class="appbar-actions">
+        <button id="ecoe-end-btn" style="display:none;background:none;border:none;color:var(--danger);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer" onclick="endECOE()">⏹ Finalizar</button>
+      </div>
+    </div>
+
+    <!-- Selector de casos -->
+    <div id="ecoe-selector">
+      <div style="padding:16px">
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:16px;margin-bottom:20px">
+          <div style="font-weight:700;font-size:14px;margin-bottom:8px">🎭 ¿Cómo funciona?</div>
+          <div style="color:var(--text-secondary);font-size:13px;line-height:1.6">
+            1. Selecciona un caso clínico<br>
+            2. El paciente virtual te recibirá<br>
+            3. Interroga como en un ECOE/OSCE real<br>
+            4. Llega al diagnóstico para completar el caso
+          </div>
+        </div>
+
+        <div style="font-size:16px;font-weight:600;margin-bottom:14px">Casos disponibles</div>
+
+        <div id="ecoe-cases-list"></div>
+      </div>
+    </div>
+
+    <!-- Simulador activo -->
+    <div id="ecoe-simulator" style="display:none;flex-direction:column;height:calc(100vh - 130px)">
+      <div style="background:rgba(245,158,11,0.1);padding:10px 16px;display:flex;align-items:center;gap:8px">
+        <span style="color:var(--warning);font-size:12px">🤒 Paciente virtual activo —</span>
+        <span id="ecoe-case-title" style="color:var(--warning);font-size:12px;font-weight:600"></span>
+      </div>
+
+      <div id="ecoe-messages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px"></div>
+
+      <!-- Sugerencias rápidas -->
+      <div style="display:flex;overflow-x:auto;padding:8px 16px;gap:8px;scrollbar-width:none">
+        <div onclick="ecoeQuick('¿Dónde le duele?')" style="padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0">¿Dónde le duele?</div>
+        <div onclick="ecoeQuick('¿Desde cuándo?')" style="padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0">¿Desde cuándo?</div>
+        <div onclick="ecoeQuick('¿Tiene fiebre?')" style="padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0">¿Tiene fiebre?</div>
+        <div onclick="ecoeQuick('¿Signos vitales?')" style="padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0">¿Signos vitales?</div>
+        <div onclick="ecoeQuick('Examen físico')" style="padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;color:var(--text-secondary);font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0">Examen físico</div>
+      </div>
+
+      <div style="padding:8px 16px 16px;padding-bottom:max(16px,env(safe-area-inset-bottom));background:var(--bg-surface);border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end">
+        <textarea id="ecoe-input" style="flex:1;background:var(--bg-elevated);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;resize:none;max-height:120px;line-height:1.4" placeholder="Pregunta al paciente..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendECOE()}"
+          oninput="autoResize(this)"></textarea>
+        <button id="ecoe-send-btn" onclick="sendECOE()" style="width:46px;height:46px;background:var(--warning);border:none;border-radius:12px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">➤</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Modal Universidad ── -->
   <div class="modal-overlay" id="modalUniversidad" onclick="closeModalOutside(event,'modalUniversidad')">
     <div class="modal-box">
@@ -1430,6 +1489,10 @@
       <span class="nav-icon">🚨</span>
       <span>Guardia</span>
     </button>
+    <button class="nav-item" onclick="switchTab('ecoe')" id="nav-ecoe">
+      <span class="nav-icon">🎭</span>
+      <span>ECOE</span>
+    </button>
     <button class="nav-item" onclick="switchTab('sesal')" id="nav-sesal">
       <span class="nav-icon">📋</span>
       <span>SESAL</span>
@@ -1510,6 +1573,7 @@ window.addEventListener('load', async () => {
   dashboard.classList.add('active');
   initAPGAR();
   initSilverman();
+  initECOE();
   setTimeout(async () => {
     if (token) {
       await loadProfile();
@@ -2076,6 +2140,123 @@ async function changePassword() {
   } finally {
     btn.disabled = false; btn.textContent = 'Cambiar contraseña';
   }
+}
+
+// ── ECOE ───────────────────────────────────────────────────────
+const ecoeCases = [
+  { id: 'ecoe_001', title: 'Dolor Abdominal Agudo', hint: 'Dolor FID, posible apendicitis', icon: '🏥', color: 'var(--danger)', specialty: 'Cirugía' },
+  { id: 'ecoe_002', title: 'Fiebre + Rash', hint: 'Fiebre y erupción, posible dengue', icon: '🦟', color: 'var(--warning)', specialty: 'Infectología' },
+  { id: 'ecoe_003', title: 'Dolor Torácico', hint: 'Dolor opresivo, posible IAM', icon: '❤️', color: 'var(--danger)', specialty: 'Cardiología' },
+  { id: 'ecoe_004', title: 'Preeclampsia', hint: 'Embarazada 32 sem, HTA + edema', icon: '🤰', color: 'var(--purple)', specialty: 'Ginecología' },
+  { id: 'ecoe_005', title: 'Dengue Hemorrágico', hint: 'Fiebre alta + signos de alarma', icon: '🩸', color: 'var(--danger)', specialty: 'Medicina Interna' },
+  { id: 'ecoe_006', title: 'Crisis Asmática', hint: 'Disnea severa, sibilancias', icon: '🫁', color: 'var(--cyan)', specialty: 'Neumología' },
+];
+
+let ecoeSessionId = null;
+let ecoeActive = false;
+
+function initECOE() {
+  const list = document.getElementById('ecoe-cases-list');
+  list.innerHTML = ecoeCases.map(c => `
+    <div onclick="startECOE('${c.id}','${c.title}')" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;cursor:pointer">
+      <div style="width:50px;height:50px;background:${c.color}22;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">${c.icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:15px">${c.title}</div>
+        <div style="color:var(--text-secondary);font-size:12px;margin-top:2px">${c.hint}</div>
+        <div style="display:inline-block;margin-top:4px;padding:2px 8px;background:${c.color}22;border-radius:8px;color:${c.color};font-size:10px;font-weight:600">${c.specialty}</div>
+      </div>
+      <span style="color:${c.color};font-size:28px">▶</span>
+    </div>
+  `).join('');
+}
+
+async function startECOE(caseId, caseTitle) {
+  document.getElementById('ecoe-selector').style.display = 'none';
+  document.getElementById('ecoe-simulator').style.display = 'flex';
+  document.getElementById('ecoe-case-title').textContent = caseTitle;
+  document.getElementById('ecoe-status').textContent = caseTitle;
+  document.getElementById('ecoe-end-btn').style.display = 'block';
+  document.getElementById('ecoe-messages').innerHTML = '';
+  ecoeSessionId = null;
+  ecoeActive = true;
+
+  // Mostrar typing
+  appendECOEMsg('🤒', 'Iniciando simulación...', 'patient', true);
+
+  try {
+    const res = await fetch(`${API}/analysis/ecoe/start`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ case_id: caseId })
+    });
+    const data = await res.json();
+    document.getElementById('ecoe-messages').innerHTML = '';
+    appendECOEMsg('🤒', data.patient_opening || 'Hola doctor, ¿me puede atender?', 'patient');
+  } catch(e) {
+    document.getElementById('ecoe-messages').innerHTML = '';
+    appendECOEMsg('⚠️', 'Error al iniciar el caso. Verifica tu conexión.', 'error');
+  }
+}
+
+async function sendECOE() {
+  const input = document.getElementById('ecoe-input');
+  const text = input.value.trim();
+  if (!text || !ecoeActive) return;
+  input.value = ''; autoResize(input);
+  appendECOEMsg('👨‍⚕️', text, 'doctor');
+  document.getElementById('ecoe-send-btn').disabled = true;
+  appendECOEMsg('🤒', 'Pensando...', 'patient', true);
+
+  try {
+    const res = await fetch(`${API}/analysis/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ message: text, session_id: ecoeSessionId, mode: 'ecoe_simulator' })
+    });
+    const data = await res.json();
+    ecoeSessionId = data.session_id;
+    removeECOETyping();
+    appendECOEMsg('🤒', data.response, 'patient');
+  } catch(e) {
+    removeECOETyping();
+    appendECOEMsg('⚠️', 'Error de conexión.', 'error');
+  } finally {
+    document.getElementById('ecoe-send-btn').disabled = false;
+  }
+}
+
+function ecoeQuick(text) {
+  document.getElementById('ecoe-input').value = text;
+  sendECOE();
+}
+
+function appendECOEMsg(avatar, text, role, isTyping = false) {
+  const container = document.getElementById('ecoe-messages');
+  const div = document.createElement('div');
+  div.style.cssText = `display:flex;gap:8px;align-items:flex-start;${role==='doctor'?'flex-direction:row-reverse':''};margin-bottom:4px`;
+  if (isTyping) div.id = 'ecoe-typing';
+  div.innerHTML = `
+    <div style="width:36px;height:36px;border-radius:50%;background:${role==='doctor'?'var(--blue)':'var(--bg-surface)'};border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${avatar}</div>
+    <div style="max-width:75%;padding:10px 14px;border-radius:16px;${role==='doctor'?'background:var(--blue);color:white;border-bottom-right-radius:4px':'background:var(--bg-surface);border:1px solid var(--border);border-bottom-left-radius:4px'};font-size:14px;line-height:1.5">
+      ${role!=='doctor'?'<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Paciente</div>':''}
+      ${text}
+    </div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeECOETyping() {
+  const t = document.getElementById('ecoe-typing');
+  if (t) t.remove();
+}
+
+function endECOE() {
+  ecoeActive = false;
+  ecoeSessionId = null;
+  document.getElementById('ecoe-simulator').style.display = 'none';
+  document.getElementById('ecoe-selector').style.display = 'block';
+  document.getElementById('ecoe-status').textContent = 'Selecciona un caso';
+  document.getElementById('ecoe-end-btn').style.display = 'none';
 }
 
 // ── Soporte ────────────────────────────────────────────────────
