@@ -991,7 +991,7 @@
           <div class="module-title">Chat IA Médico</div>
           <div class="module-sub">Consultas contextualizadas</div>
         </div>
-        <div class="module-card" onclick="showToast('MedScan disponible en la app Android')">
+        <div class="module-card" onclick="switchTab('medscan')">
           <div class="module-icon" style="background:rgba(139,92,246,0.15)">🔬</div>
           <div class="module-title">MedScan</div>
           <div class="module-sub">Análisis de imágenes</div>
@@ -1355,6 +1355,77 @@
           oninput="autoResize(this)"></textarea>
         <button id="ecoe-send-btn" onclick="sendECOE()" style="width:46px;height:46px;background:var(--warning);border:none;border-radius:12px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">➤</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ── MedScan Tab ── -->
+  <div class="tab-content" id="tab-medscan">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(139,92,246,0.15)">🔬</div>
+      <div>
+        <div class="appbar-title">MedScan Vision</div>
+      </div>
+    </div>
+    <div style="padding:20px;overflow-y:auto;height:calc(100vh - 130px)">
+
+      <!-- Tipo de imagen -->
+      <div style="font-weight:600;margin-bottom:10px">Tipo de imagen</div>
+      <div style="display:flex;overflow-x:auto;gap:8px;margin-bottom:20px;scrollbar-width:none;padding-bottom:4px">
+        ${[
+          {v:'prescription',l:'Receta',i:'📋'},
+          {v:'xray',l:'Radiografía',i:'🩻'},
+          {v:'lab_result',l:'Laboratorio',i:'🧪'},
+          {v:'ecg',l:'ECG',i:'💓'},
+          {v:'ultrasound',l:'Ultrasonido',i:'📡'},
+          {v:'other',l:'Otro',i:'🔍'},
+        ].map(t => `
+          <div onclick="selectScanType('${t.v}',this)" class="scan-type-btn ${t.v==='other'?'active':''}" data-value="${t.v}" style="padding:10px 14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:12px;text-align:center;cursor:pointer;flex-shrink:0;transition:all 0.2s">
+            <div style="font-size:22px">${t.i}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${t.l}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <!-- Upload área -->
+      <div id="scan-upload-area" onclick="triggerScanUpload()" style="width:100%;min-height:180px;background:var(--bg-surface);border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;overflow:hidden">
+        <div id="scan-placeholder" style="text-align:center;padding:24px">
+          <div style="font-size:48px;margin-bottom:12px">📷</div>
+          <div style="color:var(--text-secondary);margin-bottom:4px">Toca para cargar imagen médica</div>
+          <div style="color:var(--text-muted);font-size:12px">JPG, PNG — Máx 10MB</div>
+        </div>
+        <img id="scan-preview" style="display:none;width:100%;border-radius:14px;object-fit:contain">
+      </div>
+      <input type="file" id="scan-file-input" accept="image/*" capture="environment" style="display:none" onchange="onScanFileSelected(this)">
+
+      <!-- Botón analizar -->
+      <button id="scan-analyze-btn" onclick="analyzeScan()" disabled style="width:100%;padding:15px;background:var(--purple);border:none;border-radius:var(--radius-sm);color:white;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;opacity:0.5">
+        ✨ Analizar con Claude Vision
+      </button>
+
+      <!-- Resultado -->
+      <div id="scan-result" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:16px;font-weight:600">Resultado del análisis</div>
+          <div id="scan-urgency-badge"></div>
+        </div>
+        <div id="scan-summary-box" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px">📋 Resumen</div>
+          <div id="scan-summary" style="color:var(--text-secondary);font-size:13px;line-height:1.6"></div>
+        </div>
+        <div id="scan-findings-box" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px">🔍 Hallazgos</div>
+          <div id="scan-findings" style="color:var(--text-secondary);font-size:13px;line-height:1.6"></div>
+        </div>
+        <div id="scan-recs-box" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-weight:600;font-size:13px;margin-bottom:8px">💊 Recomendaciones</div>
+          <div id="scan-recs" style="color:var(--text-secondary);font-size:13px;line-height:1.6"></div>
+        </div>
+        <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;font-size:11px;color:var(--warning);margin-bottom:16px">
+          ⚠️ Este análisis es orientativo. El diagnóstico final requiere evaluación clínica por un médico.
+        </div>
+        <button onclick="resetScan()" style="background:none;border:none;color:var(--blue);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">🔄 Nuevo análisis</button>
+      </div>
+
     </div>
   </div>
 
@@ -2307,6 +2378,99 @@ function endECOE() {
   document.getElementById('ecoe-selector').style.display = 'block';
   document.getElementById('ecoe-status').textContent = 'Selecciona un caso';
   document.getElementById('ecoe-end-btn').style.display = 'none';
+}
+
+// ── MedScan ───────────────────────────────────────────────────
+let selectedScanType = 'other';
+let selectedScanFile = null;
+
+function selectScanType(type, el) {
+  selectedScanType = type;
+  document.querySelectorAll('.scan-type-btn').forEach(b => {
+    b.style.borderColor = 'var(--border)';
+    b.style.background = 'var(--bg-surface)';
+    b.querySelector('div:last-child').style.color = 'var(--text-muted)';
+  });
+  el.style.borderColor = 'var(--purple)';
+  el.style.background = 'rgba(139,92,246,0.15)';
+  el.querySelector('div:last-child').style.color = 'var(--text-primary)';
+}
+
+function triggerScanUpload() {
+  document.getElementById('scan-file-input').click();
+}
+
+function onScanFileSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedScanFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('scan-placeholder').style.display = 'none';
+    const preview = document.getElementById('scan-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    document.getElementById('scan-upload-area').style.border = '2px solid var(--purple)';
+    const btn = document.getElementById('scan-analyze-btn');
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  };
+  reader.readAsDataURL(file);
+  document.getElementById('scan-result').style.display = 'none';
+}
+
+async function analyzeScan() {
+  if (!selectedScanFile) return;
+  const btn = document.getElementById('scan-analyze-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:20px;height:20px;margin:0 auto"></div> Analizando con IA...';
+
+  try {
+    const formData = new FormData();
+    formData.append('file', selectedScanFile);
+    formData.append('scan_type', selectedScanType);
+
+    const res = await fetch(`${API}/upload/scan`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error en análisis');
+
+    document.getElementById('scan-summary').textContent = data.summary || '';
+    document.getElementById('scan-findings').textContent = data.findings || '';
+    document.getElementById('scan-recs').textContent = data.recommendations || '';
+
+    const urgency = data.urgency_level || 'low';
+    const urgencyColors = { low: 'var(--success)', medium: 'var(--warning)', high: 'var(--danger)', critical: 'var(--danger)' };
+    const urgencyLabels = { low: '🟢 Baja', medium: '🟡 Media', high: '🔴 Alta', critical: '🚨 Crítica' };
+    const badge = document.getElementById('scan-urgency-badge');
+    badge.textContent = urgencyLabels[urgency] || '🟢 Baja';
+    badge.style.cssText = `padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;background:${urgencyColors[urgency]}22;color:${urgencyColors[urgency]}`;
+
+    document.getElementById('scan-result').style.display = 'block';
+  } catch(e) {
+    showToast(`Error: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Analizar con Claude Vision';
+    btn.style.opacity = '1';
+  }
+}
+
+function resetScan() {
+  selectedScanFile = null;
+  document.getElementById('scan-placeholder').style.display = 'block';
+  document.getElementById('scan-preview').style.display = 'none';
+  document.getElementById('scan-preview').src = '';
+  document.getElementById('scan-upload-area').style.border = '2px dashed var(--border)';
+  document.getElementById('scan-result').style.display = 'none';
+  document.getElementById('scan-file-input').value = '';
+  const btn = document.getElementById('scan-analyze-btn');
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.innerHTML = '✨ Analizar con Claude Vision';
 }
 
 // ── Mis Casos ECOE ────────────────────────────────────────────
