@@ -761,6 +761,67 @@
 
     .slide-up { animation: slideUp 0.3s ease; }
 
+    /* ── Modals ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 500;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-surface);
+      border-radius: 20px 20px 0 0;
+      width: 100%; max-width: 430px;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+    .modal-header {
+      display: flex; align-items: center;
+      padding: 20px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title { font-size: 16px; font-weight: 700; flex: 1; }
+    .modal-close {
+      background: none; border: none;
+      color: var(--text-muted); font-size: 24px;
+      cursor: pointer; line-height: 1;
+    }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 0 20px 30px; }
+
+    /* ── Toggle Switch ── */
+    .toggle { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--text-muted);
+      border-radius: 26px;
+      cursor: pointer; transition: 0.3s;
+    }
+    .toggle-slider:before {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+      left: 3px; bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--blue); }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+    .notif-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .notif-row:last-child { border-bottom: none; }
+
     /* ── Toast ── */
     .toast {
       position: fixed;
@@ -1199,22 +1260,22 @@
       </div>
 
       <div class="section-title">Configuración</div>
-      <div class="setting-tile" onclick="showToast('Próximamente')">
+      <div class="setting-tile" onclick="openModal('modalUniversidad')">
         <span class="setting-icon">🎓</span>
         <span class="setting-label">Universidad y período</span>
         <span class="setting-arrow">›</span>
       </div>
-      <div class="setting-tile" onclick="showToast('Próximamente')">
+      <div class="setting-tile" onclick="openModal('modalNotificaciones')">
         <span class="setting-icon">🔔</span>
         <span class="setting-label">Notificaciones</span>
         <span class="setting-arrow">›</span>
       </div>
-      <div class="setting-tile" onclick="showToast('Próximamente')">
+      <div class="setting-tile" onclick="openModal('modalPassword')">
         <span class="setting-icon">🔒</span>
         <span class="setting-label">Cambiar contraseña</span>
         <span class="setting-arrow">›</span>
       </div>
-      <div class="setting-tile" onclick="showToast('soporte@medix.hn')">
+      <div class="setting-tile" onclick="openSoporte()">
         <span class="setting-icon">💬</span>
         <span class="setting-label">Soporte</span>
         <span class="setting-arrow">›</span>
@@ -1223,6 +1284,135 @@
       <button class="btn btn-danger" style="margin-top:20px" onclick="doLogout()">
         Cerrar sesión
       </button>
+    </div>
+  </div>
+
+  <!-- ── Modal Universidad ── -->
+  <div class="modal-overlay" id="modalUniversidad" onclick="closeModalOutside(event,'modalUniversidad')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">🎓 Universidad y Período</div>
+        <button class="modal-close" onclick="closeModal('modalUniversidad')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Universidad</label>
+          <select class="form-input" id="uni-select" onchange="updatePeriodos()">
+            <option value="">Selecciona tu universidad</option>
+            <option value="unah">UNAH — Universidad Nacional Autónoma de Honduras</option>
+            <option value="unah-vs">UNAH-VS — Valle de Sula (San Pedro Sula)</option>
+            <option value="unicah">UNICAH — Universidad Católica de Honduras</option>
+          </select>
+        </div>
+        <div class="form-group" id="ano-group" style="display:none">
+          <label class="form-label">Año de carrera</label>
+          <select class="form-input" id="ano-select" onchange="updatePeriodos()">
+            <option value="">Selecciona el año</option>
+            <option value="1">1er Año</option>
+            <option value="2">2do Año</option>
+            <option value="3">3er Año</option>
+            <option value="4">4to Año</option>
+            <option value="5">5to Año</option>
+            <option value="6">6to Año</option>
+            <option value="7">7mo Año — Internado Rotatorio</option>
+            <option value="8">8vo Año — Servicio Social</option>
+          </select>
+        </div>
+        <div class="form-group" id="periodo-group" style="display:none">
+          <label class="form-label">Período actual</label>
+          <select class="form-input" id="periodo-select"></select>
+        </div>
+        <div id="materias-preview" style="display:none">
+          <div class="form-label" style="margin-bottom:8px">Materias de este período</div>
+          <div id="materias-list" style="background:var(--bg-elevated);border-radius:10px;padding:12px;font-size:13px;color:var(--text-secondary);line-height:2"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveUniversidad()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Notificaciones ── -->
+  <div class="modal-overlay" id="modalNotificaciones" onclick="closeModalOutside(event,'modalNotificaciones')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">🔔 Notificaciones</div>
+        <button class="modal-close" onclick="closeModal('modalNotificaciones')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="notif-row">
+          <div>
+            <div style="font-weight:600;font-size:14px">Actualizaciones de la app</div>
+            <div style="font-size:12px;color:var(--text-muted)">Nuevas funciones y mejoras</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="notif-updates" checked onchange="saveNotif()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="notif-row">
+          <div>
+            <div style="font-weight:600;font-size:14px">Recordatorios de guardia</div>
+            <div style="font-size:12px;color:var(--text-muted)">Alertas antes de tu turno</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="notif-guardia" onchange="saveNotif()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="notif-row">
+          <div>
+            <div style="font-weight:600;font-size:14px">Normas SESAL actualizadas</div>
+            <div style="font-size:12px;color:var(--text-muted)">Cuando se publiquen nuevas guías</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="notif-sesal" checked onchange="saveNotif()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="notif-row">
+          <div>
+            <div style="font-weight:600;font-size:14px">Tips clínicos diarios</div>
+            <div style="font-size:12px;color:var(--text-muted)">Un dato médico cada mañana</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="notif-tips" onchange="saveNotif()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="closeModal('modalNotificaciones')">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Cambiar Contraseña ── -->
+  <div class="modal-overlay" id="modalPassword" onclick="closeModalOutside(event,'modalPassword')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">🔒 Cambiar Contraseña</div>
+        <button class="modal-close" onclick="closeModal('modalPassword')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="error-box" id="passError"></div>
+        <div class="form-group">
+          <label class="form-label">Contraseña actual</label>
+          <input type="password" class="form-input" id="passActual" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nueva contraseña</label>
+          <input type="password" class="form-input" id="passNueva" placeholder="Mínimo 8 caracteres">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmar nueva contraseña</label>
+          <input type="password" class="form-input" id="passConfirm" placeholder="Repite la nueva contraseña">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="passBtn" onclick="changePassword()">Cambiar contraseña</button>
+      </div>
     </div>
   </div>
 
@@ -1705,6 +1895,173 @@ function sesalQuick(el) {
 function resetSESAL() {
   document.getElementById('sesalResult').style.display = 'none';
   document.getElementById('sesalInput').value = '';
+}
+
+// ── Modals ────────────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'modalUniversidad') loadSavedUniversidad();
+  if (id === 'modalNotificaciones') loadSavedNotif();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function closeModalOutside(e, id) {
+  if (e.target.classList.contains('modal-overlay')) closeModal(id);
+}
+
+// ── Universidad ────────────────────────────────────────────────
+const pensum = {
+  unah: {
+    periodos: {
+      1: { label: 'Año 1 — Período 1', materias: ['Física Médica','Química Médica','Matemáticas','Inglés I','Filosofía','Español General'] },
+      2: { label: 'Año 1 — Período 2', materias: ['Biología Médica','Química Médica II','Ética','Inglés II','Sociología','Historia de Honduras'] },
+      3: { label: 'Año 2 — Período 3', materias: ['Bio Física','Arte o Deporte','Bioestadística','Inglés III','Educación Ambiental','Introducción a la Salud Pública'] },
+      4: { label: 'Año 3 — Período 4', materias: ['Anatomía Macroscópica','Embriología','Neuroanatomía','Anatomía Microscópica'] },
+      5: { label: 'Año 3 — Período 5', materias: ['Fisiología','Bioquímica','Psicología Médica','Salud Pública I'] },
+      6: { label: 'Año 3 — Período 6', materias: ['Microbiología','Genética','Servicio Social Formativo','Salud Pública II'] },
+      7: { label: 'Año 4 — Período 7', materias: ['Patología I','Farmacología I','Fisiopatología I','Introducción a la Clínica I'] },
+      8: { label: 'Año 4 — Período 8', materias: ['Patología II','Farmacología II','Fisiopatología II','Introducción a la Clínica II','Psicopatología'] },
+      9: { label: 'Año 5 — Período 9-10', materias: ['Cirugía I','Medicina I','Radiología','Técnicas y Proc. Med.','Gineco Obstetricia I','Pediatría','Epidemiología','Psiquiatría','Salud Pública III'] },
+      10: { label: 'Año 6 — Período 11-12', materias: ['Clínica Cirugía II','Urología','Clínica Médica II','Clínica Gineco Obstetricia II','Clínica Pediatría','Oftalmología','Medicina Legal','Radiología II','Neurología','Ortopedia','Dermatología','Salud Pública IV','Otorrinolaringología'] },
+      11: { label: 'Año 7 — Internado Rotatorio', materias: ['Terapéutica Clínica','Internado Cirugía','Internado Gineco-Obstetricia','Internado Medicina','Internado Pediatría'] },
+      12: { label: 'Año 8 — Servicio Social', materias: ['Servicio Social Obligatorio'] },
+    }
+  },
+  unicah: {
+    periodos: {
+      1: { label: 'Período I', materias: ['Español','Matemáticas','Biología','Química I','Filosofía'] },
+      2: { label: 'Período II', materias: ['Expresión Oral y Escrita','Física Médica','Historia de Honduras','Química Orgánica','El Hombre Frente a la Vida'] },
+      3: { label: 'Período III', materias: ['Ética Médica','Bioestadística','Historia de la Medicina','Bioquímica','Sociología'] },
+      4: { label: 'Período IV', materias: ['Métodos y Técnicas de Investigación','Electiva I','Embriología','Genética','Psicología Médica'] },
+      5: { label: 'Período V', materias: ['Gestión de la Calidad Total','Histología','Anatomía I','Neuroanatomía I','Electiva II'] },
+      6: { label: 'Período VI', materias: ['Control Estadístico de la Calidad','Anatomía II','Inmunología','Neuroanatomía II','Introducción a la Salud Pública'] },
+      7: { label: 'Período VII', materias: ['Planeación y Diseño de un Modelo de Calidad','Fisiología I','Microbiología','Parasitología Médica','Epidemiología'] },
+      8: { label: 'Período VIII', materias: ['Medicina Basada en Evidencia','Fisiología II','Electiva III','Doctrina Social de la Iglesia','Psicopatología'] },
+      9: { label: 'Período IX', materias: ['Fisiopatología I','Farmacología I','Patología General','Bioética','Prevención en Salud'] },
+      10: { label: 'Período X', materias: ['Fisiopatología II','Farmacología II','Patología Sistémica','Administración de Servicios de Salud'] },
+      11: { label: 'Período XI', materias: ['Radiología e Imagenología','Semiología I','Patología Clínica','Medicina Legal y Patología Forense'] },
+      12: { label: 'Período XII', materias: ['Terapéutica Farmacológica','Semiología II','Rehabilitación Física','Psiquiatría'] },
+      13: { label: 'Período XIII', materias: ['Terapéutica Alternativa','Ginecología y Obstetricia I','Medicina Pediátrica I','Medicina del Adulto I'] },
+      14: { label: 'Período XIV', materias: ['Cirugía I','Ginecología y Obstetricia II','Medicina del Adulto II'] },
+      15: { label: 'Período XV', materias: ['Cirugía II','Ginecología y Obstetricia III','Medicina Pediátrica II'] },
+      16: { label: 'Período XVI', materias: ['Cirugía III','Medicina Pediátrica III','Medicina del Adulto III','Servicio Comunitario'] },
+      17: { label: 'Período XVII', materias: ['Otorrinolaringología','Ortopedia y Traumatología','Urología','Oftalmología'] },
+      18: { label: 'Período XVIII', materias: ['Geriatría','Medicina Fetal','Neonatología','Dermatología','Neurología'] },
+      19: { label: 'Año 7 — Internado', materias: ['Internado de Cirugía','Internado de Gineco-Obstetricia','Internado de Pediatría','Internado de Medicina Interna'] },
+      20: { label: 'Año 8 — Servicio Social', materias: ['Servicio Social'] },
+    }
+  }
+};
+
+pensum['unah-vs'] = pensum.unah; // Mismo pensum que UNAH
+
+function updatePeriodos() {
+  const uni = document.getElementById('uni-select').value;
+  const anoGroup = document.getElementById('ano-group');
+  const periodoGroup = document.getElementById('periodo-group');
+  const periodoSel = document.getElementById('periodo-select');
+  const materiasPreview = document.getElementById('materias-preview');
+
+  if (!uni) { anoGroup.style.display='none'; periodoGroup.style.display='none'; materiasPreview.style.display='none'; return; }
+  anoGroup.style.display = 'block';
+
+  const data = pensum[uni];
+  periodoSel.innerHTML = '<option value="">Selecciona el período</option>';
+  Object.entries(data.periodos).forEach(([k,v]) => {
+    periodoSel.innerHTML += `<option value="${k}">${v.label}</option>`;
+  });
+  periodoGroup.style.display = 'block';
+  periodoSel.onchange = () => showMaterias(uni, periodoSel.value);
+}
+
+function showMaterias(uni, periodo) {
+  if (!periodo) { document.getElementById('materias-preview').style.display='none'; return; }
+  const data = pensum[uni].periodos[periodo];
+  document.getElementById('materias-list').innerHTML = data.materias.map(m => `📚 ${m}`).join('<br>');
+  document.getElementById('materias-preview').style.display = 'block';
+}
+
+function loadSavedUniversidad() {
+  const saved = JSON.parse(localStorage.getItem('medix_universidad') || '{}');
+  if (saved.uni) {
+    document.getElementById('uni-select').value = saved.uni;
+    updatePeriodos();
+    if (saved.periodo) {
+      document.getElementById('periodo-select').value = saved.periodo;
+      showMaterias(saved.uni, saved.periodo);
+    }
+  }
+}
+
+function saveUniversidad() {
+  const uni = document.getElementById('uni-select').value;
+  const periodo = document.getElementById('periodo-select').value;
+  if (!uni || !periodo) { showToast('Selecciona universidad y período'); return; }
+  localStorage.setItem('medix_universidad', JSON.stringify({ uni, periodo }));
+  const uniNames = { unah:'UNAH', 'unah-vs':'UNAH-VS', unicah:'UNICAH' };
+  showToast(`✅ ${uniNames[uni]} — ${pensum[uni].periodos[periodo].label} guardado`);
+  closeModal('modalUniversidad');
+}
+
+// ── Notificaciones ─────────────────────────────────────────────
+function loadSavedNotif() {
+  const saved = JSON.parse(localStorage.getItem('medix_notif') || '{"updates":true,"sesal":true}');
+  document.getElementById('notif-updates').checked = saved.updates ?? true;
+  document.getElementById('notif-guardia').checked = saved.guardia ?? false;
+  document.getElementById('notif-sesal').checked = saved.sesal ?? true;
+  document.getElementById('notif-tips').checked = saved.tips ?? false;
+}
+
+function saveNotif() {
+  const notif = {
+    updates: document.getElementById('notif-updates').checked,
+    guardia: document.getElementById('notif-guardia').checked,
+    sesal: document.getElementById('notif-sesal').checked,
+    tips: document.getElementById('notif-tips').checked,
+  };
+  localStorage.setItem('medix_notif', JSON.stringify(notif));
+}
+
+// ── Cambiar Contraseña ─────────────────────────────────────────
+async function changePassword() {
+  const actual = document.getElementById('passActual').value;
+  const nueva = document.getElementById('passNueva').value;
+  const confirm = document.getElementById('passConfirm').value;
+  const btn = document.getElementById('passBtn');
+  const err = document.getElementById('passError');
+  err.style.display = 'none';
+
+  if (!actual || !nueva || !confirm) { showError('passError','Completa todos los campos'); return; }
+  if (nueva.length < 8) { showError('passError','La nueva contraseña debe tener mínimo 8 caracteres'); return; }
+  if (nueva !== confirm) { showError('passError','Las contraseñas no coinciden'); return; }
+
+  btn.disabled = true; btn.textContent = 'Cambiando...';
+  try {
+    const res = await fetch(`${API}/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ current_password: actual, new_password: nueva })
+    });
+    if (!res.ok) throw new Error('Contraseña actual incorrecta');
+    showToast('✅ Contraseña cambiada exitosamente');
+    closeModal('modalPassword');
+    document.getElementById('passActual').value = '';
+    document.getElementById('passNueva').value = '';
+    document.getElementById('passConfirm').value = '';
+  } catch(e) {
+    showError('passError', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Cambiar contraseña';
+  }
+}
+
+// ── Soporte ────────────────────────────────────────────────────
+function openSoporte() {
+  const msg = encodeURIComponent('Hola Medix AI! Necesito soporte con la app. 🏥');
+  window.open(`https://wa.me/50499913123?text=${msg}`, '_blank');
 }
 
 // ── Toast ──────────────────────────────────────────────────────
