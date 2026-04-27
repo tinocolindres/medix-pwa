@@ -1316,6 +1316,18 @@
         <div style="font-size:16px;font-weight:600;margin-bottom:14px">Casos disponibles</div>
 
         <div id="ecoe-cases-list"></div>
+
+        <!-- Mis Casos -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;margin-bottom:14px">
+          <div style="font-size:16px;font-weight:600">✍️ Mis Casos</div>
+          <button onclick="openModal('modalNuevoCaso')" style="background:var(--blue);border:none;border-radius:8px;color:white;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">+ Crear caso</button>
+        </div>
+
+        <div id="ecoe-custom-list">
+          <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">
+            No tienes casos personalizados aún.<br>Toca "Crear caso" para comenzar.
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1342,6 +1354,43 @@
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendECOE()}"
           oninput="autoResize(this)"></textarea>
         <button id="ecoe-send-btn" onclick="sendECOE()" style="width:46px;height:46px;background:var(--warning);border:none;border-radius:12px;color:white;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal Nuevo Caso ECOE ── -->
+  <div class="modal-overlay" id="modalNuevoCaso" onclick="closeModalOutside(event,'modalNuevoCaso')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">✍️ Crear caso clínico</div>
+        <button class="modal-close" onclick="closeModal('modalNuevoCaso')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px">
+          ${['🏥','❤️','🫁','🤰','🧠','🦴','👁️','🦷','🩺','💊'].map(ico => `
+            <div onclick="selectCaseIcon('${ico}',this)" style="width:44px;height:44px;border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;flex-shrink:0">${ico}</div>
+          `).join('')}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Título del caso *</label>
+          <input type="text" class="form-input" id="caso-titulo" placeholder="Ej: Insuficiencia cardíaca aguda">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción del paciente *</label>
+          <input type="text" class="form-input" id="caso-paciente" placeholder="Ej: Hombre 65 años, diabético, HTA">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Síntomas principales *</label>
+          <textarea class="form-input" id="caso-sintomas" rows="2" placeholder="Ej: Disnea de esfuerzo, edema bilateral, ortopnea" style="resize:none"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Diagnóstico esperado (privado) *</label>
+          <input type="text" class="form-input" id="caso-diagnostico" placeholder="Ej: Insuficiencia cardíaca congestiva">
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">No se muestra al estudiante — guía a la IA</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveCustomCase()">Guardar caso</button>
       </div>
     </div>
   </div>
@@ -1574,6 +1623,7 @@ window.addEventListener('load', async () => {
   initAPGAR();
   initSilverman();
   initECOE();
+  renderCustomCases();
   setTimeout(async () => {
     if (token) {
       await loadProfile();
@@ -2257,6 +2307,100 @@ function endECOE() {
   document.getElementById('ecoe-selector').style.display = 'block';
   document.getElementById('ecoe-status').textContent = 'Selecciona un caso';
   document.getElementById('ecoe-end-btn').style.display = 'none';
+}
+
+// ── Mis Casos ECOE ────────────────────────────────────────────
+let selectedCaseIcon = '🏥';
+let customCases = JSON.parse(localStorage.getItem('ecoe_custom_cases') || '[]');
+
+function selectCaseIcon(icon, el) {
+  selectedCaseIcon = icon;
+  document.querySelectorAll('#modalNuevoCaso .modal-body > div:first-child > div').forEach(d => {
+    d.style.borderColor = 'var(--border)';
+    d.style.background = 'transparent';
+  });
+  el.style.borderColor = 'var(--blue)';
+  el.style.background = 'rgba(59,130,246,0.15)';
+}
+
+function saveCustomCase() {
+  const titulo = document.getElementById('caso-titulo').value.trim();
+  const paciente = document.getElementById('caso-paciente').value.trim();
+  const sintomas = document.getElementById('caso-sintomas').value.trim();
+  const diagnostico = document.getElementById('caso-diagnostico').value.trim();
+  if (!titulo || !paciente || !sintomas || !diagnostico) { showToast('Completa todos los campos'); return; }
+  const newCase = {
+    id: `custom_${Date.now()}`,
+    title: titulo, patient: paciente,
+    symptoms: sintomas, diagnosis: diagnostico,
+    icon: selectedCaseIcon,
+  };
+  customCases.unshift(newCase);
+  localStorage.setItem('ecoe_custom_cases', JSON.stringify(customCases));
+  renderCustomCases();
+  closeModal('modalNuevoCaso');
+  document.getElementById('caso-titulo').value = '';
+  document.getElementById('caso-paciente').value = '';
+  document.getElementById('caso-sintomas').value = '';
+  document.getElementById('caso-diagnostico').value = '';
+  showToast('✅ Caso creado exitosamente');
+}
+
+function renderCustomCases() {
+  const container = document.getElementById('ecoe-custom-list');
+  if (customCases.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">No tienes casos personalizados aún.<br>Toca "Crear caso" para comenzar.</div>';
+    return;
+  }
+  container.innerHTML = customCases.map(c => `
+    <div style="background:var(--bg-surface);border:1px solid rgba(59,130,246,0.3);border-radius:16px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-size:24px">${c.icon}</span>
+        <span style="font-weight:600;font-size:15px;flex:1">${c.title}</span>
+        <button onclick="deleteCustomCase('${c.id}')" style="background:none;border:none;color:var(--danger);font-size:20px;cursor:pointer;padding:0">🗑</button>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:2px">👤 ${c.patient}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🩺 ${c.symptoms}</div>
+      <button onclick="startCustomECOE('${c.id}')" style="width:100%;padding:10px;background:var(--blue);border:none;border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer">▶ Iniciar simulación</button>
+    </div>
+  `).join('');
+}
+
+function deleteCustomCase(id) {
+  customCases = customCases.filter(c => c.id !== id);
+  localStorage.setItem('ecoe_custom_cases', JSON.stringify(customCases));
+  renderCustomCases();
+}
+
+async function startCustomECOE(id) {
+  const c = customCases.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('ecoe-selector').style.display = 'none';
+  document.getElementById('ecoe-simulator').style.display = 'flex';
+  document.getElementById('ecoe-case-title').textContent = c.title;
+  document.getElementById('ecoe-status').textContent = c.title;
+  document.getElementById('ecoe-end-btn').style.display = 'block';
+  document.getElementById('ecoe-messages').innerHTML = '';
+  ecoeSessionId = null; ecoeActive = true;
+
+  appendECOEMsg('🤒', 'Iniciando simulación personalizada...', 'patient', true);
+
+  const setupMsg = `INICIO DE SIMULACIÓN ECOE PERSONALIZADA. Actúa como paciente virtual con estas características: Título: ${c.title}. Paciente: ${c.patient}. Síntomas: ${c.symptoms}. Diagnóstico esperado (NO revelar): ${c.diagnosis}. Responde solo como paciente. Comienza presentándote con tu motivo de consulta.`;
+
+  try {
+    const res = await fetch(`${API}/analysis/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ message: setupMsg, mode: 'ecoe_simulator' })
+    });
+    const data = await res.json();
+    ecoeSessionId = data.session_id;
+    document.getElementById('ecoe-messages').innerHTML = '';
+    appendECOEMsg('🤒', data.response, 'patient');
+  } catch(e) {
+    document.getElementById('ecoe-messages').innerHTML = '';
+    appendECOEMsg('⚠️', 'Error al iniciar el caso.', 'error');
+  }
 }
 
 // ── Soporte ────────────────────────────────────────────────────
