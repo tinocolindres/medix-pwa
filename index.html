@@ -2398,10 +2398,11 @@ async function sendECOE() {
     const data = await res.json();
     ecoeSessionId = data.session_id;
     removeECOETyping();
-    appendECOEMsg('🤒', data.response, 'patient');
+    const respText = data.response || data.detail || 'El paciente no respondió. Intenta de nuevo.';
+    appendECOEMsg('🤒', respText, 'patient');
   } catch(e) {
     removeECOETyping();
-    appendECOEMsg('⚠️', 'Error de conexión.', 'error');
+    appendECOEMsg('⚠️', 'Error de conexión. Verifica tu internet.', 'error');
   } finally {
     document.getElementById('ecoe-send-btn').disabled = false;
   }
@@ -2734,7 +2735,7 @@ async function startCustomECOE(id) {
     const data = await res.json();
     ecoeSessionId = data.session_id;
     document.getElementById('ecoe-messages').innerHTML = '';
-    appendECOEMsg('🤒', data.response, 'patient');
+    appendECOEMsg('🤒', data.response || 'Hola doctor, ¿me puede atender?', 'patient');
   } catch(e) {
     document.getElementById('ecoe-messages').innerHTML = '';
     appendECOEMsg('⚠️', 'Error al iniciar el caso.', 'error');
