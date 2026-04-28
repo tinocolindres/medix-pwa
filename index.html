@@ -1677,7 +1677,7 @@ const API = 'https://medix-ai-production.up.railway.app/api/v1';
 let token = localStorage.getItem('jwt_token');
 let sessionId = null;
 let selectedRole = 'student';
-let chatMessages = [];
+let chatMessages = []; // Mensajes guardados en memoria para persistencia
 
 // ── State ──────────────────────────────────────────────────────
 const glasgowScores = { E: 4, V: 5, M: 6 };
@@ -1872,6 +1872,20 @@ function switchTab(tab) {
   el.classList.add('active');
   el.style.display = tab === 'chat' ? 'flex' : 'block';
   document.getElementById(`nav-${tab}`).classList.add('active');
+  // Restaurar mensajes del chat al regresar
+  if (tab === 'chat' && chatMessages.length > 0) {
+    document.getElementById('chatEmpty').style.display = 'none';
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = '';
+    chatMessages.forEach(m => {
+      const div = document.createElement('div');
+      div.className = `msg msg-${m.type === 'error' ? 'ai msg-error' : m.type}`;
+      div.innerHTML = `<div class="msg-bubble">${m.text.replace(/\n/g,'<br>')}</div>
+        ${m.tokens ? `<div class="msg-tokens">${m.tokens} tokens</div>` : ''}`;
+      container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+  }
   // Push state para el botón back
   if (tab !== 'dashboard') {
     history.pushState({ tab }, '', `#${tab}`);
@@ -1927,6 +1941,9 @@ async function sendMessage() {
 }
 
 function appendMessage(text, type, tokens) {
+  // Guardar en memoria para persistencia entre tabs
+  chatMessages.push({ text, type, tokens });
+  document.getElementById('chatEmpty').style.display = 'none';
   const container = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = `msg msg-${type === 'error' ? 'ai msg-error' : type} slide-up`;
