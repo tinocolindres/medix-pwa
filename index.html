@@ -1427,15 +1427,23 @@
       <div id="scan-types-container" style="display:flex;overflow-x:auto;gap:8px;margin-bottom:20px;scrollbar-width:none;padding-bottom:4px"></div>
 
       <!-- Upload área -->
-      <div id="scan-upload-area" onclick="triggerScanUpload()" style="width:100%;min-height:180px;background:var(--bg-surface);border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;overflow:hidden">
+      <div id="scan-upload-area" style="width:100%;min-height:180px;background:var(--bg-surface);border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:16px;overflow:hidden">
         <div id="scan-placeholder" style="text-align:center;padding:24px">
-          <div style="font-size:48px;margin-bottom:12px">📷</div>
-          <div style="color:var(--text-secondary);margin-bottom:4px">Toca para cargar imagen médica</div>
-          <div style="color:var(--text-muted);font-size:12px">JPG, PNG — Máx 10MB</div>
+          <div style="font-size:48px;margin-bottom:16px">🔬</div>
+          <div style="color:var(--text-secondary);margin-bottom:16px">Selecciona la fuente de imagen</div>
+          <div style="display:flex;gap:12px;justify-content:center">
+            <button onclick="triggerCamera()" style="padding:10px 18px;background:var(--purple);border:none;border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+              📷 Cámara
+            </button>
+            <button onclick="triggerGallery()" style="padding:10px 18px;background:var(--bg-elevated);border:1.5px solid var(--border);border-radius:10px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+              🖼️ Galería
+            </button>
+          </div>
         </div>
         <img id="scan-preview" style="display:none;width:100%;border-radius:14px;object-fit:contain">
       </div>
-      <input type="file" id="scan-file-input" accept="image/*" style="display:none" onchange="onScanFileSelected(this)">d(this)">
+      <input type="file" id="scan-file-camera" accept="image/*" capture="environment" style="display:none" onchange="onScanFileSelected(this)">
+      <input type="file" id="scan-file-gallery" accept="image/*" style="display:none" onchange="onScanFileSelected(this)">
 
       <!-- Botón analizar -->
       <button id="scan-analyze-btn" onclick="analyzeScan()" disabled style="width:100%;padding:15px;background:var(--purple);border:none;border-radius:var(--radius-sm);color:white;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:20px;opacity:0.5">
@@ -2307,12 +2315,23 @@ async function changePassword() {
 
 // ── ECOE ───────────────────────────────────────────────────────
 const ecoeCases = [
-  { id: 'ecoe_001', title: 'Dolor Abdominal Agudo', hint: 'Dolor FID, posible apendicitis', icon: '🏥', color: 'var(--danger)', specialty: 'Cirugía' },
-  { id: 'ecoe_002', title: 'Fiebre + Rash', hint: 'Fiebre y erupción, posible dengue', icon: '🦟', color: 'var(--warning)', specialty: 'Infectología' },
-  { id: 'ecoe_003', title: 'Dolor Torácico', hint: 'Dolor opresivo, posible IAM', icon: '❤️', color: 'var(--danger)', specialty: 'Cardiología' },
-  { id: 'ecoe_004', title: 'Preeclampsia', hint: 'Embarazada 32 sem, HTA + edema', icon: '🤰', color: 'var(--purple)', specialty: 'Ginecología' },
-  { id: 'ecoe_005', title: 'Dengue Hemorrágico', hint: 'Fiebre alta + signos de alarma', icon: '🩸', color: 'var(--danger)', specialty: 'Medicina Interna' },
-  { id: 'ecoe_006', title: 'Crisis Asmática', hint: 'Disnea severa, sibilancias', icon: '🫁', color: 'var(--cyan)', specialty: 'Neumología' },
+  { id: 'ecoe_001', title: 'Dolor Abdominal Agudo',       hint: 'Dolor FID, posible apendicitis',          icon: '🏥', color: 'var(--danger)',  specialty: 'Cirugía' },
+  { id: 'ecoe_002', title: 'Fiebre + Rash',               hint: 'Fiebre y erupción, posible dengue',        icon: '🦟', color: 'var(--warning)', specialty: 'Infectología' },
+  { id: 'ecoe_003', title: 'Dolor Torácico',              hint: 'Dolor opresivo, posible IAM',              icon: '❤️', color: 'var(--danger)',  specialty: 'Cardiología' },
+  { id: 'ecoe_004', title: 'Preeclampsia',                hint: 'Embarazada 32 sem, HTA + edema',           icon: '🤰', color: 'var(--purple)', specialty: 'Ginecología' },
+  { id: 'ecoe_005', title: 'Dengue Hemorrágico',          hint: 'Fiebre alta + signos de alarma',           icon: '🩸', color: 'var(--danger)',  specialty: 'Medicina Interna' },
+  { id: 'ecoe_006', title: 'Crisis Asmática',             hint: 'Disnea severa, sibilancias',               icon: '🫁', color: 'var(--cyan)',    specialty: 'Neumología' },
+  { id: 'ecoe_007', title: 'ACV / Stroke',                hint: 'Déficit neurológico agudo, FAST positivo', icon: '🧠', color: 'var(--purple)', specialty: 'Neurología' },
+  { id: 'ecoe_008', title: 'Deshidratación Pediátrica',   hint: 'Niño 2 años, vómitos y diarrea',           icon: '👶', color: 'var(--blue)',    specialty: 'Pediatría' },
+  { id: 'ecoe_009', title: 'Diabetes Descompensada',      hint: 'Glucosa >400, cetoacidosis diabética',     icon: '🩺', color: 'var(--warning)', specialty: 'Medicina Interna' },
+  { id: 'ecoe_010', title: 'Leptospirosis',               hint: 'Fiebre, ictericia, zona de inundación HN', icon: '🤒', color: 'var(--warning)', specialty: 'Infectología' },
+  { id: 'ecoe_011', title: 'Anemia Severa',               hint: 'Palidez extrema, fatiga, Hb <7',           icon: '🩻', color: 'var(--danger)',  specialty: 'Medicina Interna' },
+  { id: 'ecoe_012', title: 'Insuficiencia Cardíaca',      hint: 'Disnea, edema bilateral, ortopnea',        icon: '🫀', color: 'var(--danger)',  specialty: 'Cardiología' },
+  { id: 'ecoe_013', title: 'Hemorragia Postparto',        hint: 'Sangrado > 500mL post parto vaginal',      icon: '🚨', color: 'var(--danger)',  specialty: 'Ginecología' },
+  { id: 'ecoe_014', title: 'Neumonía Grave',              hint: 'Fiebre, consolidación, SpO2 <90%',         icon: '🫁', color: 'var(--warning)', specialty: 'Neumología' },
+  { id: 'ecoe_015', title: 'Intoxicación Organofosforados', hint: 'Zona rural HN, miosis, broncospasmo',   icon: '☠️', color: 'var(--danger)',  specialty: 'Toxicología' },
+  { id: 'ecoe_016', title: 'Politrauma',                  hint: 'Accidente vial, trauma múltiple, ABCDE',   icon: '🚑', color: 'var(--danger)',  specialty: 'Emergencias' },
+  { id: 'ecoe_017', title: 'Paciente UCI',                hint: 'Sepsis grave, ventilación mecánica',        icon: '🏨', color: 'var(--purple)', specialty: 'UCI / Intensivismo' },
 ];
 
 let ecoeSessionId = null;
@@ -2546,8 +2565,12 @@ function selectScanType(type, el) {
   el.querySelector('div:last-child').style.color = 'var(--text-primary)';
 }
 
-function triggerScanUpload() {
-  document.getElementById('scan-file-input').click();
+function triggerCamera() {
+  document.getElementById('scan-file-camera').click();
+}
+
+function triggerGallery() {
+  document.getElementById('scan-file-gallery').click();
 }
 
 function onScanFileSelected(input) {
@@ -2616,7 +2639,8 @@ function resetScan() {
   document.getElementById('scan-preview').src = '';
   document.getElementById('scan-upload-area').style.border = '2px dashed var(--border)';
   document.getElementById('scan-result').style.display = 'none';
-  document.getElementById('scan-file-input').value = '';
+  document.getElementById('scan-file-camera').value = '';
+  document.getElementById('scan-file-gallery').value = '';
   const btn = document.getElementById('scan-analyze-btn');
   btn.disabled = true;
   btn.style.opacity = '0.5';
