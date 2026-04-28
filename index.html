@@ -2372,6 +2372,8 @@ async function startECOE(caseId, caseTitle) {
       body: JSON.stringify({ case_id: caseId })
     });
     const data = await res.json();
+    // Guardar session_id para mantener contexto del paciente
+    if (data.session_id) ecoeSessionId = data.session_id;
     document.getElementById('ecoe-messages').innerHTML = '';
     appendECOEMsg('🤒', data.patient_opening || 'Hola doctor, ¿me puede atender?', 'patient');
   } catch(e) {
