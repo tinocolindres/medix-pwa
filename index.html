@@ -902,24 +902,6 @@
   <!-- Register Form -->
   <div class="auth-form hidden" id="registerForm">
     <div class="error-box" id="registerError"></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nombre</label>
-        <input type="text" class="form-input" id="regFirstName" placeholder="Juan">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Apellido</label>
-        <input type="text" class="form-input" id="regLastName" placeholder="Pérez">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Correo electrónico</label>
-      <input type="email" class="form-input" id="regEmail" placeholder="doctor@hospital.hn">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Contraseña</label>
-      <input type="password" class="form-input" id="regPass" placeholder="Mínimo 8 caracteres">
-    </div>
     <div class="form-group">
       <label class="form-label">Rol</label>
       <div class="role-selector">
@@ -1015,6 +997,25 @@
           </select>
         </div>
       </div>
+    </div>
+    <div style="margin-top:20px;font-weight:600;font-size:15px;margin-bottom:12px">Datos personales</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" class="form-input" id="regFirstName" placeholder="Juan">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido</label>
+        <input type="text" class="form-input" id="regLastName" placeholder="Pérez">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" class="form-input" id="regEmail" placeholder="doctor@hospital.hn">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-input" id="regPass" placeholder="Mínimo 8 caracteres">
     </div>
     <button class="btn btn-primary" onclick="doRegister()" id="registerBtn" style="margin-top:24px;position:relative;z-index:10">Crear mi cuenta</button>
   </div>
