@@ -1552,6 +1552,7 @@
             <option value="unah">UNAH — Universidad Nacional Autónoma de Honduras</option>
             <option value="unah-vs">UNAH-VS — Valle de Sula (San Pedro Sula)</option>
             <option value="unicah">UNICAH — Universidad Católica de Honduras</option>
+            <option value="unitec">UNITEC — Universidad Tecnológica Centroamericana</option>
           </select>
         </div>
         <div class="form-group" id="ano-group" style="display:none">
@@ -2392,6 +2393,36 @@ const pensum = {
 
 pensum['unah-vs'] = pensum.unah; // Mismo pensum que UNAH
 
+pensum['unitec'] = { periodos: {
+  1:  { label: 'Período I',    materias: ['Introducción al Álgebra','Desarrollo Humano y Social','Procesos Celulares y Moleculares I','Inglés I','Comunicación Oral y Escrita'] },
+  2:  { label: 'Período II',   materias: ['Álgebra','Estructura y Función I','Procesos Celulares y Moleculares II','Inglés II','Estilo de Vida, Salud y Medio Ambiente'] },
+  3:  { label: 'Período III',  materias: ['Estructura y Función II','Mecanismos de Agresión y Defensa I','Procesos Celulares y Moleculares III','Inglés III','Bases de la Terapéutica Medicamentosa'] },
+  4:  { label: 'Período IV',   materias: ['SO I - Circulación, Respiración y Equilibrio Ácido-Básico I','Mecanismos de Agresión y Defensa II','Neurociencias y Comportamiento'] },
+  5:  { label: 'Período V',    materias: ['SO I - Circulación, Respiración y Equilibrio Ácido-Básico II','SO II - Digestión, Reproducción y Control Endocrino I'] },
+  6:  { label: 'Período VI',   materias: ['Prácticas Médicas I','SO II - Digestión, Reproducción y Control Endocrino II','Mecanismos de Agresión y Defensa III'] },
+  7:  { label: 'Período VII',  materias: ['Prácticas Médicas II','Mecanismos de Agresión y Defensa IV','SO III - Soporte, Locomoción y Control Neural I','Inglés IV'] },
+  8:  { label: 'Período VIII', materias: ['Prácticas Médicas III','SO III - Soporte, Locomoción y Control Neural II','Mecanismos de Agresión y Defensa V'] },
+  9:  { label: 'Período IX',   materias: ['Prácticas Médicas IV','Clínica Integrada I','Salud del Adulto','Prevención y Promoción de la Salud I','Inglés V'] },
+  10: { label: 'Período X',    materias: ['Prácticas Médicas V','Clínica Integrada II','Salud de la Mujer','Salud Infantil y del Adolescente','Inglés VI'] },
+  11: { label: 'Período XI',   materias: ['Prácticas Médicas VI','Clínica Integrada III','Salud del Adulto Mayor','Sistemas de Salud','Inglés VII'] },
+  12: { label: 'Período XII',  materias: ['Clínica Integrada IV','Salud Mental','Prevención y Promoción de la Salud II','Inglés VIII'] },
+  13: { label: 'Período XIII', materias: ['Medicina Interna I','Pediatría I','Ofimática Avanzada','Sociología','Metodología de Investigación'] },
+  14: { label: 'Período XIV',  materias: ['Cirugía I','Ginecología y Obstetricia I','Tecnologías Biomédicas I','Historia de Honduras'] },
+  15: { label: 'Período XV',   materias: ['Urgencias y Emergencias I','Seminarios Integradores I','Filosofía','Gestión de Servicios en Salud'] },
+  16: { label: 'Período XVI',  materias: ['Medicina Interna II','Pediatría II','Tecnologías Biomédicas II','Generación de Empresas en Salud'] },
+  17: { label: 'Período XVII', materias: ['Cirugía II','Ginecología y Obstetricia II','Cuidados Paliativos','Arte/Deporte'] },
+  18: { label: 'Período XVIII',materias: ['Urgencias y Emergencias II','Seminarios Integradores II','Temas Avanzados en Práctica Médica I','Medicina Alternativa'] },
+  19: { label: 'Período XIX',  materias: ['Temas Avanzados en Práctica Médica II','Medicina Interna III'] },
+  20: { label: 'Cuarto Año Modular',  materias: ['Rotaciones Clínicas'] },
+  21: { label: 'Quinto Año Modular',  materias: ['Rotaciones Clínicas Avanzadas'] },
+  22: { label: 'Internado — Gineco-Obstetricia', materias: ['Internado Gineco-Obstetricia (16 créditos)'] },
+  23: { label: 'Internado — Pediatría',           materias: ['Internado Pediatría (16 créditos)'] },
+  24: { label: 'Internado — Cirugía',             materias: ['Internado Cirugía (16 créditos)'] },
+  25: { label: 'Internado — Medicina Interna',    materias: ['Internado Medicina Interna (16 créditos)'] },
+  26: { label: 'Servicio Social — 6 meses',       materias: ['Servicio Social Obligatorio 6 meses'] },
+  27: { label: 'Servicio Social — 1 año',         materias: ['Servicio Social Obligatorio 1 año'] },
+}};
+
 function updatePeriodos() {
   const uni = document.getElementById('uni-select').value;
   const anoGroup = document.getElementById('ano-group');
@@ -2435,7 +2466,7 @@ function saveUniversidad() {
   const periodo = document.getElementById('periodo-select').value;
   if (!uni || !periodo) { showToast('Selecciona universidad y período'); return; }
   localStorage.setItem('medix_universidad', JSON.stringify({ uni, periodo }));
-  const uniNames = { unah:'UNAH', 'unah-vs':'UNAH-VS', unicah:'UNICAH' };
+  const uniNames = { unah:'UNAH', 'unah-vs':'UNAH-VS', unicah:'UNICAH', unitec:'UNITEC' };
   showToast(`✅ ${uniNames[uni]} — ${pensum[uni].periodos[periodo].label} guardado`);
   closeModal('modalUniversidad');
 }
