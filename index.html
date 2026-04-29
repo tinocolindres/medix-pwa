@@ -1139,6 +1139,7 @@
     </div>
 
     <div class="chat-input-area">
+      <button id="chat-mic-btn" onclick="toggleChatMic()" style="width:42px;height:42px;background:var(--bg-elevated);border:1.5px solid var(--border);border-radius:10px;color:var(--text-secondary);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s">🎤</button>
       <textarea class="chat-input" id="chatInput" placeholder="Haz una consulta médica..." rows="1"
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
         oninput="autoResize(this)"></textarea>
@@ -2162,6 +2163,7 @@ window.addEventListener('load', async () => {
   renderCustomCases();
   initMedScan();
   initSTT();
+  initChatMic();
   setTimeout(async () => {
     if (token) {
       await loadProfile();
@@ -2498,6 +2500,63 @@ function clearPWAHistory() {
   localStorage.setItem('pwa_chat_history', JSON.stringify(pwaHistory));
   document.querySelectorAll('div[style*=fixed]').forEach(e => e.remove());
   showToast('Historial borrado');
+}
+
+// ── Chat Micrófono ────────────────────────────────────────────
+let chatRecognition = null;
+let chatMicActive = false;
+
+function initChatMic() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+  chatRecognition = new SpeechRecognition();
+  chatRecognition.lang = 'es-HN';
+  chatRecognition.continuous = false;
+  chatRecognition.interimResults = true;
+  chatRecognition.onresult = (e) => {
+    let transcript = '';
+    for (let i = 0; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    const input = document.getElementById('chatInput');
+    input.value = transcript;
+    autoResize(input);
+  };
+  chatRecognition.onend = () => {
+    chatMicActive = false;
+    const btn = document.getElementById('chat-mic-btn');
+    btn.textContent = '🎤';
+    btn.style.background = 'var(--bg-elevated)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-secondary)';
+  };
+  chatRecognition.onerror = () => {
+    chatMicActive = false;
+    const btn = document.getElementById('chat-mic-btn');
+    btn.textContent = '🎤';
+    btn.style.background = 'var(--bg-elevated)';
+    btn.style.borderColor = 'var(--border)';
+  };
+}
+
+function toggleChatMic() {
+  if (!chatRecognition) { showToast('Micrófono no disponible en este navegador'); return; }
+  const btn = document.getElementById('chat-mic-btn');
+  if (chatMicActive) {
+    chatRecognition.stop();
+    chatMicActive = false;
+    btn.textContent = '🎤';
+    btn.style.background = 'var(--bg-elevated)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-secondary)';
+  } else {
+    chatRecognition.start();
+    chatMicActive = true;
+    btn.textContent = '⏹';
+    btn.style.background = 'rgba(239,68,68,0.15)';
+    btn.style.borderColor = 'var(--danger)';
+    btn.style.color = 'var(--danger)';
+  }
 }
 
 // ── Chat ───────────────────────────────────────────────────────
