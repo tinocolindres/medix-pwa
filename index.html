@@ -1016,7 +1016,7 @@
         </div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="alert('Botón funcionando! Role: ' + selectedRole)" id="registerBtn" style="margin-top:24px;position:relative;z-index:10">Crear mi cuenta</button>
+    <button class="btn btn-primary" onclick="doRegister()" id="registerBtn" style="margin-top:24px;position:relative;z-index:10">Crear mi cuenta</button>
   </div>
 
   <div class="auth-roles" style="pointer-events:none">
@@ -1913,6 +1913,7 @@ async function doLogin() {
 }
 
 async function doRegister() {
+  try {
   const firstName = document.getElementById('regFirstName').value.trim();
   const lastName = document.getElementById('regLastName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
@@ -1958,6 +1959,9 @@ async function doRegister() {
     showError('registerError', e.message);
   } finally {
     btn.disabled = false; btn.textContent = 'Crear mi cuenta';
+  }
+  } catch(outerErr) {
+    alert('Error JS: ' + outerErr.message);
   }
 }
 
