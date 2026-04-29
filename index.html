@@ -1919,17 +1919,15 @@ async function doRegister() {
   const email = document.getElementById('regEmail').value.trim();
   const pass = document.getElementById('regPass').value;
   const btn = document.getElementById('registerBtn');
-  if (!firstName||!lastName||!email||!pass) { showError('registerError','Completa todos los campos'); return; }
-  if (pass.length < 8) { showError('registerError','Contraseña mínimo 8 caracteres'); return; }
-
-  // Validación campos de residente
+  if (!firstName||!lastName||!email||!pass) { alert('Completa todos los campos. Nombre:'+firstName+' Email:'+email); return; }
+  if (pass.length < 8) { alert('Contraseña mínimo 8 caracteres'); return; }
   if (selectedRole === 'medico_residente') {
     const specialty = document.getElementById('res-specialty').value;
     const year = document.getElementById('res-year').value;
     const hospital = document.getElementById('res-hospital').value;
-    if (!specialty) { showError('registerError','Selecciona tu especialidad'); return; }
-    if (!year) { showError('registerError','Selecciona tu año de residencia (R1-R5)'); return; }
-    if (!hospital) { showError('registerError','Selecciona tu hospital'); return; }
+    if (!specialty) { alert('Selecciona tu especialidad'); return; }
+    if (!year) { alert('Selecciona tu año de residencia'); return; }
+    if (!hospital) { alert('Selecciona tu hospital'); return; }
   }
   btn.disabled = true; btn.textContent = 'Creando cuenta...';
   try {
@@ -1956,7 +1954,7 @@ async function doRegister() {
     await loadProfile();
     showScreen('app');
   } catch(e) {
-    showError('registerError', e.message);
+    alert('Error registro: ' + e.message);
   } finally {
     btn.disabled = false; btn.textContent = 'Crear mi cuenta';
   }
