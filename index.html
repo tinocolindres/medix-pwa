@@ -1165,6 +1165,15 @@
       <button class="calc-tab" onclick="switchCalc('dosis', this)">Dosis Ped.</button>
       <button class="calc-tab" onclick="switchCalc('silverman', this)">Silverman</button>
       <button class="calc-tab" onclick="switchCalc('shock', this)">Shock Index</button>
+      <button class="calc-tab" onclick="switchCalc('qsofa', this)">qSOFA</button>
+      <button class="calc-tab" onclick="switchCalc('sofa', this)">SOFA</button>
+      <button class="calc-tab" onclick="switchCalc('apache', this)">APACHE II</button>
+      <button class="calc-tab" onclick="switchCalc('curb65', this)">CURB-65</button>
+      <button class="calc-tab" onclick="switchCalc('wells-dvt', this)">Wells DVT</button>
+      <button class="calc-tab" onclick="switchCalc('wells-pe', this)">Wells PE</button>
+      <button class="calc-tab" onclick="switchCalc('meld', this)">MELD</button>
+      <button class="calc-tab" onclick="switchCalc('chads', this)">CHA₂DS₂</button>
+      <button class="calc-tab" onclick="switchCalc('killip', this)">Killip</button>
     </div>
     <div class="calc-content">
 
@@ -1284,10 +1293,322 @@
         </div>
       </div>
 
+      <!-- qSOFA -->
+      <div class="calc-panel" id="calc-qsofa">
+        <div class="calc-title">🦠 qSOFA</div>
+        <div class="calc-sub">Sepsis rápido — Identificación bedside</div>
+        <div class="scale-row">
+          <div class="scale-label">FR ≥ 22 rpm</div>
+          <div class="score-btns">
+            <button class="score-btn" onclick="setQSOFA('resp',0,this)">No (0)</button>
+            <button class="score-btn" onclick="setQSOFA('resp',1,this)">Sí (1)</button>
+          </div>
+        </div>
+        <div class="scale-row">
+          <div class="scale-label">Alteración conciencia (Glasgow &lt;15)</div>
+          <div class="score-btns">
+            <button class="score-btn" onclick="setQSOFA('ment',0,this)">No (0)</button>
+            <button class="score-btn" onclick="setQSOFA('ment',1,this)">Sí (1)</button>
+          </div>
+        </div>
+        <div class="scale-row">
+          <div class="scale-label">PAS ≤ 100 mmHg</div>
+          <div class="score-btns">
+            <button class="score-btn" onclick="setQSOFA('sbp',0,this)">No (0)</button>
+            <button class="score-btn" onclick="setQSOFA('sbp',1,this)">Sí (1)</button>
+          </div>
+        </div>
+        <div id="qsofa-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="qsofa-box">
+            <div class="result-label">qSOFA SCORE</div>
+            <div class="result-value" id="qsofa-value">0</div>
+            <div class="result-sub" id="qsofa-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOFA -->
+      <div class="calc-panel" id="calc-sofa">
+        <div class="calc-title">🏥 SOFA Score</div>
+        <div class="calc-sub">Disfunción orgánica — Sepsis-3</div>
+        <div class="calc-group">
+          <div class="calc-label">PaO₂/FiO₂ (mmHg)</div>
+          <select class="calc-input" id="sofa-resp" onchange="calcSOFA()">
+            <option value="0">≥400 (0 pts)</option>
+            <option value="1">300-399 (1 pt)</option>
+            <option value="2">200-299 (2 pts)</option>
+            <option value="3">100-199 con VM (3 pts)</option>
+            <option value="4">&lt;100 con VM (4 pts)</option>
+          </select>
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Plaquetas (×10³/μL)</div>
+          <select class="calc-input" id="sofa-plaq" onchange="calcSOFA()">
+            <option value="0">≥150 (0 pts)</option>
+            <option value="1">100-149 (1 pt)</option>
+            <option value="2">50-99 (2 pts)</option>
+            <option value="3">20-49 (3 pts)</option>
+            <option value="4">&lt;20 (4 pts)</option>
+          </select>
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Bilirrubina (mg/dL)</div>
+          <select class="calc-input" id="sofa-bili" onchange="calcSOFA()">
+            <option value="0">&lt;1.2 (0 pts)</option>
+            <option value="1">1.2-1.9 (1 pt)</option>
+            <option value="2">2.0-5.9 (2 pts)</option>
+            <option value="3">6.0-11.9 (3 pts)</option>
+            <option value="4">≥12 (4 pts)</option>
+          </select>
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Cardiovascular (MAP/Vasopresores)</div>
+          <select class="calc-input" id="sofa-cardio" onchange="calcSOFA()">
+            <option value="0">MAP ≥70 (0 pts)</option>
+            <option value="1">MAP &lt;70 (1 pt)</option>
+            <option value="2">Dopamina ≤5 (2 pts)</option>
+            <option value="3">Dopamina &gt;5 o NE ≤0.1 (3 pts)</option>
+            <option value="4">Dopamina &gt;15 o NE &gt;0.1 (4 pts)</option>
+          </select>
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Glasgow</div>
+          <select class="calc-input" id="sofa-gcs" onchange="calcSOFA()">
+            <option value="0">15 (0 pts)</option>
+            <option value="1">13-14 (1 pt)</option>
+            <option value="2">10-12 (2 pts)</option>
+            <option value="3">6-9 (3 pts)</option>
+            <option value="4">&lt;6 (4 pts)</option>
+          </select>
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Creatinina (mg/dL)</div>
+          <select class="calc-input" id="sofa-crea" onchange="calcSOFA()">
+            <option value="0">&lt;1.2 (0 pts)</option>
+            <option value="1">1.2-1.9 (1 pt)</option>
+            <option value="2">2.0-3.4 (2 pts)</option>
+            <option value="3">3.5-4.9 (3 pts)</option>
+            <option value="4">≥5 (4 pts)</option>
+          </select>
+        </div>
+        <div id="sofa-result" style="margin-top:16px">
+          <div class="result-box" id="sofa-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+            <div class="result-label">SOFA SCORE</div>
+            <div class="result-value" id="sofa-value">0</div>
+            <div class="result-sub" id="sofa-interp">Sin disfunción orgánica</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APACHE II -->
+      <div class="calc-panel" id="calc-apache">
+        <div class="calc-title">🏨 APACHE II</div>
+        <div class="calc-sub">Mortalidad en UCI — Score 0-71</div>
+        <div class="calc-group">
+          <div class="calc-label">Temperatura rectal (°C)</div>
+          <input type="number" class="calc-input" id="ap-temp" placeholder="Ej: 38.5" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">PAM (mmHg)</div>
+          <input type="number" class="calc-input" id="ap-pam" placeholder="Ej: 70" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">FC (lpm)</div>
+          <input type="number" class="calc-input" id="ap-fc" placeholder="Ej: 100" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">FR (rpm)</div>
+          <input type="number" class="calc-input" id="ap-fr" placeholder="Ej: 20" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Glasgow</div>
+          <input type="number" class="calc-input" id="ap-gcs" placeholder="3-15" min="3" max="15" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">pH arterial</div>
+          <input type="number" class="calc-input" id="ap-ph" placeholder="Ej: 7.35" step="0.01" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Sodio (mEq/L)</div>
+          <input type="number" class="calc-input" id="ap-na" placeholder="Ej: 140" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Potasio (mEq/L)</div>
+          <input type="number" class="calc-input" id="ap-k" placeholder="Ej: 4.0" step="0.1" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Creatinina (mg/dL)</div>
+          <input type="number" class="calc-input" id="ap-crea" placeholder="Ej: 1.0" step="0.1" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Hematocrito (%)</div>
+          <input type="number" class="calc-input" id="ap-hto" placeholder="Ej: 40" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Leucocitos (×10³/mm³)</div>
+          <input type="number" class="calc-input" id="ap-wbc" placeholder="Ej: 10" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Edad (años)</div>
+          <input type="number" class="calc-input" id="ap-age" placeholder="Ej: 50" oninput="calcAPACHE()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Enfermedad crónica grave</div>
+          <select class="calc-input" id="ap-chronic" onchange="calcAPACHE()">
+            <option value="0">No (0 pts)</option>
+            <option value="2">Sí, no quirúrgico (2 pts)</option>
+            <option value="5">Sí, urgencia quirúrgica (5 pts)</option>
+          </select>
+        </div>
+        <div id="apache-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="apache-box">
+            <div class="result-label">APACHE II</div>
+            <div class="result-value" id="apache-value">0</div>
+            <div class="result-sub" id="apache-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CURB-65 -->
+      <div class="calc-panel" id="calc-curb65">
+        <div class="calc-title">🫁 CURB-65</div>
+        <div class="calc-sub">Severidad de Neumonía Adquirida en la Comunidad</div>
+        <div class="scale-row"><div class="scale-label">C — Confusión (desorientación)</div>
+          <div class="score-btns"><button class="score-btn" onclick="setCURB('c',0,this)">No</button><button class="score-btn" onclick="setCURB('c',1,this)">Sí</button></div></div>
+        <div class="scale-row"><div class="scale-label">U — Urea &gt;19 mg/dL (BUN &gt;7 mmol/L)</div>
+          <div class="score-btns"><button class="score-btn" onclick="setCURB('u',0,this)">No</button><button class="score-btn" onclick="setCURB('u',1,this)">Sí</button></div></div>
+        <div class="scale-row"><div class="scale-label">R — FR ≥ 30 rpm</div>
+          <div class="score-btns"><button class="score-btn" onclick="setCURB('r',0,this)">No</button><button class="score-btn" onclick="setCURB('r',1,this)">Sí</button></div></div>
+        <div class="scale-row"><div class="scale-label">B — PA &lt;90/60 mmHg</div>
+          <div class="score-btns"><button class="score-btn" onclick="setCURB('b',0,this)">No</button><button class="score-btn" onclick="setCURB('b',1,this)">Sí</button></div></div>
+        <div class="scale-row"><div class="scale-label">65 — Edad ≥ 65 años</div>
+          <div class="score-btns"><button class="score-btn" onclick="setCURB('age',0,this)">No</button><button class="score-btn" onclick="setCURB('age',1,this)">Sí</button></div></div>
+        <div id="curb-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="curb-box">
+            <div class="result-label">CURB-65</div>
+            <div class="result-value" id="curb-value">0</div>
+            <div class="result-sub" id="curb-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wells DVT -->
+      <div class="calc-panel" id="calc-wells-dvt">
+        <div class="calc-title">🦵 Wells DVT</div>
+        <div class="calc-sub">Probabilidad de Trombosis Venosa Profunda</div>
+        <div class="scale-row"><div class="scale-label">Cáncer activo</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('cancer',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('cancer',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Parálisis o yeso en EEII</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('paralysis',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('paralysis',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Encamado &gt;3 días / cirugía &lt;4 sem</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('bed',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('bed',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Dolor localizado en vena profunda</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('pain',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('pain',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Edema en toda la pierna</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('edema',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('edema',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Edema con fóvea (pierna sintomática &gt;3 cm)</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('calf',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('calf',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Venas colaterales superficiales</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('collat',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('collat',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">TVP previa documentada</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('prev',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('prev',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Dx alternativo igual o más probable</div><div class="score-btns"><button class="score-btn" onclick="setWellsDVT('alt',0,this)">No</button><button class="score-btn" onclick="setWellsDVT('alt',-2,this)">Sí -2</button></div></div>
+        <div id="wellsdvt-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="wellsdvt-box">
+            <div class="result-label">WELLS DVT</div>
+            <div class="result-value" id="wellsdvt-value">0</div>
+            <div class="result-sub" id="wellsdvt-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wells PE -->
+      <div class="calc-panel" id="calc-wells-pe">
+        <div class="calc-title">🫁 Wells PE</div>
+        <div class="calc-sub">Probabilidad de Tromboembolia Pulmonar</div>
+        <div class="scale-row"><div class="scale-label">TVP o TEP previo</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('prev',0,this)">No</button><button class="score-btn" onclick="setWellsPE('prev',1.5,this)">Sí +1.5</button></div></div>
+        <div class="scale-row"><div class="scale-label">FC &gt;100 lpm</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('hr',0,this)">No</button><button class="score-btn" onclick="setWellsPE('hr',1.5,this)">Sí +1.5</button></div></div>
+        <div class="scale-row"><div class="scale-label">Cirugía o inmovilización &lt;4 sem</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('surg',0,this)">No</button><button class="score-btn" onclick="setWellsPE('surg',1.5,this)">Sí +1.5</button></div></div>
+        <div class="scale-row"><div class="scale-label">Signos clínicos de TVP</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('dvt',0,this)">No</button><button class="score-btn" onclick="setWellsPE('dvt',3,this)">Sí +3</button></div></div>
+        <div class="scale-row"><div class="scale-label">TEP diagnóstico #1 probable</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('diag',0,this)">No</button><button class="score-btn" onclick="setWellsPE('diag',3,this)">Sí +3</button></div></div>
+        <div class="scale-row"><div class="scale-label">Hemoptisis</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('hemo',0,this)">No</button><button class="score-btn" onclick="setWellsPE('hemo',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Cáncer activo</div><div class="score-btns"><button class="score-btn" onclick="setWellsPE('cancer',0,this)">No</button><button class="score-btn" onclick="setWellsPE('cancer',1,this)">Sí +1</button></div></div>
+        <div id="wellspe-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="wellspe-box">
+            <div class="result-label">WELLS PE</div>
+            <div class="result-value" id="wellspe-value">0</div>
+            <div class="result-sub" id="wellspe-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MELD -->
+      <div class="calc-panel" id="calc-meld">
+        <div class="calc-title">🫀 MELD Score</div>
+        <div class="calc-sub">Severidad de enfermedad hepática crónica</div>
+        <div class="calc-group"><div class="calc-label">Creatinina (mg/dL)</div>
+          <input type="number" class="calc-input" id="meld-crea" placeholder="Ej: 1.2" step="0.1" oninput="calcMELD()"></div>
+        <div class="calc-group"><div class="calc-label">Bilirrubina (mg/dL)</div>
+          <input type="number" class="calc-input" id="meld-bili" placeholder="Ej: 1.0" step="0.1" oninput="calcMELD()"></div>
+        <div class="calc-group"><div class="calc-label">INR</div>
+          <input type="number" class="calc-input" id="meld-inr" placeholder="Ej: 1.1" step="0.01" oninput="calcMELD()"></div>
+        <div class="calc-group"><div class="calc-label">Sodio (mEq/L)</div>
+          <input type="number" class="calc-input" id="meld-na" placeholder="Ej: 138" oninput="calcMELD()"></div>
+        <div id="meld-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="meld-box">
+            <div class="result-label">MELD-Na</div>
+            <div class="result-value" id="meld-value">0</div>
+            <div class="result-sub" id="meld-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHA2DS2-VASc -->
+      <div class="calc-panel" id="calc-chads">
+        <div class="calc-title">❤️ CHA₂DS₂-VASc</div>
+        <div class="calc-sub">Riesgo de ACV en Fibrilación Auricular</div>
+        <div class="scale-row"><div class="scale-label">C — Insuficiencia cardíaca congestiva</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('c',0,this)">No</button><button class="score-btn" onclick="setCHADS('c',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">H — HTA</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('h',0,this)">No</button><button class="score-btn" onclick="setCHADS('h',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">A₂ — Edad ≥75 años</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('a2',0,this)">No</button><button class="score-btn" onclick="setCHADS('a2',2,this)">Sí +2</button></div></div>
+        <div class="scale-row"><div class="scale-label">D — Diabetes Mellitus</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('d',0,this)">No</button><button class="score-btn" onclick="setCHADS('d',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">S₂ — ACV/AIT/TEP previo</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('s2',0,this)">No</button><button class="score-btn" onclick="setCHADS('s2',2,this)">Sí +2</button></div></div>
+        <div class="scale-row"><div class="scale-label">V — Enfermedad vascular</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('v',0,this)">No</button><button class="score-btn" onclick="setCHADS('v',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">A — Edad 65-74 años</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('a',0,this)">No</button><button class="score-btn" onclick="setCHADS('a',1,this)">Sí +1</button></div></div>
+        <div class="scale-row"><div class="scale-label">Sc — Sexo femenino</div><div class="score-btns"><button class="score-btn" onclick="setCHADS('sc',0,this)">No</button><button class="score-btn" onclick="setCHADS('sc',1,this)">Sí +1</button></div></div>
+        <div id="chads-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="chads-box">
+            <div class="result-label">CHA₂DS₂-VASc</div>
+            <div class="result-value" id="chads-value">0</div>
+            <div class="result-sub" id="chads-interp"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Killip-Kimball -->
+      <div class="calc-panel" id="calc-killip">
+        <div class="calc-title">💔 Killip-Kimball</div>
+        <div class="calc-sub">Clasificación del IAM por severidad</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <div onclick="setKillip(1,this)" style="padding:14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer">
+            <div style="font-weight:600;font-size:14px">Clase I</div>
+            <div style="font-size:12px;color:var(--text-secondary)">Sin IC — Sin estertores, sin S3. Mortalidad ~6%</div>
+          </div>
+          <div onclick="setKillip(2,this)" style="padding:14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer">
+            <div style="font-weight:600;font-size:14px">Clase II</div>
+            <div style="font-size:12px;color:var(--text-secondary)">IC leve — Estertores &lt;50% campos, S3. Mortalidad ~17%</div>
+          </div>
+          <div onclick="setKillip(3,this)" style="padding:14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer">
+            <div style="font-weight:600;font-size:14px">Clase III</div>
+            <div style="font-size:12px;color:var(--text-secondary)">IC grave — Edema pulmonar agudo. Mortalidad ~38%</div>
+          </div>
+          <div onclick="setKillip(4,this)" style="padding:14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer">
+            <div style="font-weight:600;font-size:14px">Clase IV</div>
+            <div style="font-size:12px;color:var(--text-secondary)">Shock cardiogénico — PA &lt;90, oliguria. Mortalidad ~81%</div>
+          </div>
+        </div>
+        <div id="killip-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="killip-box">
+            <div class="result-label">KILLIP CLASE</div>
+            <div class="result-value" id="killip-value"></div>
+            <div class="result-sub" id="killip-interp"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <!-- SESAL Tab -->
   <div class="tab-content" id="tab-sesal">
     <div class="appbar">
       <div class="appbar-icon" style="background:rgba(6,182,212,0.15)">📋</div>
@@ -2289,6 +2610,194 @@ function updateGlasgow() {
   document.getElementById('glasgow-interp').textContent = interp;
   box.style.color = color;
   box.style.borderColor = color.replace(')',',0.3)').replace('var(','rgba(').replace('--danger','239,68,68').replace('--warning','245,158,11').replace('--success','16,185,129');
+}
+
+// ── qSOFA ────────────────────────────────────────────────────
+const qsofaScores = { resp: 0, ment: 0, sbp: 0 };
+function setQSOFA(key, val, el) {
+  el.parentElement.querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  qsofaScores[key] = val;
+  const total = qsofaScores.resp + qsofaScores.ment + qsofaScores.sbp;
+  document.getElementById('qsofa-value').textContent = total;
+  const box = document.getElementById('qsofa-box');
+  let interp, color;
+  if(total>=2){color='danger';interp='⚠️ Alto riesgo de sepsis — Evalúa SOFA completo';}
+  else if(total===1){color='warning';interp='🟡 Riesgo intermedio — Monitorizar';}
+  else{color='success';interp='🟢 Bajo riesgo de sepsis';}
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('qsofa-interp').textContent=interp;
+  document.getElementById('qsofa-result').style.display='block';
+}
+
+// ── SOFA ─────────────────────────────────────────────────────
+function calcSOFA() {
+  const ids=['sofa-resp','sofa-plaq','sofa-bili','sofa-cardio','sofa-gcs','sofa-crea'];
+  const total=ids.reduce((s,id)=>s+parseInt(document.getElementById(id)?.value||0),0);
+  document.getElementById('sofa-value').textContent=total;
+  let interp,color;
+  if(total>=11){color='danger';interp='Mortalidad >95% — Soporte máximo';}
+  else if(total>=7){color='danger';interp='Mortalidad ~50% — UCI';}
+  else if(total>=3){color='warning';interp='Mortalidad ~25% — Monitorizar';}
+  else{color='success';interp='Mortalidad baja — Sin disfunción grave';}
+  const box=document.getElementById('sofa-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('sofa-interp').textContent=interp;
+}
+
+// ── APACHE II ────────────────────────────────────────────────
+function scoreTemp(t){if(t>=41||t<30)return 4;if(t>=39||t<32)return 3;if(t>=38.5||t<34)return 1;if(t<36)return 2;return 0;}
+function scorePAM(p){if(p>=160||p<50)return 4;if(p>=130||p<70)return 2;if(p>=110)return 1;return 0;}
+function scoreFC(h){if(h>=180||h<40)return 4;if(h>=140||h<55)return 3;if(h>=110||h<70)return 2;return 0;}
+function scoreFR(r){if(r>=50||r<6)return 4;if(r>=35||r<10)return 3;if(r>=25)return 1;if(r<12)return 2;return 0;}
+function scorepH(p){if(p>=7.7||p<7.15)return 4;if(p>=7.6||p<7.25)return 3;if(p>=7.5||p<7.33)return 2;return 0;}
+function scoreNa(n){if(n>=180||n<111)return 4;if(n>=160||n<120)return 3;if(n>=155||n<130)return 2;if(n>=150)return 1;return 0;}
+function scoreK(k){if(k>=7||k<2.5)return 4;if(k>=6||k<3)return 3;if(k>=5.5||k<3.5)return 1;return 0;}
+function scoreHTO(h){if(h>=60||h<20)return 4;if(h>=50||h<30)return 2;if(h>=46||h<33)return 1;return 0;}
+function scoreWBC(w){if(w>=40||w<1)return 4;if(w>=20||w<3)return 2;if(w>=15)return 1;return 0;}
+function scoreAge(a){if(a>=75)return 6;if(a>=65)return 5;if(a>=55)return 3;if(a>=45)return 2;return 0;}
+function calcAPACHE(){
+  const t=parseFloat(document.getElementById('ap-temp').value)||0;
+  const pam=parseFloat(document.getElementById('ap-pam').value)||0;
+  const fc=parseFloat(document.getElementById('ap-fc').value)||0;
+  const fr=parseFloat(document.getElementById('ap-fr').value)||0;
+  const gcs=parseInt(document.getElementById('ap-gcs').value)||15;
+  const ph=parseFloat(document.getElementById('ap-ph').value)||7.4;
+  const na=parseFloat(document.getElementById('ap-na').value)||140;
+  const k=parseFloat(document.getElementById('ap-k').value)||4;
+  const crea=parseFloat(document.getElementById('ap-crea').value)||1;
+  const hto=parseFloat(document.getElementById('ap-hto').value)||40;
+  const wbc=parseFloat(document.getElementById('ap-wbc').value)||10;
+  const age=parseInt(document.getElementById('ap-age').value)||0;
+  const chronic=parseInt(document.getElementById('ap-chronic').value)||0;
+  if(!t||!pam||!fc||!fr||!age)return;
+  const gcsScore=15-gcs;
+  const total=scoreTemp(t)+scorePAM(pam)+scoreFC(fc)+scoreFR(fr)+gcsScore+scorepH(ph)+scoreNa(na)+scoreK(k)+scoreHTO(hto)+scoreWBC(wbc)+scoreAge(age)+chronic;
+  document.getElementById('apache-value').textContent=total;
+  let interp,color;
+  if(total>=35){color='danger';interp='Mortalidad estimada >80%';}
+  else if(total>=25){color='danger';interp='Mortalidad estimada ~50%';}
+  else if(total>=15){color='warning';interp='Mortalidad estimada ~20%';}
+  else if(total>=8){color='warning';interp='Mortalidad estimada ~10%';}
+  else{color='success';interp='Mortalidad estimada <5%';}
+  const box=document.getElementById('apache-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('apache-interp').textContent=interp;
+  document.getElementById('apache-result').style.display='block';
+}
+
+// ── CURB-65 ──────────────────────────────────────────────────
+const curbScores={c:0,u:0,r:0,b:0,age:0};
+function setCURB(key,val,el){
+  el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  curbScores[key]=val;
+  const total=Object.values(curbScores).reduce((a,b)=>a+b,0);
+  document.getElementById('curb-value').textContent=total;
+  let interp,color;
+  if(total>=3){color='danger';interp='🔴 Severa — Hospitalización + UCI';}
+  else if(total===2){color='warning';interp='🟡 Moderada — Hospitalización recomendada';}
+  else{color='success';interp='🟢 Leve — Tratamiento ambulatorio posible';}
+  const box=document.getElementById('curb-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('curb-interp').textContent=interp;
+  document.getElementById('curb-result').style.display='block';
+}
+
+// ── Wells DVT ────────────────────────────────────────────────
+const wellsDVTScores={cancer:0,paralysis:0,bed:0,pain:0,edema:0,calf:0,collat:0,prev:0,alt:0};
+function setWellsDVT(key,val,el){
+  el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  wellsDVTScores[key]=val;
+  const total=Object.values(wellsDVTScores).reduce((a,b)=>a+b,0);
+  document.getElementById('wellsdvt-value').textContent=total;
+  let interp,color;
+  if(total>=3){color='danger';interp='🔴 Alta probabilidad (~75%) — Tratar o confirmar';}
+  else if(total>=1){color='warning';interp='🟡 Probabilidad intermedia (~17%) — Eco Doppler';}
+  else{color='success';interp='🟢 Baja probabilidad (~3%) — D-Dímero primero';}
+  const box=document.getElementById('wellsdvt-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('wellsdvt-interp').textContent=interp;
+  document.getElementById('wellsdvt-result').style.display='block';
+}
+
+// ── Wells PE ─────────────────────────────────────────────────
+const wellsPEScores={prev:0,hr:0,surg:0,dvt:0,diag:0,hemo:0,cancer:0};
+function setWellsPE(key,val,el){
+  el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  wellsPEScores[key]=val;
+  const total=Object.values(wellsPEScores).reduce((a,b)=>a+b,0);
+  document.getElementById('wellspe-value').textContent=total.toFixed(1);
+  let interp,color;
+  if(total>6){color='danger';interp='🔴 Alta probabilidad (~66%) — TC Pulmonar urgente';}
+  else if(total>=2){color='warning';interp='🟡 Probabilidad moderada (~28%) — D-Dímero + imagen';}
+  else{color='success';interp='🟢 Baja probabilidad (~1%) — D-Dímero, si negativo descarta';}
+  const box=document.getElementById('wellspe-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('wellspe-interp').textContent=interp;
+  document.getElementById('wellspe-result').style.display='block';
+}
+
+// ── MELD-Na ──────────────────────────────────────────────────
+function calcMELD(){
+  let crea=parseFloat(document.getElementById('meld-crea').value)||0;
+  const bili=parseFloat(document.getElementById('meld-bili').value)||0;
+  const inr=parseFloat(document.getElementById('meld-inr').value)||0;
+  const na=parseFloat(document.getElementById('meld-na').value)||0;
+  if(!crea||!bili||!inr||!na)return;
+  crea=Math.min(crea,4.0);
+  const b=Math.max(bili,1),i=Math.max(inr,1),c=Math.max(crea,1);
+  const meld=Math.round(9.57*Math.log(c)+3.78*Math.log(b)+11.2*Math.log(i)+6.43);
+  const naCl=Math.max(125,Math.min(na,137));
+  const score=Math.round(meld+1.32*(137-naCl)-(0.033*meld*(137-naCl)));
+  document.getElementById('meld-value').textContent=score;
+  let interp,color;
+  if(score>=40){color='danger';interp='Mortalidad 3 meses >70% — Trasplante urgente';}
+  else if(score>=30){color='danger';interp='Mortalidad 3 meses ~50% — Trasplante prioritario';}
+  else if(score>=20){color='warning';interp='Mortalidad 3 meses ~20% — Lista de espera activa';}
+  else{color='success';interp='Mortalidad 3 meses <10% — Seguimiento ambulatorio';}
+  const box=document.getElementById('meld-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('meld-interp').textContent=interp;
+  document.getElementById('meld-result').style.display='block';
+}
+
+// ── CHA2DS2-VASc ─────────────────────────────────────────────
+const chadsScores={c:0,h:0,a2:0,d:0,s2:0,v:0,a:0,sc:0};
+function setCHADS(key,val,el){
+  el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  chadsScores[key]=val;
+  const total=Object.values(chadsScores).reduce((a,b)=>a+b,0);
+  document.getElementById('chads-value').textContent=total;
+  let interp,color;
+  if(total>=4){color='danger';interp='🔴 Riesgo alto — Anticoagulación obligatoria';}
+  else if(total>=2){color='warning';interp='🟡 Riesgo moderado-alto — Anticoagulación recomendada';}
+  else if(total===1){color='warning';interp='🟡 Riesgo bajo-moderado — Considerar anticoagulación';}
+  else{color='success';interp='🟢 Riesgo muy bajo — No anticoagulación';}
+  const box=document.getElementById('chads-box');
+  box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('chads-interp').textContent=interp;
+  document.getElementById('chads-result').style.display='block';
+}
+
+// ── Killip-Kimball ───────────────────────────────────────────
+function setKillip(clase,el){
+  document.querySelectorAll('#calc-killip > div:nth-child(3) > div').forEach(d=>{
+    d.style.borderColor='var(--border)'; d.style.background='var(--bg-surface)';
+  });
+  el.style.borderColor='var(--blue)'; el.style.background='rgba(59,130,246,0.1)';
+  const mortality={1:'~6%',2:'~17%',3:'~38%',4:'~81%'};
+  const colors={1:'success',2:'warning',3:'danger',4:'danger'};
+  document.getElementById('killip-value').textContent='Clase '+clase;
+  document.getElementById('killip-interp').textContent='Mortalidad hospitalaria '+mortality[clase];
+  const box=document.getElementById('killip-box');
+  box.style.cssText=`color:var(--${colors[clase]});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('killip-result').style.display='block';
+}
+
 }
 
 function initAPGAR() {
