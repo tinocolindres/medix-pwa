@@ -91,6 +91,7 @@
       background: var(--bg-primary);
       padding: 0;
       overflow-y: auto;
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     .auth-header {
@@ -134,7 +135,7 @@
       color: white;
     }
 
-    .auth-form { padding: 24px; }
+    .auth-form { padding: 24px; padding-bottom: 100px; }
     .auth-form.hidden { display: none; }
 
     .form-group { margin-bottom: 16px; }
@@ -1919,6 +1920,16 @@ async function doRegister() {
   const btn = document.getElementById('registerBtn');
   if (!firstName||!lastName||!email||!pass) { showError('registerError','Completa todos los campos'); return; }
   if (pass.length < 8) { showError('registerError','Contraseña mínimo 8 caracteres'); return; }
+
+  // Validación campos de residente
+  if (selectedRole === 'medico_residente') {
+    const specialty = document.getElementById('res-specialty').value;
+    const year = document.getElementById('res-year').value;
+    const hospital = document.getElementById('res-hospital').value;
+    if (!specialty) { showError('registerError','Selecciona tu especialidad'); return; }
+    if (!year) { showError('registerError','Selecciona tu año de residencia (R1-R5)'); return; }
+    if (!hospital) { showError('registerError','Selecciona tu hospital'); return; }
+  }
   btn.disabled = true; btn.textContent = 'Creando cuenta...';
   try {
     const res = await fetch(`${API}/auth/register`, {
