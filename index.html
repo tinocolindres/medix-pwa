@@ -923,14 +923,21 @@
       <label class="form-label">Rol</label>
       <div class="role-selector">
         <div class="role-option selected" onclick="selectRole('student', this)">
-          <span>👨‍🎓</span>
+          <span>🎓</span>
           <div class="role-option-text">
             <div class="role-option-title">Estudiante de Medicina</div>
           </div>
           <span class="role-check">✓</span>
         </div>
-        <div class="role-option" onclick="selectRole('medico_general', this)">
+        <div class="role-option" onclick="selectRole('medico_residente', this)">
           <span>🏥</span>
+          <div class="role-option-text">
+            <div class="role-option-title">Médico Residente</div>
+          </div>
+          <span class="role-check">✓</span>
+        </div>
+        <div class="role-option" onclick="selectRole('medico_general', this)">
+          <span>👨‍⚕️</span>
           <div class="role-option-text">
             <div class="role-option-title">Médico General</div>
           </div>
@@ -942,6 +949,67 @@
             <div class="role-option-title">Médico Especialista</div>
           </div>
           <span class="role-check">✓</span>
+        </div>
+      </div>
+
+      <!-- Datos de residencia -->
+      <div id="residency-fields" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:16px;margin-top:8px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:14px">🏥 Datos de Residencia</div>
+        <div class="form-group">
+          <label class="form-label">Especialidad *</label>
+          <select class="form-input" id="res-specialty">
+            <option value="">Selecciona tu especialidad</option>
+            <option>Medicina Interna</option><option>Pediatría</option>
+            <option>Ginecología y Obstetricia</option><option>Cirugía General</option>
+            <option>Anestesiología</option><option>Ortopedia y Traumatología</option>
+            <option>Neurocirugía</option><option>Neurología</option>
+            <option>Psiquiatría</option><option>Dermatología</option>
+            <option>Medicina de Rehabilitación</option><option>Neumología</option>
+            <option>Cardiología</option><option>Gastroenterología</option>
+            <option>Nefrología</option><option>Cirugía Pediátrica</option>
+            <option>Oncología Quirúrgica</option><option>Medicina Legal y Forense</option>
+            <option>Radiología e Imágenes</option><option>Oftalmología</option>
+            <option>Otorrinolaringología</option><option>Anatomía Patológica</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Año de residencia *</label>
+          <div style="display:flex;gap:8px">
+            ${['R1','R2','R3','R4','R5'].map(y => `
+              <div onclick="selectResYear('${y}',this)" style="padding:8px 14px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;color:var(--text-secondary)">${y}</div>
+            `).join('')}
+          </div>
+          <input type="hidden" id="res-year">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hospital *</label>
+          <select class="form-input" id="res-hospital">
+            <option value="">Selecciona tu hospital</option>
+            <option>Hospital Escuela Universitario (HEU) — Tegucigalpa</option>
+            <option>Hospital Mario Catarino Rivas (HMCR) — San Pedro Sula</option>
+            <option>IHSS — Instituto Hondureño de Seguridad Social</option>
+            <option>Hospital de Especialidades del IHSS</option>
+            <option>Hospital San Felipe — Tegucigalpa</option>
+            <option>Otro Hospital Público</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Especialidad para especialista -->
+      <div id="specialist-fields" style="display:none;margin-top:8px">
+        <div class="form-group">
+          <label class="form-label">Especialidad</label>
+          <select class="form-input" id="spec-specialty">
+            <option value="">Selecciona tu especialidad</option>
+            <option>Medicina Interna</option><option>Pediatría</option>
+            <option>Ginecología y Obstetricia</option><option>Cirugía General</option>
+            <option>Anestesiología</option><option>Ortopedia y Traumatología</option>
+            <option>Neurocirugía</option><option>Neurología</option>
+            <option>Psiquiatría</option><option>Dermatología</option>
+            <option>Cardiología</option><option>Gastroenterología</option>
+            <option>Nefrología</option><option>Radiología e Imágenes</option>
+            <option>Oftalmología</option><option>Otorrinolaringología</option>
+          </select>
         </div>
       </div>
     </div>
@@ -1798,6 +1866,20 @@ function selectRole(role, el) {
   selectedRole = role;
   document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
+  document.getElementById('residency-fields').style.display = role === 'medico_residente' ? 'block' : 'none';
+  document.getElementById('specialist-fields').style.display = role === 'medico_especialista' ? 'block' : 'none';
+}
+
+function selectResYear(year, el) {
+  document.querySelectorAll('#residency-fields .form-group:nth-child(2) > div > div').forEach(d => {
+    d.style.background = 'var(--bg-surface)';
+    d.style.borderColor = 'var(--border)';
+    d.style.color = 'var(--text-secondary)';
+  });
+  el.style.background = 'var(--blue)';
+  el.style.borderColor = 'var(--blue)';
+  el.style.color = 'white';
+  document.getElementById('res-year').value = year;
 }
 
 async function doLogin() {
@@ -1840,7 +1922,18 @@ async function doRegister() {
     const res = await fetch(`${API}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password: pass, role: selectedRole })
+      body: JSON.stringify({
+        first_name: firstName, last_name: lastName,
+        email, password: pass, role: selectedRole,
+        ...(selectedRole === 'medico_residente' ? {
+          specialty: document.getElementById('res-specialty').value,
+          residency_year: document.getElementById('res-year').value,
+          hospital: document.getElementById('res-hospital').value,
+        } : {}),
+        ...(selectedRole === 'medico_especialista' ? {
+          specialty: document.getElementById('spec-specialty').value,
+        } : {}),
+      })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Error al registrar');
