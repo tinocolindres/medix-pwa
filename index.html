@@ -1680,6 +1680,9 @@
             </div>
           </div>
           <div id="ob-alerta" style="margin-top:10px;padding:10px;border-radius:8px;font-size:12px;display:none"></div>
+          <div style="margin-top:12px;text-align:center">
+            <button onclick="clearOBWheel()" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:6px 16px;border-radius:8px;cursor:pointer">🗑 Limpiar</button>
+          </div>
         </div>
       </div>
 
@@ -1719,6 +1722,9 @@
             </div>
           </div>
           <div id="pf-alerta" style="margin-top:8px;padding:10px;border-radius:8px;font-size:12px"></div>
+          <div style="margin-top:12px;text-align:center">
+            <button onclick="clearPesoFetal()" style="background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:6px 16px;border-radius:8px;cursor:pointer">🗑 Limpiar</button>
+          </div>
         </div>
       </div>
 
@@ -3063,6 +3069,22 @@ function calcOBByEco() {
   // FPP = fecha eco + (280 - EG en días al momento del eco)
   const fpp = new Date(eco); fpp.setDate(fpp.getDate() + (280 - (weeks*7+days)));
   showOBResult(egTotal, fpp);
+}
+
+function clearOBWheel() {
+  document.getElementById('ob-fum-date').value = '';
+  document.getElementById('ob-fpp-date').value = '';
+  document.getElementById('ob-eco-weeks').value = '';
+  document.getElementById('ob-eco-days').value = '';
+  document.getElementById('ob-eco-date').value = '';
+  document.getElementById('ob-result').style.display = 'none';
+}
+
+function clearPesoFetal() {
+  document.getElementById('pf-eg').value = '';
+  document.getElementById('pf-peso').value = '';
+  document.getElementById('pf-sexo').value = 'ambos';
+  document.getElementById('pf-result').style.display = 'none';
 }
 
 // ── Peso Fetal / Percentil WHO ────────────────────────────────
