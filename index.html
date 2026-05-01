@@ -1737,7 +1737,21 @@
         <div class="appbar-sub" style="color:var(--cyan)">Honduras oficial</div>
       </div>
     </div>
-    <div class="sesal-content">
+
+    <!-- Sub-tabs SESAL / CIE-11 -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg-surface)">
+      <button id="sub-sesal-btn" onclick="switchSesalSub('sesal')"
+        style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--cyan);color:var(--cyan);font-size:13px;font-weight:600;cursor:pointer">
+        📋 Normas SESAL
+      </button>
+      <button id="sub-cie-btn" onclick="switchSesalSub('cie')"
+        style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer">
+        🏥 CIE-11
+      </button>
+    </div>
+
+    <!-- SESAL content -->
+    <div id="sub-sesal-content" class="sesal-content">
       <div class="sesal-header">
         <span>✅</span>
         <span style="font-size:12px;color:var(--cyan)">Respuestas basadas en guías clínicas oficiales de la Secretaría de Salud de Honduras (SESAL).</span>
@@ -1763,6 +1777,34 @@
         <div class="spinner" style="margin:0 auto 12px"></div>
         <div style="color:var(--text-secondary);font-size:13px">Consultando normas SESAL...</div>
       </div>
+    </div>
+
+    <!-- CIE-11 content -->
+    <div id="sub-cie-content" style="display:none;padding:16px;overflow-y:auto;max-height:calc(100dvh - 160px)">
+      <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:12px;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--blue);font-weight:600">🌐 CIE-11 — Clasificación Internacional de Enfermedades</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">API oficial de la Organización Mundial de la Salud (OMS)</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input type="text" id="cie11Input" class="sesal-input" placeholder="Buscar diagnóstico o código CIE-11..."
+          onkeydown="if(event.key==='Enter')searchCIE11()"
+          style="flex:1;border-color:var(--blue)">
+        <button onclick="searchCIE11()" class="sesal-btn" id="cie11Btn" style="background:var(--blue)">➤</button>
+      </div>
+      <!-- Quick searches -->
+      <div class="quick-queries" style="margin-bottom:14px">
+        <div class="quick-query" onclick="cie11Quick(this)">Diabetes mellitus</div>
+        <div class="quick-query" onclick="cie11Quick(this)">Hipertensión</div>
+        <div class="quick-query" onclick="cie11Quick(this)">Neumonía</div>
+        <div class="quick-query" onclick="cie11Quick(this)">Dengue</div>
+        <div class="quick-query" onclick="cie11Quick(this)">Sepsis</div>
+        <div class="quick-query" onclick="cie11Quick(this)">Preeclampsia</div>
+      </div>
+      <div id="cie11Loading" style="display:none;text-align:center;padding:30px">
+        <div class="spinner" style="margin:0 auto 12px"></div>
+        <div style="color:var(--text-secondary);font-size:13px">Buscando en CIE-11...</div>
+      </div>
+      <div id="cie11Results" style="display:none"></div>
     </div>
   </div>
 
@@ -3278,6 +3320,120 @@ function calcShock() {
   const box = document.getElementById('shock-box');
   box.style.color = color;
   result.style.display = 'block';
+}
+
+// ── CIE-11 ────────────────────────────────────────────────────
+function switchSesalSub(tab) {
+  const isSesal = tab === 'sesal';
+  document.getElementById('sub-sesal-content').style.display = isSesal ? 'block' : 'none';
+  document.getElementById('sub-cie-content').style.display = isSesal ? 'none' : 'block';
+  document.getElementById('sub-sesal-btn').style.borderBottomColor = isSesal ? 'var(--cyan)' : 'transparent';
+  document.getElementById('sub-sesal-btn').style.color = isSesal ? 'var(--cyan)' : 'var(--text-secondary)';
+  document.getElementById('sub-cie-btn').style.borderBottomColor = isSesal ? 'transparent' : 'var(--blue)';
+  document.getElementById('sub-cie-btn').style.color = isSesal ? 'var(--text-secondary)' : 'var(--blue)';
+}
+
+function cie11Quick(el) {
+  document.getElementById('cie11Input').value = el.textContent;
+  searchCIE11();
+}
+
+async function searchCIE11() {
+  const query = document.getElementById('cie11Input').value.trim();
+  if (!query) return;
+  const btn = document.getElementById('cie11Btn');
+  btn.disabled = true;
+  document.getElementById('cie11Loading').style.display = 'block';
+  document.getElementById('cie11Results').style.display = 'none';
+
+  try {
+    // Usar API pública ICD-11 de la OMS
+    const token = await getCIE11Token();
+    const url = `https://id.who.int/icd/entity/search?q=${encodeURIComponent(query)}&flatResults=true&useFlexisearch=true&lang=es`;
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Accept-Language': 'es',
+        'API-Version': 'v2',
+      }
+    });
+    const data = await res.json();
+    renderCIE11Results(data, query);
+  } catch(e) {
+    // Fallback: buscar via IA con contexto CIE-11
+    await searchCIE11IA(query);
+  } finally {
+    document.getElementById('cie11Loading').style.display = 'none';
+    btn.disabled = false;
+  }
+}
+
+let _cie11Token = null;
+let _cie11TokenExpiry = 0;
+async function getCIE11Token() {
+  if (_cie11Token && Date.now() < _cie11TokenExpiry) return _cie11Token;
+  const res = await fetch('https://icdaccessmanagement.who.int/connect/token', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'grant_type=client_credentials&client_id=9578ba00-df8c-4db3-b2fe-1fcb9d3b1f79_34d39b0f-b67c-473b-9f67-2c9f7d3d5e2f&client_secret=Aw4k1/Q2w3q/PaZ8a/ZCMFa99P14M6Kq3s0xPRB67fs=&scope=icdapi_access'
+  });
+  const data = await res.json();
+  _cie11Token = data.access_token;
+  _cie11TokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+  return _cie11Token;
+}
+
+function renderCIE11Results(data, query) {
+  const results = document.getElementById('cie11Results');
+  if (!data.destinationEntities || data.destinationEntities.length === 0) {
+    results.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary)">
+      Sin resultados para "<b>${query}</b>"<br><span style="font-size:12px">Intenta con otro término</span></div>`;
+    results.style.display = 'block';
+    return;
+  }
+  const items = data.destinationEntities.slice(0, 10).map(e => {
+    const code = e.theCode || '—';
+    const title = e.title || e.entityType || 'Sin título';
+    return `<div style="padding:12px;margin-bottom:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--blue)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="background:rgba(59,130,246,0.15);color:var(--blue);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;font-family:monospace">${code}</span>
+        <span style="font-size:13px;font-weight:600;color:var(--text-primary)">${title}</span>
+      </div>
+      ${e.matchingPVs && e.matchingPVs.length > 0 ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:4px">${e.matchingPVs.slice(0,2).map(p=>p.label).join(' · ')}</div>` : ''}
+    </div>`;
+  }).join('');
+  results.innerHTML = `
+    <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">
+      ${data.destinationEntities.length} resultado(s) para "<b>${query}</b>" — CIE-11 OMS</div>
+    ${items}
+    <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">
+      Fuente: API oficial ICD-11 OMS · id.who.int</div>`;
+  results.style.display = 'block';
+}
+
+async function searchCIE11IA(query) {
+  // Fallback con IA cuando la API de OMS no responde
+  const results = document.getElementById('cie11Results');
+  try {
+    const resp = await fetch(`${API}/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+      body: JSON.stringify({
+        message: `Busca en CIE-11 el diagnóstico o término: "${query}". Devuelve los códigos CIE-11 más relevantes con su descripción oficial en español. Formato: CÓDIGO — Descripción. Máximo 5 resultados.`,
+        mode: 'chat', session_id: null
+      })
+    });
+    const data = await resp.json();
+    results.innerHTML = `<div style="padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px">
+      <div style="font-size:11px;color:var(--warning);margin-bottom:8px">⚠️ Resultados via IA (API OMS no disponible)</div>
+      <div style="font-size:13px;color:var(--text-primary);white-space:pre-wrap">${data.response||'Sin resultados'}</div>
+    </div>`;
+    results.style.display = 'block';
+  } catch(e) {
+    results.innerHTML = `<div style="color:var(--danger);padding:12px">Error al buscar. Verifica tu conexión.</div>`;
+    results.style.display = 'block';
+  }
 }
 
 // ── SESAL ──────────────────────────────────────────────────────
