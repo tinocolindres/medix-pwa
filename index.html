@@ -3347,94 +3347,68 @@ async function searchCIE11() {
   document.getElementById('cie11Results').style.display = 'none';
 
   try {
-    // Usar API pública ICD-11 de la OMS
-    const token = await getCIE11Token();
-    const url = `https://id.who.int/icd/entity/search?q=${encodeURIComponent(query)}&flatResults=true&useFlexisearch=true&lang=es`;
-    const res = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'Accept-Language': 'es',
-        'API-Version': 'v2',
-      }
+    const resp = await fetch(`${API}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        message: `Eres un experto en clasificación CIE-11 (Clasificación Internacional de Enfermedades 11ª revisión de la OMS).
+
+Busca el término: "${query}"
+
+Responde con los 5 códigos CIE-11 más relevantes en este formato exacto:
+**CÓDIGO** — Nombre oficial en español
+> Descripción breve (1-2 líneas máximo)
+
+Incluye el código alfanumérico CIE-11 completo (ej: 5A11, BA00.0, CA40.00, etc.).
+Si hay subcategorías importantes, inclúyelas.
+Al final agrega una línea: "🔗 Fuente: CIE-11 OMS (icd.who.int)"`,
+        mode: 'chat',
+        session_id: null
+      })
     });
-    const data = await res.json();
-    renderCIE11Results(data, query);
+    const data = await resp.json();
+    renderCIE11AI(data.response || data.message || '', query);
   } catch(e) {
-    // Fallback: buscar via IA con contexto CIE-11
-    await searchCIE11IA(query);
+    document.getElementById('cie11Results').innerHTML =
+      `<div style="color:var(--danger);padding:12px;border-radius:8px;background:rgba(239,68,68,0.1)">
+        ❌ Error al buscar. Verifica tu conexión e intenta de nuevo.</div>`;
+    document.getElementById('cie11Results').style.display = 'block';
   } finally {
     document.getElementById('cie11Loading').style.display = 'none';
     btn.disabled = false;
   }
 }
 
-let _cie11Token = null;
-let _cie11TokenExpiry = 0;
-async function getCIE11Token() {
-  if (_cie11Token && Date.now() < _cie11TokenExpiry) return _cie11Token;
-  const res = await fetch('https://icdaccessmanagement.who.int/connect/token', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: 'grant_type=client_credentials&client_id=9578ba00-df8c-4db3-b2fe-1fcb9d3b1f79_34d39b0f-b67c-473b-9f67-2c9f7d3d5e2f&client_secret=Aw4k1/Q2w3q/PaZ8a/ZCMFa99P14M6Kq3s0xPRB67fs=&scope=icdapi_access'
-  });
-  const data = await res.json();
-  _cie11Token = data.access_token;
-  _cie11TokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-  return _cie11Token;
-}
-
-function renderCIE11Results(data, query) {
+function renderCIE11AI(text, query) {
   const results = document.getElementById('cie11Results');
-  if (!data.destinationEntities || data.destinationEntities.length === 0) {
+  if (!text || text.trim() === '') {
     results.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-secondary)">
-      Sin resultados para "<b>${query}</b>"<br><span style="font-size:12px">Intenta con otro término</span></div>`;
+      Sin resultados para "<b>${query}</b>"</div>`;
     results.style.display = 'block';
     return;
   }
-  const items = data.destinationEntities.slice(0, 10).map(e => {
-    const code = e.theCode || '—';
-    const title = e.title || e.entityType || 'Sin título';
-    return `<div style="padding:12px;margin-bottom:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--blue)">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-        <span style="background:rgba(59,130,246,0.15);color:var(--blue);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;font-family:monospace">${code}</span>
-        <span style="font-size:13px;font-weight:600;color:var(--text-primary)">${title}</span>
-      </div>
-      ${e.matchingPVs && e.matchingPVs.length > 0 ? `<div style="font-size:11px;color:var(--text-secondary);margin-top:4px">${e.matchingPVs.slice(0,2).map(p=>p.label).join(' · ')}</div>` : ''}
-    </div>`;
-  }).join('');
+
+  // Parsear markdown a HTML básico
+  let html = text
+    .replace(/\*\*([^*]+)\*\*/g, '<span style="font-weight:700;color:var(--blue);font-family:monospace">$1</span>')
+    .replace(/^> (.+)$/gm, '<div style="font-size:11px;color:var(--text-secondary);margin:4px 0 8px 0;padding-left:8px;border-left:2px solid var(--border)">$1</div>')
+    .replace(/^—(.+)$/gm, '<span style="color:var(--text-primary)">—$1</span>')
+    .replace(/\n\n/g, '</div><div style="padding:12px;margin-bottom:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--blue)">')
+    .replace(/\n/g, '<br>');
+
   results.innerHTML = `
     <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">
-      ${data.destinationEntities.length} resultado(s) para "<b>${query}</b>" — CIE-11 OMS</div>
-    ${items}
+      Resultados CIE-11 para "<b>${query}</b>" — OMS</div>
+    <div style="padding:12px;margin-bottom:8px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;border-left:3px solid var(--blue)">${html}</div>
     <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">
-      Fuente: API oficial ICD-11 OMS · id.who.int</div>`;
+      ⚕️ Basado en CIE-11 OMS · icd.who.int · Verifica en la versión oficial</div>
+    <button onclick="document.getElementById('cie11Results').style.display='none';document.getElementById('cie11Input').value=''"
+      style="display:block;margin:12px auto 0;background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer">
+      🔄 Nueva búsqueda</button>`;
   results.style.display = 'block';
 }
 
-async function searchCIE11IA(query) {
-  // Fallback con IA cuando la API de OMS no responde
-  const results = document.getElementById('cie11Results');
-  try {
-    const resp = await fetch(`${API}/chat`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-      body: JSON.stringify({
-        message: `Busca en CIE-11 el diagnóstico o término: "${query}". Devuelve los códigos CIE-11 más relevantes con su descripción oficial en español. Formato: CÓDIGO — Descripción. Máximo 5 resultados.`,
-        mode: 'chat', session_id: null
-      })
-    });
-    const data = await resp.json();
-    results.innerHTML = `<div style="padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px">
-      <div style="font-size:11px;color:var(--warning);margin-bottom:8px">⚠️ Resultados via IA (API OMS no disponible)</div>
-      <div style="font-size:13px;color:var(--text-primary);white-space:pre-wrap">${data.response||'Sin resultados'}</div>
-    </div>`;
-    results.style.display = 'block';
-  } catch(e) {
-    results.innerHTML = `<div style="color:var(--danger);padding:12px">Error al buscar. Verifica tu conexión.</div>`;
-    results.style.display = 'block';
-  }
-}
+// ── SESAL ─────────────────────────────────────────────────────
 
 // ── SESAL ──────────────────────────────────────────────────────
 async function querySESAL() {
