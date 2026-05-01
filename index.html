@@ -3347,7 +3347,7 @@ async function searchCIE11() {
   document.getElementById('cie11Results').style.display = 'none';
 
   try {
-    const resp = await fetch(`${API}/chat`, {
+    const resp = await fetch(`${API}/analysis/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({
