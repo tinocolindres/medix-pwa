@@ -618,6 +618,18 @@
     .dose-mg { color: var(--blue); font-weight: 700; font-size: 16px; }
     .dose-max { color: var(--warning); font-size: 10px; }
 
+    /* ── IFOM ── */
+    .ifom-sys-btn {
+      padding: 6px 12px; border-radius: 20px; font-size: 12px; cursor: pointer;
+      background: var(--bg-surface); border: 1.5px solid var(--border);
+      color: var(--text-secondary); font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    .ifom-sys-btn.active {
+      background: rgba(245,158,11,0.15); border-color: var(--warning);
+      color: var(--warning); font-weight: 600;
+    }
+
     /* ── SESAL ── */
     .sesal-content { padding: 16px; }
 
@@ -1095,6 +1107,11 @@
           <div class="module-icon" style="background:rgba(6,182,212,0.15)">📋</div>
           <div class="module-title">Normas SESAL</div>
           <div class="module-sub">Protocolos Honduras</div>
+        </div>
+        <div class="module-card" onclick="switchTab('ifom')">
+          <div class="module-icon" style="background:rgba(245,158,11,0.15)">📚</div>
+          <div class="module-title">IFOM Q-Bank</div>
+          <div class="module-sub">Preparación posgrado</div>
         </div>
       </div>
 
@@ -1808,6 +1825,96 @@
     </div>
   </div>
 
+  <!-- IFOM Q-Bank Tab -->
+  <div class="tab-content" id="tab-ifom">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(245,158,11,0.15)">📚</div>
+      <div style="flex:1">
+        <div class="appbar-title">IFOM Q-Bank</div>
+        <div class="appbar-sub" style="color:var(--warning)">Preparación posgrado Honduras</div>
+      </div>
+    </div>
+    <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
+
+      <!-- Info banner -->
+      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;margin-bottom:16px">
+        <div style="font-size:12px;color:var(--warning);font-weight:600">📋 IFOM — International Foundations of Medicine</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">160 preguntas · Viñetas clínicas · Basado en temario oficial NBME 2026</div>
+      </div>
+
+      <!-- Selector de sistema -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:8px">SELECCIONA UN SISTEMA</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button onclick="startIFOM('aleatorio',this)" class="ifom-sys-btn active">🎲 Aleatorio</button>
+          <button onclick="startIFOM('cardiovascular',this)" class="ifom-sys-btn">❤️ Cardiovascular</button>
+          <button onclick="startIFOM('respiratorio',this)" class="ifom-sys-btn">🫁 Respiratorio</button>
+          <button onclick="startIFOM('gastrointestinal',this)" class="ifom-sys-btn">🫃 Gastrointestinal</button>
+          <button onclick="startIFOM('nervioso',this)" class="ifom-sys-btn">🧠 Sistema Nervioso</button>
+          <button onclick="startIFOM('renal',this)" class="ifom-sys-btn">🫘 Renal y Urinario</button>
+          <button onclick="startIFOM('endocrino',this)" class="ifom-sys-btn">⚡ Endocrino</button>
+          <button onclick="startIFOM('obstetricia',this)" class="ifom-sys-btn">🤰 Obstetricia</button>
+          <button onclick="startIFOM('musculoesqueletico',this)" class="ifom-sys-btn">🦴 Musculoesquelético</button>
+          <button onclick="startIFOM('infectologia',this)" class="ifom-sys-btn">🦠 Infectología</button>
+          <button onclick="startIFOM('psiquiatria',this)" class="ifom-sys-btn">🧘 Psiquiatría</button>
+          <button onclick="startIFOM('pediatria',this)" class="ifom-sys-btn">👶 Pediatría</button>
+        </div>
+      </div>
+
+      <button onclick="generateIFOMQuestion()" id="ifom-gen-btn"
+        style="width:100%;padding:14px;background:var(--warning);border:none;border-radius:12px;color:white;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px">
+        ➤ Generar pregunta IFOM
+      </button>
+
+      <!-- Loading -->
+      <div id="ifom-loading" style="display:none;text-align:center;padding:30px">
+        <div class="spinner" style="margin:0 auto 12px;border-top-color:var(--warning)"></div>
+        <div style="color:var(--text-secondary);font-size:13px">Generando pregunta IFOM...</div>
+      </div>
+
+      <!-- Pregunta -->
+      <div id="ifom-question-area" style="display:none">
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span id="ifom-sistema-badge" style="font-size:10px;font-weight:700;color:var(--warning);background:rgba(245,158,11,0.15);padding:3px 8px;border-radius:6px">SISTEMA</span>
+            <span style="font-size:10px;color:var(--text-muted)">IFOM 2026</span>
+          </div>
+          <div id="ifom-vignette" style="font-size:13px;color:var(--text-primary);line-height:1.6;margin-bottom:14px"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:10px">¿Cuál es la conducta más apropiada?</div>
+          <div id="ifom-options" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <!-- Explicación -->
+      <div id="ifom-explanation" style="display:none">
+        <div id="ifom-exp-box" style="padding:14px;border-radius:12px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:6px" id="ifom-exp-title"></div>
+          <div id="ifom-exp-text" style="font-size:13px;line-height:1.6;color:var(--text-primary)"></div>
+        </div>
+        <button onclick="generateIFOMQuestion()"
+          style="width:100%;padding:12px;background:var(--bg-surface);border:1.5px solid var(--warning);border-radius:10px;color:var(--warning);font-size:14px;font-weight:600;cursor:pointer">
+          ➤ Siguiente pregunta
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div id="ifom-stats" style="margin-top:16px;display:flex;gap:10px">
+        <div style="flex:1;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--success)" id="ifom-correct">0</div>
+          <div style="font-size:10px;color:var(--text-muted)">Correctas</div>
+        </div>
+        <div style="flex:1;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--danger)" id="ifom-wrong">0</div>
+          <div style="font-size:10px;color:var(--text-muted)">Incorrectas</div>
+        </div>
+        <div style="flex:1;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:18px;font-weight:700;color:var(--blue)" id="ifom-pct">0%</div>
+          <div style="font-size:10px;color:var(--text-muted)">Efectividad</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Profile Tab -->
   <div class="tab-content" id="tab-profile">
     <div class="appbar">
@@ -2243,6 +2350,10 @@
     <button class="nav-item" onclick="switchTab('sesal')" id="nav-sesal">
       <span class="nav-icon">📋</span>
       <span>SESAL</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('ifom')" id="nav-ifom">
+      <span class="nav-icon">📚</span>
+      <span>IFOM</span>
     </button>
     <button class="nav-item" onclick="switchTab('profile')" id="nav-profile">
       <span class="nav-icon">👤</span>
@@ -3408,9 +3519,112 @@ function renderCIE11AI(text, query) {
   results.style.display = 'block';
 }
 
-// ── SESAL ─────────────────────────────────────────────────────
+// ── IFOM Q-Bank ───────────────────────────────────────────────
+let ifomSistema = 'aleatorio';
+let ifomCorrect = 0, ifomWrong = 0;
+let ifomAnswered = false;
+let ifomCorrectIdx = -1;
 
-// ── SESAL ──────────────────────────────────────────────────────
+const ifomSistemas = {
+  aleatorio: 'Aleatorio',
+  cardiovascular: 'Sistema Cardiovascular',
+  respiratorio: 'Sistema Respiratorio',
+  gastrointestinal: 'Sistema Gastrointestinal',
+  nervioso: 'Sistema Nervioso y Sentidos Especiales',
+  renal: 'Sistemas Renal y Urinario',
+  endocrino: 'Sistema Endocrino',
+  obstetricia: 'Embarazo, Parto y Puerperio',
+  musculoesqueletico: 'Sistema Musculoesquelético',
+  infectologia: 'Procesos y Trastornos Multisistémicos',
+  psiquiatria: 'Salud Conductual',
+  pediatria: 'Hallazgos Normales / Pediatría',
+};
+
+function startIFOM(sistema, el) {
+  ifomSistema = sistema;
+  document.querySelectorAll('.ifom-sys-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function generateIFOMQuestion() {
+  if (!token) { showToast('Inicia sesión para usar IFOM'); return; }
+  ifomAnswered = false;
+  document.getElementById('ifom-loading').style.display = 'block';
+  document.getElementById('ifom-question-area').style.display = 'none';
+  document.getElementById('ifom-explanation').style.display = 'none';
+
+  const sistemasArr = Object.entries(ifomSistemas).filter(([k]) => k !== 'aleatorio').map(([,v]) => v);
+  const sistemaFinal = ifomSistema === 'aleatorio'
+    ? sistemasArr[Math.floor(Math.random() * sistemasArr.length)]
+    : ifomSistemas[ifomSistema];
+
+  try {
+    const res = await fetch(`${API}/analysis/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        message: `Genera una pregunta IFOM estilo NBME para: "${sistemaFinal}". Responde SOLO con JSON válido sin markdown:\n{"sistema":"${sistemaFinal}","vignette":"Viñeta clínica 3-5 oraciones con paciente hondureño (nombre, edad, ciudad de Honduras). Incluye presentación clínica, signos vitales y datos de laboratorio relevantes.","options":["A. opción 1","B. opción 2","C. opción 3","D. opción 4","E. opción 5"],"correct":0,"explanation":"Explicación detallada de por qué la opción A es correcta y por qué las demás son incorrectas. Menciona el concepto IFOM evaluado."}`,
+        mode: 'chat',
+        session_id: null
+      })
+    });
+    const data = await res.json();
+    const text = (data.response || '').replace(/```json|```/g, '').trim();
+    const q = JSON.parse(text);
+    renderIFOMQuestion(q, sistemaFinal);
+  } catch(e) {
+    showToast('Error al generar pregunta. Intenta de nuevo.');
+    document.getElementById('ifom-loading').style.display = 'none';
+  }
+}
+
+function renderIFOMQuestion(q, sistema) {
+  const opts = (q.options || []).map((o, i) => ({ text: o, isCorrect: i === (q.correct || 0) }));
+  for (let i = opts.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]];
+  }
+  ifomCorrectIdx = opts.findIndex(o => o.isCorrect);
+  window._ifomOpts = opts;
+  window._ifomExplanation = q.explanation || '';
+
+  document.getElementById('ifom-vignette').textContent = q.vignette || '';
+  document.getElementById('ifom-sistema-badge').textContent = sistema;
+
+  const letters = ['A','B','C','D','E'];
+  document.getElementById('ifom-options').innerHTML = opts.map((o,i) =>
+    `<button onclick="answerIFOM(${i},this)" style="text-align:left;padding:12px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;color:var(--text-primary);width:100%;font-family:'DM Sans',sans-serif">
+      <span style="font-weight:700;color:var(--blue)">${letters[i]}.</span> ${o.text.replace(/^[A-E]\.\s*/,'')}</button>`).join('');
+
+  document.getElementById('ifom-loading').style.display = 'none';
+  document.getElementById('ifom-question-area').style.display = 'block';
+}
+
+function answerIFOM(idx, btn) {
+  if (ifomAnswered) return;
+  ifomAnswered = true;
+  const isCorrect = idx === ifomCorrectIdx;
+  const letters = ['A','B','C','D','E'];
+  document.querySelectorAll('#ifom-options button').forEach((b,i) => {
+    if (i===ifomCorrectIdx) { b.style.background='rgba(16,185,129,0.15)'; b.style.borderColor='var(--success)'; b.style.color='var(--success)'; }
+    else if (i===idx) { b.style.background='rgba(239,68,68,0.15)'; b.style.borderColor='var(--danger)'; b.style.color='var(--danger)'; }
+    b.style.cursor='default';
+  });
+  if (isCorrect) ifomCorrect++; else ifomWrong++;
+  const total = ifomCorrect+ifomWrong;
+  document.getElementById('ifom-correct').textContent = ifomCorrect;
+  document.getElementById('ifom-wrong').textContent = ifomWrong;
+  document.getElementById('ifom-pct').textContent = Math.round(ifomCorrect/total*100)+'%';
+  const expBox = document.getElementById('ifom-exp-box');
+  document.getElementById('ifom-exp-title').textContent = isCorrect ? '✅ ¡Correcto!' : `❌ Incorrecto — La respuesta correcta era ${letters[ifomCorrectIdx]}`;
+  document.getElementById('ifom-exp-text').textContent = window._ifomExplanation;
+  expBox.style.cssText = isCorrect
+    ? 'padding:14px;border-radius:12px;margin-bottom:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)'
+    : 'padding:14px;border-radius:12px;margin-bottom:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3)';
+  document.getElementById('ifom-explanation').style.display = 'block';
+  setTimeout(()=>document.getElementById('ifom-explanation').scrollIntoView({behavior:'smooth'}),100);
+}
+
+// ── SESAL ─────────────────────────────────────────────────────
 async function querySESAL() {
   const query = document.getElementById('sesalInput').value.trim();
   if (!query) return;
