@@ -1179,6 +1179,8 @@
       <button class="calc-tab" onclick="switchCalc('meld', this)">MELD</button>
       <button class="calc-tab" onclick="switchCalc('chads', this)">CHA₂DS₂</button>
       <button class="calc-tab" onclick="switchCalc('killip', this)">Killip</button>
+      <button class="calc-tab" onclick="switchCalc('obwheel', this)">🤰 OB Wheel</button>
+      <button class="calc-tab" onclick="switchCalc('pesoFetal', this)">📊 Peso Fetal</button>
     </div>
     <div class="calc-content">
 
@@ -1612,9 +1614,116 @@
         </div>
       </div>
 
+      <!-- OB Wheel -->
+      <div class="calc-panel" id="calc-obwheel">
+        <div class="calc-title">🤰 OB Wheel</div>
+        <div class="calc-sub">Calculadora obstétrica — FUM, FPP, EG, Trimestres</div>
+
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button onclick="setOBMode('fum',this)" class="score-btn active" style="flex:1">Por FUM</button>
+          <button onclick="setOBMode('fpp',this)" class="score-btn" style="flex:1">Por FPP</button>
+          <button onclick="setOBMode('eco',this)" class="score-btn" style="flex:1">Por Eco</button>
+        </div>
+
+        <div id="ob-fum-section">
+          <div class="calc-group">
+            <div class="calc-label">Fecha Última Menstruación (FUM)</div>
+            <input type="date" class="calc-input" id="ob-fum-date" oninput="calcOBWheel()">
+          </div>
+        </div>
+
+        <div id="ob-fpp-section" style="display:none">
+          <div class="calc-group">
+            <div class="calc-label">Fecha Probable de Parto (FPP)</div>
+            <input type="date" class="calc-input" id="ob-fpp-date" oninput="calcOBByFPP()">
+          </div>
+        </div>
+
+        <div id="ob-eco-section" style="display:none">
+          <div class="calc-group">
+            <div class="calc-label">EG por Ultrasonido (semanas + días)</div>
+            <div style="display:flex;gap:8px">
+              <input type="number" class="calc-input" id="ob-eco-weeks" placeholder="Sem" min="4" max="42" oninput="calcOBByEco()" style="flex:1">
+              <input type="number" class="calc-input" id="ob-eco-days" placeholder="Días" min="0" max="6" oninput="calcOBByEco()" style="flex:1">
+            </div>
+          </div>
+          <div class="calc-group">
+            <div class="calc-label">Fecha del Ultrasonido</div>
+            <input type="date" class="calc-input" id="ob-eco-date" oninput="calcOBByEco()">
+          </div>
+        </div>
+
+        <div id="ob-result" style="display:none;margin-top:16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="result-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+              <div class="result-label">EDAD GESTACIONAL</div>
+              <div class="result-value" id="ob-eg" style="font-size:20px">—</div>
+              <div class="result-sub" id="ob-eg-dias"></div>
+            </div>
+            <div class="result-box" style="color:var(--success);border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.1)">
+              <div class="result-label">FPP (Naegele)</div>
+              <div class="result-value" id="ob-fpp-val" style="font-size:14px;font-weight:600">—</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+            <div class="result-box" style="color:var(--text-secondary);border-color:var(--border);background:var(--bg-surface);padding:10px">
+              <div class="result-label" style="font-size:9px">TRIMESTRE</div>
+              <div style="font-size:14px;font-weight:700;color:var(--text-primary)" id="ob-trimestre">—</div>
+            </div>
+            <div class="result-box" style="color:var(--text-secondary);border-color:var(--border);background:var(--bg-surface);padding:10px">
+              <div class="result-label" style="font-size:9px">INICIO 2° TRIM</div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-primary)" id="ob-t2">—</div>
+            </div>
+            <div class="result-box" style="color:var(--text-secondary);border-color:var(--border);background:var(--bg-surface);padding:10px">
+              <div class="result-label" style="font-size:9px">INICIO 3° TRIM</div>
+              <div style="font-size:11px;font-weight:600;color:var(--text-primary)" id="ob-t3">—</div>
+            </div>
+          </div>
+          <div id="ob-alerta" style="margin-top:10px;padding:10px;border-radius:8px;font-size:12px;display:none"></div>
+        </div>
+      </div>
+
+      <!-- Peso Fetal / Percentil WHO -->
+      <div class="calc-panel" id="calc-pesoFetal">
+        <div class="calc-title">📊 Crecimiento Fetal WHO</div>
+        <div class="calc-sub">Percentil de peso fetal — Tablas OMS</div>
+        <div class="calc-group">
+          <div class="calc-label">Edad Gestacional (semanas)</div>
+          <input type="number" class="calc-input" id="pf-eg" placeholder="14-40 semanas" min="14" max="40" oninput="calcPesoFetal()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Peso Fetal Estimado (gramos)</div>
+          <input type="number" class="calc-input" id="pf-peso" placeholder="Ej: 2500" oninput="calcPesoFetal()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Sexo fetal</div>
+          <select class="calc-input" id="pf-sexo" onchange="calcPesoFetal()">
+            <option value="ambos">No determinado / Ambos</option>
+            <option value="masculino">Masculino</option>
+            <option value="femenino">Femenino</option>
+          </select>
+        </div>
+        <div id="pf-result" style="display:none;margin-top:16px">
+          <div class="result-box" id="pf-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+            <div class="result-label">PERCENTIL ESTIMADO</div>
+            <div class="result-value" id="pf-value">P50</div>
+            <div class="result-sub" id="pf-interp"></div>
+          </div>
+          <div style="margin-top:10px;padding:10px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;font-weight:600">REFERENCIA OMS para <span id="pf-eg-ref"></span> semanas:</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center">
+              <div style="font-size:10px;color:var(--text-muted)">P3<br><span id="pf-p3" style="color:var(--text-primary);font-weight:600"></span>g</div>
+              <div style="font-size:10px;color:var(--text-muted)">P10<br><span id="pf-p10" style="color:var(--text-primary);font-weight:600"></span>g</div>
+              <div style="font-size:10px;color:var(--text-muted)">P50<br><span id="pf-p50" style="color:var(--text-primary);font-weight:600"></span>g</div>
+              <div style="font-size:10px;color:var(--text-muted)">P90<br><span id="pf-p90" style="color:var(--text-primary);font-weight:600"></span>g</div>
+            </div>
+          </div>
+          <div id="pf-alerta" style="margin-top:8px;padding:10px;border-radius:8px;font-size:12px"></div>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="tab-content" id="tab-sesal">
     <div class="appbar">
       <div class="appbar-icon" style="background:rgba(6,182,212,0.15)">📋</div>
       <div>
@@ -2862,6 +2971,161 @@ function setCHADS(key,val,el){
   box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
   document.getElementById('chads-interp').textContent=interp;
   document.getElementById('chads-result').style.display='block';
+}
+
+// ── OB Wheel ─────────────────────────────────────────────────
+let obMode = 'fum';
+function setOBMode(mode, el) {
+  obMode = mode;
+  el.closest('.calc-panel').querySelectorAll('.score-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ob-fum-section').style.display = mode==='fum'?'block':'none';
+  document.getElementById('ob-fpp-section').style.display = mode==='fpp'?'block':'none';
+  document.getElementById('ob-eco-section').style.display = mode==='eco'?'block':'none';
+  document.getElementById('ob-result').style.display = 'none';
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('es-HN', {day:'2-digit',month:'short',year:'numeric'});
+}
+
+function showOBResult(egDias, fpp) {
+  const semanas = Math.floor(egDias/7);
+  const dias = egDias % 7;
+  document.getElementById('ob-eg').textContent = `${semanas}s ${dias}d`;
+  document.getElementById('ob-eg-dias').textContent = `${egDias} días totales`;
+  document.getElementById('ob-fpp-val').textContent = formatDate(fpp);
+
+  // Trimestre
+  let trim = semanas < 14 ? '1° Trimestre' : semanas < 28 ? '2° Trimestre' : '3° Trimestre';
+  document.getElementById('ob-trimestre').textContent = trim;
+
+  // Inicio trimestres desde FUM
+  const fum = new Date(fpp);
+  fum.setDate(fum.getDate() - 280);
+  const t2 = new Date(fum); t2.setDate(t2.getDate() + 98); // 14 semanas
+  const t3 = new Date(fum); t3.setDate(t3.getDate() + 196); // 28 semanas
+  document.getElementById('ob-t2').textContent = formatDate(t2);
+  document.getElementById('ob-t3').textContent = formatDate(t3);
+
+  // Alertas
+  const alerta = document.getElementById('ob-alerta');
+  if (semanas >= 42) {
+    alerta.style.display = 'block';
+    alerta.style.cssText = 'display:block;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--danger)';
+    alerta.textContent = '⚠️ Embarazo postérmino (≥42 semanas) — Evaluar conducta obstétrica';
+  } else if (semanas >= 37) {
+    alerta.style.cssText = 'display:block;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--success)';
+    alerta.textContent = '✅ Embarazo a término (37-41 semanas)';
+  } else if (semanas >= 34) {
+    alerta.style.cssText = 'display:block;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:var(--warning)';
+    alerta.textContent = '🟡 Pretérmino tardío (34-36 semanas)';
+  } else if (semanas < 34 && semanas > 0) {
+    alerta.style.cssText = 'display:block;margin-top:10px;padding:10px;border-radius:8px;font-size:12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--danger)';
+    alerta.textContent = '🔴 Pretérmino — Manejo especializado';
+  } else { alerta.style.display='none'; }
+
+  document.getElementById('ob-result').style.display = 'block';
+}
+
+function calcOBWheel() {
+  const val = document.getElementById('ob-fum-date').value;
+  if (!val) return;
+  const fum = new Date(val);
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const egDias = Math.floor((hoy - fum) / 86400000);
+  if (egDias < 0) return;
+  // FPP = FUM + 280 días (Regla de Naegele)
+  const fpp = new Date(fum); fpp.setDate(fpp.getDate() + 280);
+  showOBResult(egDias, fpp);
+}
+
+function calcOBByFPP() {
+  const val = document.getElementById('ob-fpp-date').value;
+  if (!val) return;
+  const fpp = new Date(val);
+  const fum = new Date(fpp); fum.setDate(fum.getDate() - 280);
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const egDias = Math.floor((hoy - fum) / 86400000);
+  if (egDias < 0) return;
+  showOBResult(egDias, fpp);
+}
+
+function calcOBByEco() {
+  const weeks = parseInt(document.getElementById('ob-eco-weeks').value)||0;
+  const days = parseInt(document.getElementById('ob-eco-days').value)||0;
+  const ecoDate = document.getElementById('ob-eco-date').value;
+  if (!weeks || !ecoDate) return;
+  const eco = new Date(ecoDate);
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const diasDesdeEco = Math.floor((hoy - eco) / 86400000);
+  const egTotal = weeks*7 + days + diasDesdeEco;
+  // FPP = fecha eco + (280 - EG en días al momento del eco)
+  const fpp = new Date(eco); fpp.setDate(fpp.getDate() + (280 - (weeks*7+days)));
+  showOBResult(egTotal, fpp);
+}
+
+// ── Peso Fetal / Percentil WHO ────────────────────────────────
+// Tablas OMS de peso fetal por semana (P3, P10, P50, P90) - ambos sexos
+const whoFetal = {
+  14:[55,63,93,135], 15:[79,91,133,192], 16:[110,126,184,263],
+  17:[149,170,247,353], 18:[196,224,324,459], 19:[252,289,416,589],
+  20:[316,362,521,735], 21:[390,447,641,903], 22:[474,543,779,1097],
+  23:[568,650,934,1313], 24:[672,770,1104,1552], 25:[787,901,1292,1816],
+  26:[912,1044,1496,2102], 27:[1045,1197,1714,2409], 28:[1185,1358,1944,2732],
+  29:[1330,1525,2179,3063], 30:[1479,1697,2418,3399], 31:[1628,1869,2658,3731],
+  32:[1776,2039,2895,4055], 33:[1920,2205,3124,4365], 34:[2057,2362,3340,4653],
+  35:[2184,2508,3538,4911], 36:[2298,2639,3713,5132], 37:[2396,2754,3862,5310],
+  38:[2476,2849,3980,5441], 39:[2538,2921,4066,5524], 40:[2580,2971,4117,5560],
+};
+
+function calcPesoFetal() {
+  const eg = parseInt(document.getElementById('pf-eg').value)||0;
+  const peso = parseInt(document.getElementById('pf-peso').value)||0;
+  if (eg < 14 || eg > 40 || !peso) return;
+
+  const ref = whoFetal[eg];
+  if (!ref) return;
+  const [p3,p10,p50,p90] = ref;
+
+  document.getElementById('pf-eg-ref').textContent = eg;
+  document.getElementById('pf-p3').textContent = p3;
+  document.getElementById('pf-p10').textContent = p10;
+  document.getElementById('pf-p50').textContent = p50;
+  document.getElementById('pf-p90').textContent = p90;
+
+  // Estimar percentil
+  let percentil, color, interp, alerta;
+  if (peso < p3) {
+    percentil = '<P3'; color = 'danger';
+    interp = 'Restricción grave del crecimiento fetal';
+    alerta = '🔴 PFE <P3 — RCIU severo — Referir urgente a nivel terciario';
+  } else if (peso < p10) {
+    percentil = 'P3-P10'; color = 'warning';
+    interp = 'Pequeño para edad gestacional (PEG)';
+    alerta = '🟡 PFE <P10 — Vigilancia estrecha — Doppler umbilical';
+  } else if (peso <= p90) {
+    percentil = 'P10-P90'; color = 'success';
+    interp = 'Crecimiento fetal adecuado (AEG)';
+    alerta = '✅ Peso fetal apropiado para la edad gestacional';
+  } else {
+    percentil = '>P90'; color = 'warning';
+    interp = 'Grande para edad gestacional (GEG)';
+    alerta = '🟡 PFE >P90 — Macrosomía — Descartar diabetes gestacional';
+  }
+
+  document.getElementById('pf-value').textContent = percentil;
+  document.getElementById('pf-interp').textContent = interp;
+  const box = document.getElementById('pf-box');
+  box.style.cssText = `color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  const alertaEl = document.getElementById('pf-alerta');
+  alertaEl.textContent = alerta;
+  const alertColors = {danger:'rgba(239,68,68,0.1)',warning:'rgba(245,158,11,0.1)',success:'rgba(16,185,129,0.1)'};
+  const alertBorder = {danger:'rgba(239,68,68,0.3)',warning:'rgba(245,158,11,0.3)',success:'rgba(16,185,129,0.3)'};
+  const alertText = {danger:'var(--danger)',warning:'var(--warning)',success:'var(--success)'};
+  alertaEl.style.cssText = `margin-top:8px;padding:10px;border-radius:8px;font-size:12px;background:${alertColors[color]};border:1px solid ${alertBorder[color]};color:${alertText[color]}`;
+
+  document.getElementById('pf-result').style.display = 'block';
 }
 
 // ── Killip-Kimball ───────────────────────────────────────────
