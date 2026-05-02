@@ -1199,6 +1199,8 @@
       <button class="calc-tab" onclick="switchCalc('killip', this)">Killip</button>
       <button class="calc-tab" onclick="switchCalc('obwheel', this)">🤰 OB Wheel</button>
       <button class="calc-tab" onclick="switchCalc('pesoFetal', this)">📊 Peso Fetal</button>
+      <button class="calc-tab" onclick="switchCalc('dosisAdulto', this)">💊 Dosis Adulto</button>
+      <button class="calc-tab" onclick="switchCalc('liquidosIV', this)">💧 Líquidos IV</button>
     </div>
     <div class="calc-content">
 
@@ -1746,10 +1748,158 @@
         </div>
       </div>
 
+      <!-- Dosis Adulto por Peso -->
+      <div class="calc-panel" id="calc-dosisAdulto">
+        <div class="calc-title">💊 Dosis por Peso — Adulto</div>
+        <div class="calc-sub">Cálculo de dosis para medicamentos de uso frecuente en guardia</div>
+        <div class="calc-group">
+          <div class="calc-label">Peso del paciente (kg)</div>
+          <input type="number" class="calc-input" id="da-peso" placeholder="Ej: 70" oninput="calcDosisAdulto()">
+        </div>
+        <div class="calc-group">
+          <div class="calc-label">Medicamento</div>
+          <select class="calc-input" id="da-med" onchange="calcDosisAdulto()">
+            <option value="">-- Selecciona --</option>
+            <optgroup label="Analgésicos / Antipiréticos">
+              <option value="paracetamol|15|mg/kg|c/6h|max4000">Paracetamol 15 mg/kg c/6h</option>
+              <option value="ibuprofeno|10|mg/kg|c/8h|max2400">Ibuprofeno 10 mg/kg c/8h</option>
+              <option value="ketorolac|0.5|mg/kg|c/8h|max30">Ketorolac 0.5 mg/kg c/8h (IM/IV)</option>
+              <option value="dipirona|15|mg/kg|c/8h|max3000">Dipirona 15 mg/kg c/8h</option>
+            </optgroup>
+            <optgroup label="Antibióticos">
+              <option value="amoxicilina|25|mg/kg|c/8h|max3000">Amoxicilina 25 mg/kg c/8h</option>
+              <option value="ampicilina|50|mg/kg|c/6h|max8000">Ampicilina 50 mg/kg c/6h (IV)</option>
+              <option value="gentamicina|5|mg/kg|c/24h|max240">Gentamicina 5 mg/kg c/24h</option>
+              <option value="metronidazol|7.5|mg/kg|c/8h|max2000">Metronidazol 7.5 mg/kg c/8h</option>
+              <option value="clindamicina|10|mg/kg|c/8h|max2700">Clindamicina 10 mg/kg c/8h</option>
+            </optgroup>
+            <optgroup label="Anestesia / Sedación">
+              <option value="ketamina|1.5|mg/kg|dosis unica IV|max200">Ketamina 1.5 mg/kg IV</option>
+              <option value="midazolam|0.05|mg/kg|dosis unica IV|max5">Midazolam 0.05 mg/kg IV</option>
+              <option value="propofol|2|mg/kg|induccion IV|max200">Propofol 2 mg/kg inducción</option>
+            </optgroup>
+            <optgroup label="Cardiovascular">
+              <option value="amiodarona|5|mg/kg|bolo IV lento|max300">Amiodarona 5 mg/kg IV (bolo)</option>
+              <option value="atropina|0.02|mg/kg|IV|max3">Atropina 0.02 mg/kg IV</option>
+              <option value="adrenalina|0.01|mg/kg|IV/IM|max1">Adrenalina 0.01 mg/kg IV/IM</option>
+            </optgroup>
+            <optgroup label="Otros">
+              <option value="dexametasona|0.15|mg/kg|IV|max10">Dexametasona 0.15 mg/kg IV</option>
+              <option value="hidrocortisona|4|mg/kg|IV|max250">Hidrocortisona 4 mg/kg IV</option>
+              <option value="furosemida|1|mg/kg|IV|max40">Furosemida 1 mg/kg IV</option>
+              <option value="heparina|80|UI/kg|bolo IV|max5000">Heparina 80 UI/kg bolo IV</option>
+            </optgroup>
+          </select>
+        </div>
+        <div id="da-result" style="display:none;margin-top:16px">
+          <div class="result-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+            <div class="result-label">DOSIS CALCULADA</div>
+            <div class="result-value" id="da-dosis" style="font-size:22px"></div>
+            <div class="result-sub" id="da-frecuencia"></div>
+          </div>
+          <div style="margin-top:8px;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px">
+            <div style="font-size:11px;color:var(--text-secondary)">Dosis máxima: <span id="da-max" style="font-weight:600;color:var(--text-primary)"></span></div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">Vía: <span id="da-via" style="font-weight:600;color:var(--text-primary)"></span></div>
+          </div>
+          <div style="margin-top:8px;padding:8px;background:rgba(245,158,11,0.1);border-radius:8px;border:1px solid rgba(245,158,11,0.3);font-size:11px;color:var(--warning)">
+            ⚠️ Verificar con Cuadro Básico SESAL Honduras. Criterio final del médico.
+          </div>
+          <button onclick="document.getElementById('da-result').style.display='none';document.getElementById('da-peso').value='';document.getElementById('da-med').value='';"
+            style="margin-top:10px;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:6px 16px;border-radius:8px;cursor:pointer;width:100%">
+            🗑 Limpiar
+          </button>
+        </div>
+      </div>
+
+      <!-- Líquidos IV -->
+      <div class="calc-panel" id="calc-liquidosIV">
+        <div class="calc-title">💧 Líquidos IV</div>
+        <div class="calc-sub">Reposición, mantenimiento y resucitación — Adultos</div>
+
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button onclick="setLiqMode('mantenimiento',this)" class="score-btn active" style="flex:1;font-size:11px">Mantenimiento</button>
+          <button onclick="setLiqMode('reposicion',this)" class="score-btn" style="flex:1;font-size:11px">Reposición</button>
+          <button onclick="setLiqMode('resucitacion',this)" class="score-btn" style="flex:1;font-size:11px">Resucitación</button>
+        </div>
+
+        <!-- Mantenimiento -->
+        <div id="liq-mantenimiento">
+          <div class="calc-group">
+            <div class="calc-label">Peso (kg)</div>
+            <input type="number" class="calc-input" id="liq-peso-m" placeholder="Ej: 70" oninput="calcLiqMantenimiento()">
+          </div>
+          <div class="calc-group">
+            <div class="calc-label">Tipo de solución</div>
+            <select class="calc-input" id="liq-sol-m" onchange="calcLiqMantenimiento()">
+              <option value="SSN">SSN 0.9% (Solución Salina Normal)</option>
+              <option value="RL">Ringer Lactato</option>
+              <option value="DAD5">DAD 5%</option>
+              <option value="SSN45">SSN 0.45%</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Reposición -->
+        <div id="liq-reposicion" style="display:none">
+          <div class="calc-group">
+            <div class="calc-label">Peso (kg)</div>
+            <input type="number" class="calc-input" id="liq-peso-r" placeholder="Ej: 70" oninput="calcLiqReposicion()">
+          </div>
+          <div class="calc-group">
+            <div class="calc-label">% Deshidratación estimada</div>
+            <select class="calc-input" id="liq-dehi" onchange="calcLiqReposicion()">
+              <option value="5">5% — Leve</option>
+              <option value="10">10% — Moderada</option>
+              <option value="15">15% — Severa</option>
+            </select>
+          </div>
+          <div class="calc-group">
+            <div class="calc-label">Tiempo de reposición</div>
+            <select class="calc-input" id="liq-tiempo" onchange="calcLiqReposicion()">
+              <option value="24">24 horas</option>
+              <option value="8">8 horas (rápido)</option>
+              <option value="4">4 horas (urgente)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Resucitación -->
+        <div id="liq-resucitacion" style="display:none">
+          <div class="calc-group">
+            <div class="calc-label">Peso (kg)</div>
+            <input type="number" class="calc-input" id="liq-peso-s" placeholder="Ej: 70" oninput="calcLiqResucitacion()">
+          </div>
+          <div class="calc-group">
+            <div class="calc-label">Protocolo</div>
+            <select class="calc-input" id="liq-proto" onchange="calcLiqResucitacion()">
+              <option value="30">Sepsis/Shock — 30 ml/kg en 3h</option>
+              <option value="20">Hipovolemia — 20 ml/kg en 30 min</option>
+              <option value="10">Carga suave — 10 ml/kg en 30 min</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="liq-result" style="display:none;margin-top:16px">
+          <div class="result-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+            <div class="result-label">VOLUMEN TOTAL</div>
+            <div class="result-value" id="liq-volumen"></div>
+            <div class="result-sub" id="liq-goteo"></div>
+          </div>
+          <div style="margin-top:8px;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;font-size:12px">
+            <div id="liq-detalle" style="color:var(--text-primary)"></div>
+          </div>
+          <div style="margin-top:8px;padding:8px;background:rgba(245,158,11,0.1);border-radius:8px;border:1px solid rgba(245,158,11,0.3);font-size:11px;color:var(--warning)">
+            ⚠️ Ajustar según respuesta clínica y balance hídrico. Criterio del médico responsable.
+          </div>
+          <button onclick="clearLiquidosIV()"
+            style="margin-top:10px;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:6px 16px;border-radius:8px;cursor:pointer;width:100%">
+            🗑 Limpiar
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <!-- SESAL Tab -->
   <div class="tab-content" id="tab-sesal">
     <div class="appbar">
       <div class="appbar-icon" style="background:rgba(6,182,212,0.15)">📋</div>
@@ -3307,6 +3457,100 @@ function calcPesoFetal() {
   alertaEl.style.cssText = `margin-top:8px;padding:10px;border-radius:8px;font-size:12px;background:${alertColors[color]};border:1px solid ${alertBorder[color]};color:${alertText[color]}`;
 
   document.getElementById('pf-result').style.display = 'block';
+}
+
+// ── Dosis Adulto ─────────────────────────────────────────────
+function calcDosisAdulto() {
+  const peso = parseFloat(document.getElementById('da-peso').value)||0;
+  const med = document.getElementById('da-med').value;
+  if (!peso || !med) return;
+  const parts = med.split('|');
+  const nombre = parts[0], dosis = parseFloat(parts[1]), unidad = parts[2];
+  const frecuencia = parts[3], maxStr = parts[4];
+  const calculada = peso * dosis;
+  const max = parseFloat(maxStr);
+  const final = Math.min(calculada, max);
+  document.getElementById('da-dosis').textContent = `${final.toFixed(1)} ${unidad.replace('/kg','')}`;
+  document.getElementById('da-frecuencia').textContent = frecuencia;
+  document.getElementById('da-max').textContent = `${max} ${unidad.replace('/kg','')}`;
+  document.getElementById('da-via').textContent = nombre;
+  document.getElementById('da-result').style.display = 'block';
+}
+
+// ── Líquidos IV ───────────────────────────────────────────────
+let liqMode = 'mantenimiento';
+function setLiqMode(mode, el) {
+  liqMode = mode;
+  el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('liq-mantenimiento').style.display = mode==='mantenimiento'?'block':'none';
+  document.getElementById('liq-reposicion').style.display = mode==='reposicion'?'block':'none';
+  document.getElementById('liq-resucitacion').style.display = mode==='resucitacion'?'block':'none';
+  document.getElementById('liq-result').style.display = 'none';
+}
+
+function calcLiqMantenimiento() {
+  const peso = parseFloat(document.getElementById('liq-peso-m').value)||0;
+  const sol = document.getElementById('liq-sol-m').value;
+  if (!peso) return;
+  // Fórmula de Holliday-Segar para mantenimiento
+  let ml24h;
+  if (peso <= 10) ml24h = peso * 100;
+  else if (peso <= 20) ml24h = 1000 + (peso-10)*50;
+  else ml24h = 1500 + (peso-20)*20;
+  const mlh = ml24h / 24;
+  const gotas = mlh / 3; // gotas/min (equipo 20 gotas/ml)
+  const microgotas = mlh; // microgotas/min (60 microgotas/ml)
+  document.getElementById('liq-volumen').textContent = `${Math.round(ml24h)} mL/24h`;
+  document.getElementById('liq-goteo').textContent = `${mlh.toFixed(1)} mL/h`;
+  document.getElementById('liq-detalle').innerHTML =
+    `<b>Solución:</b> ${sol}<br>
+     <b>Goteo:</b> ${gotas.toFixed(0)} gotas/min (macro) · ${microgotas.toFixed(0)} microgotas/min<br>
+     <b>Fórmula:</b> Holliday-Segar`;
+  document.getElementById('liq-result').style.display = 'block';
+}
+
+function calcLiqReposicion() {
+  const peso = parseFloat(document.getElementById('liq-peso-r').value)||0;
+  const dehi = parseFloat(document.getElementById('liq-dehi').value)||5;
+  const horas = parseFloat(document.getElementById('liq-tiempo').value)||24;
+  if (!peso) return;
+  const deficit = peso * 1000 * (dehi/100); // mL de déficit
+  const mlh = deficit / horas;
+  const gotas = mlh / 3;
+  document.getElementById('liq-volumen').textContent = `${Math.round(deficit)} mL en ${horas}h`;
+  document.getElementById('liq-goteo').textContent = `${mlh.toFixed(1)} mL/h`;
+  document.getElementById('liq-detalle').innerHTML =
+    `<b>Déficit estimado:</b> ${Math.round(deficit)} mL (${dehi}% de ${peso} kg)<br>
+     <b>Goteo:</b> ${gotas.toFixed(0)} gotas/min · ${mlh.toFixed(0)} microgotas/min<br>
+     <b>Solución recomendada:</b> SSN 0.9% o Ringer Lactato`;
+  document.getElementById('liq-result').style.display = 'block';
+}
+
+function calcLiqResucitacion() {
+  const peso = parseFloat(document.getElementById('liq-peso-s').value)||0;
+  const proto = parseFloat(document.getElementById('liq-proto').value)||30;
+  if (!peso) return;
+  const volumen = peso * proto;
+  const sel = document.getElementById('liq-proto');
+  const texto = sel.options[sel.selectedIndex].text;
+  const horas = texto.includes('3h')?3:0.5;
+  const mlh = volumen / horas;
+  const gotas = mlh / 3;
+  document.getElementById('liq-volumen').textContent = `${Math.round(volumen)} mL`;
+  document.getElementById('liq-goteo').textContent = `${mlh.toFixed(0)} mL/h (${horas}h)`;
+  document.getElementById('liq-detalle').innerHTML =
+    `<b>Protocolo:</b> ${texto}<br>
+     <b>Goteo:</b> ${gotas.toFixed(0)} gotas/min · ${mlh.toFixed(0)} microgotas/min<br>
+     <b>Solución:</b> SSN 0.9% o Ringer Lactato — monitorizar respuesta clínica`;
+  document.getElementById('liq-result').style.display = 'block';
+}
+
+function clearLiquidosIV() {
+  ['liq-peso-m','liq-peso-r','liq-peso-s'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('liq-result').style.display='none';
 }
 
 // ── Killip-Kimball ───────────────────────────────────────────
