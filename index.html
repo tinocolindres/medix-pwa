@@ -3466,9 +3466,9 @@ function calcDosisAdulto() {
   if (!peso || !med) return;
   const parts = med.split('|');
   const nombre = parts[0], dosis = parseFloat(parts[1]), unidad = parts[2];
-  const frecuencia = parts[3], maxStr = parts[4];
+  const frecuencia = parts[3];
+  const max = parseFloat((parts[4]||'9999').replace('max',''));
   const calculada = peso * dosis;
-  const max = parseFloat(maxStr);
   const final = Math.min(calculada, max);
   document.getElementById('da-dosis').textContent = `${final.toFixed(1)} ${unidad.replace('/kg','')}`;
   document.getElementById('da-frecuencia').textContent = frecuencia;
