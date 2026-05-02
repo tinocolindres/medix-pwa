@@ -1753,8 +1753,17 @@
         <div class="calc-title">💊 Dosis por Peso — Adulto</div>
         <div class="calc-sub">Cálculo de dosis para medicamentos de uso frecuente en guardia</div>
         <div class="calc-group">
-          <div class="calc-label">Peso del paciente (kg)</div>
-          <input type="number" class="calc-input" id="da-peso" placeholder="Ej: 70" oninput="calcDosisAdulto()">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="calc-label">Peso del paciente</div>
+            <div style="display:flex;gap:4px">
+              <button onclick="setDaUnidad('kg',this)" id="da-btn-kg"
+                style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:var(--blue);color:white;border:none">kg</button>
+              <button onclick="setDaUnidad('lb',this)" id="da-btn-lb"
+                style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border)">lb</button>
+            </div>
+          </div>
+          <input type="number" class="calc-input" id="da-peso" placeholder="Ej: 70" oninput="calcDosisAdulto()" style="margin-top:6px">
+          <div id="da-conversion" style="font-size:11px;color:var(--text-muted);margin-top:4px;display:none"></div>
         </div>
         <div class="calc-group">
           <div class="calc-label">Medicamento</div>
@@ -3460,20 +3469,44 @@ function calcPesoFetal() {
 }
 
 // ── Dosis Adulto ─────────────────────────────────────────────
+let daUnidad = 'kg';
+function setDaUnidad(u, el) {
+  daUnidad = u;
+  document.getElementById('da-btn-kg').style.background = u==='kg' ? 'var(--blue)' : 'var(--bg-surface)';
+  document.getElementById('da-btn-kg').style.color = u==='kg' ? 'white' : 'var(--text-secondary)';
+  document.getElementById('da-btn-kg').style.border = u==='kg' ? 'none' : '1px solid var(--border)';
+  document.getElementById('da-btn-lb').style.background = u==='lb' ? 'var(--blue)' : 'var(--bg-surface)';
+  document.getElementById('da-btn-lb').style.color = u==='lb' ? 'white' : 'var(--text-secondary)';
+  document.getElementById('da-btn-lb').style.border = u==='lb' ? 'none' : '1px solid var(--border)';
+  document.getElementById('da-peso').placeholder = u==='kg' ? 'Ej: 70' : 'Ej: 154';
+  calcDosisAdulto();
+}
+
 function calcDosisAdulto() {
-  const peso = parseFloat(document.getElementById('da-peso').value)||0;
+  const pesoInput = parseFloat(document.getElementById('da-peso').value)||0;
   const med = document.getElementById('da-med').value;
-  if (!peso || !med) return;
+  if (!pesoInput || !med) return;
+
+  // Convertir a kg si está en lb
+  const pesoKg = daUnidad === 'lb' ? pesoInput * 0.453592 : pesoInput;
+  const conv = document.getElementById('da-conversion');
+  if (daUnidad === 'lb') {
+    conv.style.display = 'block';
+    conv.textContent = `= ${pesoKg.toFixed(1)} kg`;
+  } else {
+    conv.style.display = 'none';
+  }
+
   const parts = med.split('|');
-  const nombre = parts[0], dosis = parseFloat(parts[1]), unidad = parts[2];
+  const via = parts[0], dosis = parseFloat(parts[1]), unidad = parts[2];
   const frecuencia = parts[3];
   const max = parseFloat((parts[4]||'9999').replace('max',''));
-  const calculada = peso * dosis;
+  const calculada = pesoKg * dosis;
   const final = Math.min(calculada, max);
   document.getElementById('da-dosis').textContent = `${final.toFixed(1)} ${unidad.replace('/kg','')}`;
   document.getElementById('da-frecuencia').textContent = frecuencia;
   document.getElementById('da-max').textContent = `${max} ${unidad.replace('/kg','')}`;
-  document.getElementById('da-via').textContent = nombre;
+  document.getElementById('da-via').textContent = via;
   document.getElementById('da-result').style.display = 'block';
 }
 
