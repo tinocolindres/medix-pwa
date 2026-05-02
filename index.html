@@ -1825,6 +1825,14 @@
         <div class="calc-title">💧 Líquidos IV</div>
         <div class="calc-sub">Reposición, mantenimiento y resucitación — Adultos</div>
 
+        <!-- Toggle kg/lb -->
+        <div style="display:flex;justify-content:flex-end;gap:4px;margin-bottom:10px">
+          <button onclick="setLiqUnidad('kg',this)" id="liq-btn-kg"
+            style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:var(--blue);color:white;border:none">kg</button>
+          <button onclick="setLiqUnidad('lb',this)" id="liq-btn-lb"
+            style="padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border)">lb</button>
+        </div>
+
         <div style="display:flex;gap:8px;margin-bottom:12px">
           <button onclick="setLiqMode('mantenimiento',this)" class="score-btn active" style="flex:1;font-size:11px">Mantenimiento</button>
           <button onclick="setLiqMode('reposicion',this)" class="score-btn" style="flex:1;font-size:11px">Reposición</button>
@@ -1834,8 +1842,9 @@
         <!-- Mantenimiento -->
         <div id="liq-mantenimiento">
           <div class="calc-group">
-            <div class="calc-label">Peso (kg)</div>
+            <div class="calc-label" id="liq-label-m">Peso (kg)</div>
             <input type="number" class="calc-input" id="liq-peso-m" placeholder="Ej: 70" oninput="calcLiqMantenimiento()">
+            <div id="liq-conv-m" style="font-size:11px;color:var(--text-muted);margin-top:4px;display:none"></div>
           </div>
           <div class="calc-group">
             <div class="calc-label">Tipo de solución</div>
@@ -1851,8 +1860,9 @@
         <!-- Reposición -->
         <div id="liq-reposicion" style="display:none">
           <div class="calc-group">
-            <div class="calc-label">Peso (kg)</div>
+            <div class="calc-label" id="liq-label-r">Peso (kg)</div>
             <input type="number" class="calc-input" id="liq-peso-r" placeholder="Ej: 70" oninput="calcLiqReposicion()">
+            <div id="liq-conv-r" style="font-size:11px;color:var(--text-muted);margin-top:4px;display:none"></div>
           </div>
           <div class="calc-group">
             <div class="calc-label">% Deshidratación estimada</div>
@@ -1875,8 +1885,9 @@
         <!-- Resucitación -->
         <div id="liq-resucitacion" style="display:none">
           <div class="calc-group">
-            <div class="calc-label">Peso (kg)</div>
+            <div class="calc-label" id="liq-label-s">Peso (kg)</div>
             <input type="number" class="calc-input" id="liq-peso-s" placeholder="Ej: 70" oninput="calcLiqResucitacion()">
+            <div id="liq-conv-s" style="font-size:11px;color:var(--text-muted);margin-top:4px;display:none"></div>
           </div>
           <div class="calc-group">
             <div class="calc-label">Protocolo</div>
@@ -3512,6 +3523,40 @@ function calcDosisAdulto() {
 
 // ── Líquidos IV ───────────────────────────────────────────────
 let liqMode = 'mantenimiento';
+let liqUnidad = 'kg';
+
+function setLiqUnidad(u) {
+  liqUnidad = u;
+  document.getElementById('liq-btn-kg').style.background = u==='kg'?'var(--blue)':'var(--bg-surface)';
+  document.getElementById('liq-btn-kg').style.color = u==='kg'?'white':'var(--text-secondary)';
+  document.getElementById('liq-btn-kg').style.border = u==='kg'?'none':'1px solid var(--border)';
+  document.getElementById('liq-btn-lb').style.background = u==='lb'?'var(--blue)':'var(--bg-surface)';
+  document.getElementById('liq-btn-lb').style.color = u==='lb'?'white':'var(--text-secondary)';
+  document.getElementById('liq-btn-lb').style.border = u==='lb'?'none':'1px solid var(--border)';
+  const label = u==='kg'?'Peso (kg)':'Peso (lb)';
+  const ph = u==='kg'?'Ej: 70':'Ej: 154';
+  ['m','r','s'].forEach(x=>{
+    const lbl=document.getElementById(`liq-label-${x}`);
+    const inp=document.getElementById(`liq-peso-${x}`);
+    if(lbl) lbl.textContent=label;
+    if(inp) inp.placeholder=ph;
+  });
+  // Recalcular
+  if(liqMode==='mantenimiento') calcLiqMantenimiento();
+  else if(liqMode==='reposicion') calcLiqReposicion();
+  else calcLiqResucitacion();
+}
+
+function _liqPesoKg(inputId, convId) {
+  const val = parseFloat(document.getElementById(inputId).value)||0;
+  const pesoKg = liqUnidad==='lb' ? val*0.453592 : val;
+  const conv = document.getElementById(convId);
+  if (liqUnidad==='lb' && val>0) {
+    conv.style.display='block';
+    conv.textContent=`= ${pesoKg.toFixed(1)} kg`;
+  } else { conv.style.display='none'; }
+  return pesoKg;
+}
 function setLiqMode(mode, el) {
   liqMode = mode;
   el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));
@@ -3523,45 +3568,43 @@ function setLiqMode(mode, el) {
 }
 
 function calcLiqMantenimiento() {
-  const peso = parseFloat(document.getElementById('liq-peso-m').value)||0;
+  const peso = _liqPesoKg('liq-peso-m','liq-conv-m');
   const sol = document.getElementById('liq-sol-m').value;
   if (!peso) return;
-  // Fórmula de Holliday-Segar para mantenimiento
   let ml24h;
   if (peso <= 10) ml24h = peso * 100;
   else if (peso <= 20) ml24h = 1000 + (peso-10)*50;
   else ml24h = 1500 + (peso-20)*20;
   const mlh = ml24h / 24;
-  const gotas = mlh / 3; // gotas/min (equipo 20 gotas/ml)
-  const microgotas = mlh; // microgotas/min (60 microgotas/ml)
+  const gotas = mlh / 3;
   document.getElementById('liq-volumen').textContent = `${Math.round(ml24h)} mL/24h`;
   document.getElementById('liq-goteo').textContent = `${mlh.toFixed(1)} mL/h`;
   document.getElementById('liq-detalle').innerHTML =
     `<b>Solución:</b> ${sol}<br>
-     <b>Goteo:</b> ${gotas.toFixed(0)} gotas/min (macro) · ${microgotas.toFixed(0)} microgotas/min<br>
+     <b>Goteo:</b> ${gotas.toFixed(0)} gotas/min (macro) · ${mlh.toFixed(0)} microgotas/min<br>
      <b>Fórmula:</b> Holliday-Segar`;
   document.getElementById('liq-result').style.display = 'block';
 }
 
 function calcLiqReposicion() {
-  const peso = parseFloat(document.getElementById('liq-peso-r').value)||0;
+  const peso = _liqPesoKg('liq-peso-r','liq-conv-r');
   const dehi = parseFloat(document.getElementById('liq-dehi').value)||5;
   const horas = parseFloat(document.getElementById('liq-tiempo').value)||24;
   if (!peso) return;
-  const deficit = peso * 1000 * (dehi/100); // mL de déficit
+  const deficit = peso * 1000 * (dehi/100);
   const mlh = deficit / horas;
   const gotas = mlh / 3;
   document.getElementById('liq-volumen').textContent = `${Math.round(deficit)} mL en ${horas}h`;
   document.getElementById('liq-goteo').textContent = `${mlh.toFixed(1)} mL/h`;
   document.getElementById('liq-detalle').innerHTML =
-    `<b>Déficit estimado:</b> ${Math.round(deficit)} mL (${dehi}% de ${peso} kg)<br>
+    `<b>Déficit estimado:</b> ${Math.round(deficit)} mL (${dehi}% de ${peso.toFixed(1)} kg)<br>
      <b>Goteo:</b> ${gotas.toFixed(0)} gotas/min · ${mlh.toFixed(0)} microgotas/min<br>
      <b>Solución recomendada:</b> SSN 0.9% o Ringer Lactato`;
   document.getElementById('liq-result').style.display = 'block';
 }
 
 function calcLiqResucitacion() {
-  const peso = parseFloat(document.getElementById('liq-peso-s').value)||0;
+  const peso = _liqPesoKg('liq-peso-s','liq-conv-s');
   const proto = parseFloat(document.getElementById('liq-proto').value)||30;
   if (!peso) return;
   const volumen = peso * proto;
