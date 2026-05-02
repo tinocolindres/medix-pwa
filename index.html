@@ -1075,6 +1075,8 @@
           <button class="quick-btn" onclick="switchTab('guardia')">🏥 Guardia</button>
           <button class="quick-btn" onclick="switchTab('sesal')">📋 SESAL</button>
           <button class="quick-btn" onclick="switchTab('ifom')">📚 IFOM</button>
+          <button class="quick-btn" onclick="switchTab('pacientes')">🩺 Pacientes</button>
+          <button class="quick-btn" onclick="switchTab('recordatorios')">⏰ Recordatorios</button>
         </div>
       </div>
 
@@ -1113,6 +1115,16 @@
           <div class="module-icon" style="background:rgba(245,158,11,0.15)">📚</div>
           <div class="module-title">IFOM Q-Bank</div>
           <div class="module-sub">Preparación posgrado</div>
+        </div>
+        <div class="module-card" onclick="switchTab('pacientes')">
+          <div class="module-icon" style="background:rgba(16,185,129,0.15)">📋</div>
+          <div class="module-title">Pacientes Guardia</div>
+          <div class="module-sub">Registro rápido</div>
+        </div>
+        <div class="module-card" onclick="switchTab('recordatorios')">
+          <div class="module-icon" style="background:rgba(139,92,246,0.15)">⏰</div>
+          <div class="module-title">Recordatorios</div>
+          <div class="module-sub">Temporizadores guardia</div>
         </div>
       </div>
 
@@ -1996,6 +2008,84 @@
         <div style="color:var(--text-secondary);font-size:13px">Buscando en CIE-11...</div>
       </div>
       <div id="cie11Results" style="display:none"></div>
+    </div>
+  </div>
+
+
+  <!-- Pacientes Guardia Tab -->
+  <div class="tab-content" id="tab-pacientes">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(16,185,129,0.15)">📋</div>
+      <div style="flex:1">
+        <div class="appbar-title">Pacientes en Guardia</div>
+        <div class="appbar-sub" style="color:var(--success)">Registro rápido de turno</div>
+      </div>
+    </div>
+    <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--success)">➕ Nuevo Paciente</div>
+        <input type="text" id="pac-nombre" class="calc-input" placeholder="Nombre del paciente" style="margin-bottom:8px">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input type="number" id="pac-edad" class="calc-input" placeholder="Edad" style="flex:1">
+          <select id="pac-cama" class="calc-input" style="flex:1">
+            <option value="">Cama/Área</option>
+            <option>Cama 1</option><option>Cama 2</option><option>Cama 3</option>
+            <option>Cama 4</option><option>Cama 5</option><option>Cama 6</option>
+            <option>Cama 7</option><option>Cama 8</option><option>Cama 9</option>
+            <option>Cama 10</option><option>UCI</option><option>Emergencia</option>
+            <option>Obs. 1</option><option>Obs. 2</option><option>Quirófano</option>
+          </select>
+        </div>
+        <input type="text" id="pac-dx" class="calc-input" placeholder="Diagnóstico presuntivo" style="margin-bottom:8px">
+        <textarea id="pac-plan" class="calc-input" placeholder="Plan / Pendientes" rows="2" style="resize:none;margin-bottom:10px"></textarea>
+        <button onclick="agregarPaciente()"
+          style="width:100%;padding:10px;background:var(--success);border:none;border-radius:8px;color:white;font-size:14px;font-weight:600;cursor:pointer">
+          ➕ Agregar Paciente
+        </button>
+      </div>
+      <div id="pac-lista">
+        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">
+          Sin pacientes registrados.<br>Agrega tu primer paciente arriba. 🏥
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recordatorios Tab -->
+  <div class="tab-content" id="tab-recordatorios">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(139,92,246,0.15)">⏰</div>
+      <div style="flex:1">
+        <div class="appbar-title">Recordatorios</div>
+        <div class="appbar-sub" style="color:#8B5CF6">Temporizadores de guardia</div>
+      </div>
+    </div>
+    <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
+      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:#8B5CF6">⏰ Nuevo Recordatorio</div>
+        <input type="text" id="rec-texto" class="calc-input" placeholder="Ej: Revisar glucemia Cama 3" style="margin-bottom:8px">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input type="number" id="rec-horas" class="calc-input" placeholder="Horas" min="0" max="12" style="flex:1">
+          <input type="number" id="rec-minutos" class="calc-input" placeholder="Minutos" min="0" max="59" style="flex:1">
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+          <button onclick="setRecPreset(0,30)" class="ifom-sys-btn">30 min</button>
+          <button onclick="setRecPreset(1,0)" class="ifom-sys-btn">1 hora</button>
+          <button onclick="setRecPreset(2,0)" class="ifom-sys-btn">2 horas</button>
+          <button onclick="setRecPreset(4,0)" class="ifom-sys-btn">4 horas</button>
+          <button onclick="setRecPreset(6,0)" class="ifom-sys-btn">6 horas</button>
+          <button onclick="setRecPreset(8,0)" class="ifom-sys-btn">8 horas</button>
+        </div>
+        <button onclick="agregarRecordatorio()"
+          style="width:100%;padding:10px;background:#8B5CF6;border:none;border-radius:8px;color:white;font-size:14px;font-weight:600;cursor:pointer">
+          ⏰ Iniciar Recordatorio
+        </button>
+      </div>
+      <div id="rec-lista">
+        <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">
+          Sin recordatorios activos.<br>Agrega uno arriba. ⏰
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3843,6 +3933,144 @@ function renderCIE11AI(text, query) {
       style="display:block;margin:12px auto 0;background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer">
       🔄 Nueva búsqueda</button>`;
   results.style.display = 'block';
+}
+
+// ── Pacientes Guardia ─────────────────────────────────────────
+let pacientes = JSON.parse(localStorage.getItem('medix_pacientes')||'[]');
+
+function renderPacientes() {
+  const lista = document.getElementById('pac-lista');
+  if (!pacientes.length) {
+    lista.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">Sin pacientes registrados.<br>Agrega tu primer paciente arriba. 🏥</div>';
+    return;
+  }
+  lista.innerHTML = pacientes.map((p,i) => `
+    <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;border-left:3px solid var(--success)">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:var(--text-primary)">${p.nombre} <span style="font-size:12px;color:var(--text-muted)">${p.edad ? p.edad+'a' : ''}</span></div>
+          ${p.cama ? `<div style="font-size:11px;color:var(--success);font-weight:600;margin-top:2px">📍 ${p.cama}</div>` : ''}
+          ${p.dx ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:4px">🔍 ${p.dx}</div>` : ''}
+          ${p.plan ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:4px;padding:6px;background:var(--bg-elevated);border-radius:6px">📝 ${p.plan}</div>` : ''}
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px">Registrado: ${p.hora}</div>
+        </div>
+        <button onclick="eliminarPaciente(${i})"
+          style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer;padding:4px;margin-left:8px">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+function agregarPaciente() {
+  const nombre = document.getElementById('pac-nombre').value.trim();
+  if (!nombre) { alert('Ingresa el nombre del paciente'); return; }
+  const pac = {
+    nombre,
+    edad: document.getElementById('pac-edad').value,
+    cama: document.getElementById('pac-cama').value,
+    dx: document.getElementById('pac-dx').value.trim(),
+    plan: document.getElementById('pac-plan').value.trim(),
+    hora: new Date().toLocaleTimeString('es-HN', {hour:'2-digit',minute:'2-digit'}),
+  };
+  pacientes.unshift(pac);
+  localStorage.setItem('medix_pacientes', JSON.stringify(pacientes));
+  renderPacientes();
+  // Limpiar
+  ['pac-nombre','pac-edad','pac-dx','pac-plan'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('pac-cama').value='';
+}
+
+function eliminarPaciente(idx) {
+  pacientes.splice(idx, 1);
+  localStorage.setItem('medix_pacientes', JSON.stringify(pacientes));
+  renderPacientes();
+}
+
+// Cargar al inicio
+document.addEventListener('DOMContentLoaded', () => { renderPacientes(); renderRecordatorios(); });
+
+// ── Recordatorios ─────────────────────────────────────────────
+let recordatorios = [];
+let recIntervals = {};
+
+function setRecPreset(h, m) {
+  document.getElementById('rec-horas').value = h;
+  document.getElementById('rec-minutos').value = m;
+}
+
+function agregarRecordatorio() {
+  const texto = document.getElementById('rec-texto').value.trim();
+  const horas = parseInt(document.getElementById('rec-horas').value)||0;
+  const minutos = parseInt(document.getElementById('rec-minutos').value)||0;
+  const totalMs = (horas*3600 + minutos*60) * 1000;
+  if (!texto) { alert('Escribe el recordatorio'); return; }
+  if (totalMs <= 0) { alert('Selecciona un tiempo'); return; }
+
+  const id = Date.now();
+  const fin = Date.now() + totalMs;
+  const rec = { id, texto, fin, horas, minutos };
+  recordatorios.push(rec);
+  renderRecordatorios();
+
+  // Intervalo para countdown
+  recIntervals[id] = setInterval(() => {
+    const el = document.getElementById(`rec-countdown-${id}`);
+    const restante = rec.fin - Date.now();
+    if (restante <= 0) {
+      clearInterval(recIntervals[id]);
+      // Notificación
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('⏰ Medix AI — Recordatorio', { body: texto, icon: '/icon-192.png' });
+      }
+      const card = document.getElementById(`rec-card-${id}`);
+      if (card) {
+        card.style.borderLeftColor = 'var(--danger)';
+        card.style.background = 'rgba(239,68,68,0.05)';
+        if (el) { el.textContent = '🔔 ¡Tiempo!'; el.style.color = 'var(--danger)'; }
+      }
+    } else {
+      const h = Math.floor(restante/3600000);
+      const m = Math.floor((restante%3600000)/60000);
+      const s = Math.floor((restante%60000)/1000);
+      if (el) el.textContent = `${h>0?h+'h ':''} ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+  }, 1000);
+
+  // Solicitar permiso notificaciones
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  document.getElementById('rec-texto').value='';
+  document.getElementById('rec-horas').value='';
+  document.getElementById('rec-minutos').value='';
+}
+
+function eliminarRecordatorio(id) {
+  clearInterval(recIntervals[id]);
+  recordatorios = recordatorios.filter(r => r.id !== id);
+  renderRecordatorios();
+}
+
+function renderRecordatorios() {
+  const lista = document.getElementById('rec-lista');
+  if (!lista) return;
+  if (!recordatorios.length) {
+    lista.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">Sin recordatorios activos.<br>Agrega uno arriba. ⏰</div>';
+    return;
+  }
+  lista.innerHTML = recordatorios.map(r => {
+    const dur = `${r.horas>0?r.horas+'h ':''} ${r.minutos>0?r.minutos+'min':''}`.trim();
+    return `<div id="rec-card-${r.id}" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;border-left:3px solid #8B5CF6">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text-primary)">${r.texto}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Duración: ${dur}</div>
+          <div id="rec-countdown-${r.id}" style="font-size:20px;font-weight:700;color:#8B5CF6;margin-top:4px;font-family:monospace">--:--</div>
+        </div>
+        <button onclick="eliminarRecordatorio(${r.id})" style="background:none;border:none;color:var(--danger);font-size:18px;cursor:pointer">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── IFOM Q-Bank ───────────────────────────────────────────────
