@@ -1075,8 +1075,7 @@
           <button class="quick-btn" onclick="switchTab('guardia')">🏥 Guardia</button>
           <button class="quick-btn" onclick="switchTab('sesal')">📋 SESAL</button>
           <button class="quick-btn" onclick="switchTab('ifom')">📚 IFOM</button>
-          <button class="quick-btn" onclick="switchTab('pacientes')">🩺 Pacientes</button>
-          <button class="quick-btn" onclick="switchTab('recordatorios')">⏰ Recordatorios</button>
+          <button class="quick-btn" onclick="switchTab('guardiaplus')">🩺 Pacientes</button>
         </div>
       </div>
 
@@ -1116,15 +1115,10 @@
           <div class="module-title">IFOM Q-Bank</div>
           <div class="module-sub">Preparación posgrado</div>
         </div>
-        <div class="module-card" onclick="switchTab('pacientes')">
-          <div class="module-icon" style="background:rgba(16,185,129,0.15)">📋</div>
-          <div class="module-title">Pacientes Guardia</div>
-          <div class="module-sub">Registro rápido</div>
-        </div>
-        <div class="module-card" onclick="switchTab('recordatorios')">
-          <div class="module-icon" style="background:rgba(139,92,246,0.15)">⏰</div>
-          <div class="module-title">Recordatorios</div>
-          <div class="module-sub">Temporizadores guardia</div>
+        <div class="module-card" onclick="switchTab('guardiaplus')">
+          <div class="module-icon" style="background:rgba(16,185,129,0.15)">🩺</div>
+          <div class="module-title">Pacientes + Recordatorios</div>
+          <div class="module-sub">Registro y timers de guardia</div>
         </div>
       </div>
 
@@ -2012,16 +2006,30 @@
   </div>
 
 
-  <!-- Pacientes Guardia Tab -->
-  <div class="tab-content" id="tab-pacientes">
+  <!-- Guardia Plus Tab: Pacientes + Recordatorios -->
+  <div class="tab-content" id="tab-guardiaplus">
     <div class="appbar">
-      <div class="appbar-icon" style="background:rgba(16,185,129,0.15)">📋</div>
+      <div class="appbar-icon" style="background:rgba(16,185,129,0.15)">🩺</div>
       <div style="flex:1">
-        <div class="appbar-title">Pacientes en Guardia</div>
-        <div class="appbar-sub" style="color:var(--success)">Registro rápido de turno</div>
+        <div class="appbar-title">Guardia Plus</div>
+        <div class="appbar-sub" style="color:var(--success)">Pacientes y Recordatorios</div>
       </div>
     </div>
-    <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
+
+    <!-- Sub-tabs -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg-surface)">
+      <button id="gp-tab-pac" onclick="switchGP('pac')"
+        style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid var(--success);color:var(--success);font-size:13px;font-weight:600;cursor:pointer">
+        📋 Pacientes
+      </button>
+      <button id="gp-tab-rec" onclick="switchGP('rec')"
+        style="flex:1;padding:10px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer">
+        ⏰ Recordatorios
+      </button>
+    </div>
+
+    <!-- Pacientes content -->
+    <div id="gp-pac-content" style="padding:16px;overflow-y:auto;height:calc(100dvh - 175px)">
       <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
         <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--success)">➕ Nuevo Paciente</div>
         <input type="text" id="pac-nombre" class="calc-input" placeholder="Nombre del paciente" style="margin-bottom:8px">
@@ -2049,18 +2057,9 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Recordatorios Tab -->
-  <div class="tab-content" id="tab-recordatorios">
-    <div class="appbar">
-      <div class="appbar-icon" style="background:rgba(139,92,246,0.15)">⏰</div>
-      <div style="flex:1">
-        <div class="appbar-title">Recordatorios</div>
-        <div class="appbar-sub" style="color:#8B5CF6">Temporizadores de guardia</div>
-      </div>
-    </div>
-    <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
+    <!-- Recordatorios content -->
+    <div id="gp-rec-content" style="display:none;padding:16px;overflow-y:auto;height:calc(100dvh - 175px)">
       <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
         <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:#8B5CF6">⏰ Nuevo Recordatorio</div>
         <input type="text" id="rec-texto" class="calc-input" placeholder="Ej: Revisar glucemia Cama 3" style="margin-bottom:8px">
@@ -3933,6 +3932,17 @@ function renderCIE11AI(text, query) {
       style="display:block;margin:12px auto 0;background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer">
       🔄 Nueva búsqueda</button>`;
   results.style.display = 'block';
+}
+
+// ── Guardia Plus sub-tabs ─────────────────────────────────────
+function switchGP(tab) {
+  const isPac = tab === 'pac';
+  document.getElementById('gp-pac-content').style.display = isPac ? 'block' : 'none';
+  document.getElementById('gp-rec-content').style.display = isPac ? 'none' : 'block';
+  document.getElementById('gp-tab-pac').style.borderBottomColor = isPac ? 'var(--success)' : 'transparent';
+  document.getElementById('gp-tab-pac').style.color = isPac ? 'var(--success)' : 'var(--text-secondary)';
+  document.getElementById('gp-tab-rec').style.borderBottomColor = isPac ? 'transparent' : '#8B5CF6';
+  document.getElementById('gp-tab-rec').style.color = isPac ? 'var(--text-secondary)' : '#8B5CF6';
 }
 
 // ── Pacientes Guardia ─────────────────────────────────────────
