@@ -2086,16 +2086,35 @@
     <div class="appbar">
       <div class="appbar-icon" style="background:rgba(245,158,11,0.15)">📚</div>
       <div style="flex:1">
-        <div class="appbar-title">IFOM Q-Bank</div>
-        <div class="appbar-sub" style="color:var(--warning)">Preparación posgrado Honduras</div>
+        <div class="appbar-title">Q-Bank Posgrado</div>
+        <div class="appbar-sub" style="color:var(--warning)">IFOM · EUNACOM · ENARM</div>
       </div>
     </div>
     <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
 
+      <!-- Selector de Examen -->
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:8px">TIPO DE EXAMEN</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="setExamen('ifom',this)" id="btn-examen-ifom"
+            style="flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;background:var(--warning);color:white;border:none">
+            📋 IFOM<br><span style="font-size:9px;font-weight:400">Honduras · NBME</span>
+          </button>
+          <button onclick="setExamen('eunacom',this)" id="btn-examen-eunacom"
+            style="flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;background:var(--bg-surface);color:var(--text-secondary);border:1.5px solid var(--border)">
+            🇨🇱 EUNACOM<br><span style="font-size:9px;font-weight:400">Chile · MINSAL</span>
+          </button>
+          <button onclick="setExamen('enarm',this)" id="btn-examen-enarm"
+            style="flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;background:var(--bg-surface);color:var(--text-secondary);border:1.5px solid var(--border)">
+            🇲🇽 ENARM<br><span style="font-size:9px;font-weight:400">México · CIFRHS</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Info banner -->
-      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;margin-bottom:16px">
-        <div style="font-size:12px;color:var(--warning);font-weight:600">📋 IFOM — International Foundations of Medicine</div>
-        <div style="font-size:11px;color:var(--text-secondary);margin-top:4px">160 preguntas · Viñetas clínicas · Basado en temario oficial NBME 2026</div>
+      <div id="ifom-banner" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;margin-bottom:16px">
+        <div id="ifom-banner-title" style="font-size:12px;color:var(--warning);font-weight:600">📋 IFOM — International Foundations of Medicine</div>
+        <div id="ifom-banner-sub" style="font-size:11px;color:var(--text-secondary);margin-top:4px">160 preguntas · Viñetas clínicas · Basado en temario oficial NBME 2026</div>
       </div>
 
       <!-- Selector de sistema -->
@@ -2119,7 +2138,7 @@
 
       <button onclick="generateIFOMQuestion()" id="ifom-gen-btn"
         style="width:100%;padding:14px;background:var(--warning);border:none;border-radius:12px;color:white;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:16px">
-        ➤ Generar pregunta IFOM
+        ➤ Generar pregunta <span id="ifom-btn-label">IFOM</span>
       </button>
 
       <!-- Loading -->
@@ -4076,7 +4095,52 @@ function renderRecordatorios() {
   }).join('');
 }
 
-// ── IFOM Q-Bank ───────────────────────────────────────────────
+// ── IFOM / EUNACOM / ENARM Q-Bank ────────────────────────────
+let ifomExamen = 'ifom';
+
+const examenInfo = {
+  ifom: {
+    nombre: 'IFOM',
+    titulo: '📋 IFOM — International Foundations of Medicine',
+    sub: '160 preguntas · Viñetas clínicas · Temario oficial NBME 2026',
+    contexto: 'Honduras, para el examen IFOM del NBME usado como requisito de ingreso a residencias médicas',
+  },
+  eunacom: {
+    nombre: 'EUNACOM',
+    titulo: '🇨🇱 EUNACOM — Examen Único Nacional de Conocimientos de Medicina',
+    sub: '180 preguntas · Medicina familiar y comunitaria · MINSAL Chile',
+    contexto: 'Chile, para el examen EUNACOM requerido para ejercer medicina en el sistema público chileno. Incluye contexto clínico chileno (FONASA, APS, CESFAM)',
+  },
+  enarm: {
+    nombre: 'ENARM',
+    titulo: '🇲🇽 ENARM — Examen Nacional de Aspirantes a Residencias Médicas',
+    sub: '300 preguntas · Casos clínicos · CIFRHS México 2026',
+    contexto: 'México, para el examen ENARM requerido para ingresar a especialidades médicas en México. Incluye contexto clínico mexicano (IMSS, ISSSTE, SSA)',
+  },
+};
+
+function setExamen(examen, el) {
+  ifomExamen = examen;
+  // Reset buttons
+  ['ifom','eunacom','enarm'].forEach(e => {
+    const btn = document.getElementById(`btn-examen-${e}`);
+    btn.style.background = 'var(--bg-surface)';
+    btn.style.color = 'var(--text-secondary)';
+    btn.style.border = '1.5px solid var(--border)';
+  });
+  el.style.background = 'var(--warning)';
+  el.style.color = 'white';
+  el.style.border = 'none';
+  // Update banner
+  const info = examenInfo[examen];
+  document.getElementById('ifom-banner-title').textContent = info.titulo;
+  document.getElementById('ifom-banner-sub').textContent = info.sub;
+  document.getElementById('ifom-btn-label').textContent = info.nombre;
+  // Reset question
+  document.getElementById('ifom-question-area').style.display = 'none';
+  document.getElementById('ifom-explanation').style.display = 'none';
+}
+
 let ifomSistema = 'aleatorio';
 let ifomCorrect = 0, ifomWrong = 0;
 let ifomAnswered = false;
@@ -4120,7 +4184,7 @@ async function generateIFOMQuestion() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({
-        message: `Genera una pregunta IFOM estilo NBME para: "${sistemaFinal}". Responde SOLO con JSON válido sin markdown:\n{"sistema":"${sistemaFinal}","vignette":"Viñeta clínica 3-5 oraciones con paciente hondureño (nombre, edad, ciudad de Honduras). Incluye presentación clínica, signos vitales y datos de laboratorio relevantes.","options":["A. opción 1","B. opción 2","C. opción 3","D. opción 4","E. opción 5"],"correct":0,"explanation":"Explicación detallada de por qué la opción A es correcta y por qué las demás son incorrectas. Menciona el concepto IFOM evaluado."}`,
+        message: `Genera una pregunta estilo ${examenInfo[ifomExamen].nombre} para el sistema: "${sistemaFinal}". Contexto: ${examenInfo[ifomExamen].contexto}. Responde SOLO con JSON válido sin markdown:\n{"sistema":"${sistemaFinal}","vignette":"Viñeta clínica 3-5 oraciones con paciente del contexto indicado (nombre, edad, ciudad). Incluye presentación clínica, signos vitales y datos de laboratorio relevantes.","options":["A. opción 1","B. opción 2","C. opción 3","D. opción 4","E. opción 5"],"correct":0,"explanation":"Explicación de por qué la primera opción es correcta. NO menciones letras A,B,C,D,E en la explicación."}`,
         mode: 'chat',
         session_id: null
       })
