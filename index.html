@@ -2407,13 +2407,24 @@
       </div>
 
       <!-- Upload area -->
-      <div id="ecg-upload-area" onclick="document.getElementById('ecg-input').click()"
-        style="border:2px dashed rgba(239,68,68,0.4);border-radius:12px;padding:30px;text-align:center;cursor:pointer;background:rgba(239,68,68,0.03);margin-bottom:12px;transition:all 0.2s">
-        <div style="font-size:36px;margin-bottom:8px">📷</div>
-        <div style="font-size:14px;font-weight:600;color:var(--text-primary)">Toca para subir ECG</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Foto del ECG impreso o pantalla del monitor</div>
+      <div id="ecg-upload-area" style="border:2px dashed rgba(239,68,68,0.4);border-radius:12px;padding:24px;text-align:center;background:rgba(239,68,68,0.03);margin-bottom:12px">
+        <div style="font-size:36px;margin-bottom:8px">🫀</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Sube el ECG</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Foto del ECG impreso o pantalla del monitor</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button onclick="document.getElementById('ecg-camara').click()"
+            style="padding:10px 18px;background:var(--danger);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer">
+            📷 Cámara
+          </button>
+          <button onclick="document.getElementById('ecg-galeria').click()"
+            style="padding:10px 18px;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer">
+            🖼 Galería
+          </button>
+        </div>
       </div>
-      <input type="file" id="ecg-input" accept="image/*" capture="environment" style="display:none" onchange="handleECGUpload(event)">
+      <input type="file" id="ecg-camara" accept="image/*" capture="environment" style="display:none" onchange="handleECGUpload(event)">
+      <input type="file" id="ecg-galeria" accept="image/*" style="display:none" onchange="handleECGUpload(event)">
+      <input type="file" id="ecg-input" accept="image/*" style="display:none" onchange="handleECGUpload(event)">
 
       <!-- Preview -->
       <div id="ecg-preview-area" style="display:none;margin-bottom:12px">
