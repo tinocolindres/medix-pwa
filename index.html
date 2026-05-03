@@ -4111,13 +4111,9 @@ function renderECGFromScan(data, contexto) {
     badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--success)';
     badge.textContent = '✅ Sin hallazgos críticos inmediatos';
   }
-  document.getElementById('ecg-ritmo').textContent = 'Ver hallazgos';
-  document.getElementById('ecg-fc').textContent = 'Ver hallazgos';
-  document.getElementById('ecg-eje').textContent = 'Ver hallazgos';
-  document.getElementById('ecg-intervalos').textContent = 'Ver hallazgos';
-  document.getElementById('ecg-dx').textContent = data.summary || '—';
-  document.getElementById('ecg-hallazgos').textContent = data.findings || '—';
-  document.getElementById('ecg-conducta').textContent = data.recommendations || '—';
+  document.getElementById('ecg-dx').textContent = data.summary || data.analysis || 'Ver hallazgos';
+  document.getElementById('ecg-hallazgos').textContent = data.findings || data.details || '—';
+  document.getElementById('ecg-conducta').textContent = data.recommendations || data.recommendation || '—';
   document.getElementById('ecg-result').style.display = 'block';
 }
 
