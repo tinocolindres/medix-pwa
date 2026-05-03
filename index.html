@@ -4067,15 +4067,15 @@ function renderCIE11AI(text, query) {
 }
 
 // ── ECG Analyzer ─────────────────────────────────────────────
-let ecgImageBase64 = null;
+let ecgFile = null;
 
 function handleECGUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+  ecgFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
-    ecgImageBase64 = e.target.result;
-    document.getElementById('ecg-preview-img').src = ecgImageBase64;
+    document.getElementById('ecg-preview-img').src = e.target.result;
     document.getElementById('ecg-upload-area').style.display = 'none';
     document.getElementById('ecg-preview-area').style.display = 'block';
     document.getElementById('ecg-result').style.display = 'none';
@@ -4084,7 +4084,7 @@ function handleECGUpload(event) {
 }
 
 async function analyzeECG() {
-  if (!ecgImageBase64) return;
+  if (!ecgFile) return;
   if (!token) { showToast('Inicia sesión para usar ECG Analyzer'); return; }
 
   document.getElementById('ecg-loading').style.display = 'block';
@@ -4092,58 +4092,53 @@ async function analyzeECG() {
   document.getElementById('ecg-result').style.display = 'none';
 
   const contexto = document.getElementById('ecg-contexto').value.trim();
-  const base64Data = ecgImageBase64.split(',')[1];
-  const mimeType = ecgImageBase64.split(';')[0].split(':')[1];
 
   try {
-    const res = await fetch(`${API}/analysis/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({
-        message: `Eres un cardiólogo experto en interpretación de ECG. Analiza este electrocardiograma.
-${contexto ? `Contexto clínico: ${contexto}` : ''}
+    // Usar mismo endpoint que MedScan con scan_type=ecg
+    const formData = new FormData();
+    formData.append('file', ecgFile);
+    formData.append('scan_type', 'ecg');
+    if (contexto) formData.append('context', contexto);
 
-Responde SOLO con JSON válido sin markdown:
-{
-  "urgencia": "NORMAL|URGENTE|CRITICO",
-  "ritmo": "descripción del ritmo",
-  "fc": "frecuencia cardíaca en lpm",
-  "eje": "eje eléctrico en grados o descripción",
-  "intervalos": "PR: Xms · QRS: Xms · QTc: Xms",
-  "diagnostico": "diagnóstico principal",
-  "hallazgos": "hallazgos detallados del ECG (morfología, segmentos, ondas)",
-  "conducta": "conducta clínica sugerida basada en los hallazgos"
-}`,
-        mode: 'chat',
-        image_base64: base64Data,
-        image_mime: mimeType,
-        session_id: null
-      })
+    const res = await fetch(`${API}/upload/scan`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
     });
     const data = await res.json();
-    const text = (data.response || '').replace(/```json|```/g, '').trim();
-    const ecg = JSON.parse(text);
-    renderECGResult(ecg);
+    if (!res.ok) throw new Error(data.detail || 'Error en análisis');
+
+    // Parsear respuesta de MedScan para ECG
+    renderECGFromScan(data, contexto);
   } catch(e) {
-    // Fallback — análisis sin imagen via texto
-    try {
-      const res = await fetch(`${API}/analysis/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          message: `Eres un cardiólogo experto. ${contexto ? `Contexto: ${contexto}. ` : ''}El médico subió una imagen de ECG para análisis. Proporciona una guía de interpretación de ECG basada en el contexto clínico disponible. Responde en JSON: {"urgencia":"URGENTE","ritmo":"Pendiente de análisis visual","fc":"Ver trazado","eje":"Ver trazado","intervalos":"Ver trazado","diagnostico":"Imagen recibida — análisis visual requerido","hallazgos":"${contexto ? 'Basado en contexto: ' + contexto : 'Por favor describe los hallazgos del ECG manualmente'}","conducta":"Correlacionar hallazgos del ECG con clínica del paciente"}`,
-          mode: 'chat', session_id: null
-        })
-      });
-      const data = await res.json();
-      const text = (data.response||'').replace(/```json|```/g,'').trim();
-      renderECGResult(JSON.parse(text));
-    } catch(e2) {
-      showToast('Error al analizar el ECG. Intenta de nuevo.');
-    }
+    showToast(`Error: ${e.message}`);
+    document.getElementById('ecg-preview-area').style.display = 'block';
   } finally {
     document.getElementById('ecg-loading').style.display = 'none';
   }
+}
+
+function renderECGFromScan(data, contexto) {
+  const urgency = data.urgency_level || 'low';
+  const badge = document.getElementById('ecg-urgencia-badge');
+  if (urgency === 'critical') {
+    badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:var(--danger)';
+    badge.textContent = '🚨 CRÍTICO — Atención inmediata requerida';
+  } else if (urgency === 'high') {
+    badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:var(--warning)';
+    badge.textContent = '⚠️ URGENTE — Evaluación médica inmediata';
+  } else {
+    badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--success)';
+    badge.textContent = '✅ Sin hallazgos críticos inmediatos';
+  }
+  document.getElementById('ecg-ritmo').textContent = 'Ver hallazgos';
+  document.getElementById('ecg-fc').textContent = 'Ver hallazgos';
+  document.getElementById('ecg-eje').textContent = 'Ver hallazgos';
+  document.getElementById('ecg-intervalos').textContent = 'Ver hallazgos';
+  document.getElementById('ecg-dx').textContent = data.summary || '—';
+  document.getElementById('ecg-hallazgos').textContent = data.findings || '—';
+  document.getElementById('ecg-conducta').textContent = data.recommendations || '—';
+  document.getElementById('ecg-result').style.display = 'block';
 }
 
 function renderECGResult(ecg) {
@@ -4170,7 +4165,9 @@ function renderECGResult(ecg) {
 }
 
 function resetECG() {
-  ecgImageBase64 = null;
+  ecgFile = null;
+  document.getElementById('ecg-camara').value = '';
+  document.getElementById('ecg-galeria').value = '';
   document.getElementById('ecg-input').value = '';
   document.getElementById('ecg-upload-area').style.display = 'block';
   document.getElementById('ecg-preview-area').style.display = 'none';
