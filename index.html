@@ -1090,6 +1090,11 @@
           <div class="module-title">MedScan</div>
           <div class="module-sub">Análisis de imágenes</div>
         </div>
+        <div class="module-card" onclick="switchTab('ecg')">
+          <div class="module-icon" style="background:rgba(239,68,68,0.15)">🫀</div>
+          <div class="module-title">ECG Analyzer</div>
+          <div class="module-sub">Interpretación con IA</div>
+        </div>
         <div class="module-card" onclick="switchTab('soap')">
           <div class="module-icon" style="background:rgba(16,185,129,0.15)">🎤</div>
           <div class="module-title">Dictado SOAP</div>
@@ -2375,6 +2380,110 @@
         <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">Lista para copiar al expediente médico</div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ECG Analyzer Tab -->
+  <div class="tab-content" id="tab-ecg">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(239,68,68,0.15)">🫀</div>
+      <div style="flex:1">
+        <div class="appbar-title">ECG Analyzer</div>
+        <div class="appbar-sub" style="color:var(--danger)">Interpretación con IA</div>
+      </div>
+    </div>
+    <div style="padding:16px;overflow-y:auto;height:calc(100dvh - 130px)">
+
+      <!-- Info -->
+      <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--danger);font-weight:600">🫀 Análisis de ECG con Claude AI Vision</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Sube una foto del ECG — la IA interpreta ritmo, frecuencia, eje, intervalos y diagnóstico</div>
+      </div>
+
+      <!-- Datos clínicos opcionales -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:6px">CONTEXTO CLÍNICO (opcional)</div>
+        <input type="text" id="ecg-contexto" class="calc-input" placeholder="Ej: Hombre 55a, dolor torácico, HTA. FC 100">
+      </div>
+
+      <!-- Upload area -->
+      <div id="ecg-upload-area" onclick="document.getElementById('ecg-input').click()"
+        style="border:2px dashed rgba(239,68,68,0.4);border-radius:12px;padding:30px;text-align:center;cursor:pointer;background:rgba(239,68,68,0.03);margin-bottom:12px;transition:all 0.2s">
+        <div style="font-size:36px;margin-bottom:8px">📷</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text-primary)">Toca para subir ECG</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Foto del ECG impreso o pantalla del monitor</div>
+      </div>
+      <input type="file" id="ecg-input" accept="image/*" capture="environment" style="display:none" onchange="handleECGUpload(event)">
+
+      <!-- Preview -->
+      <div id="ecg-preview-area" style="display:none;margin-bottom:12px">
+        <img id="ecg-preview-img" style="width:100%;border-radius:10px;border:1px solid var(--border);max-height:250px;object-fit:contain">
+        <button onclick="analyzeECG()"
+          style="width:100%;margin-top:10px;padding:13px;background:var(--danger);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer">
+          🔍 Analizar ECG con IA
+        </button>
+        <button onclick="resetECG()"
+          style="width:100%;margin-top:6px;padding:8px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:12px;cursor:pointer">
+          🗑 Cambiar imagen
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div id="ecg-loading" style="display:none;text-align:center;padding:30px">
+        <div class="spinner" style="margin:0 auto 12px;border-top-color:var(--danger)"></div>
+        <div style="color:var(--text-secondary);font-size:13px">Analizando ECG con Claude Vision...</div>
+      </div>
+
+      <!-- Resultado -->
+      <div id="ecg-result" style="display:none">
+        <!-- Urgencia badge -->
+        <div id="ecg-urgencia-badge" style="padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600"></div>
+
+        <!-- Parámetros clave -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div class="result-box" style="border-color:var(--border);background:var(--bg-surface)">
+            <div class="result-label">RITMO</div>
+            <div id="ecg-ritmo" style="font-size:13px;font-weight:600;color:var(--text-primary)">—</div>
+          </div>
+          <div class="result-box" style="border-color:var(--border);background:var(--bg-surface)">
+            <div class="result-label">FRECUENCIA</div>
+            <div id="ecg-fc" style="font-size:13px;font-weight:600;color:var(--text-primary)">—</div>
+          </div>
+          <div class="result-box" style="border-color:var(--border);background:var(--bg-surface)">
+            <div class="result-label">EJE</div>
+            <div id="ecg-eje" style="font-size:13px;font-weight:600;color:var(--text-primary)">—</div>
+          </div>
+          <div class="result-box" style="border-color:var(--border);background:var(--bg-surface)">
+            <div class="result-label">PR / QRS / QT</div>
+            <div id="ecg-intervalos" style="font-size:11px;font-weight:600;color:var(--text-primary)">—</div>
+          </div>
+        </div>
+
+        <!-- Diagnóstico e interpretación -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="font-size:11px;color:var(--danger);font-weight:700;margin-bottom:6px">🔍 DIAGNÓSTICO PRINCIPAL</div>
+          <div id="ecg-dx" style="font-size:14px;font-weight:600;color:var(--text-primary)"></div>
+        </div>
+
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+          <div style="font-size:11px;color:var(--text-secondary);font-weight:700;margin-bottom:6px">📋 HALLAZGOS</div>
+          <div id="ecg-hallazgos" style="font-size:13px;color:var(--text-primary);line-height:1.6"></div>
+        </div>
+
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="font-size:11px;color:var(--text-secondary);font-weight:700;margin-bottom:6px">💊 CONDUCTA SUGERIDA</div>
+          <div id="ecg-conducta" style="font-size:13px;color:var(--text-primary);line-height:1.6"></div>
+        </div>
+
+        <div style="padding:10px;background:rgba(245,158,11,0.1);border-radius:8px;border:1px solid rgba(245,158,11,0.3);font-size:11px;color:var(--warning);margin-bottom:12px">
+          ⚠️ Análisis orientativo. El diagnóstico final requiere evaluación clínica por cardiólogo. No reemplaza criterio médico.
+        </div>
+
+        <button onclick="resetECG()"
+          style="width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:12px;cursor:pointer">
+          🔄 Nuevo ECG
+        </button>
+      </div>
     </div>
   </div>
 
@@ -3944,6 +4053,119 @@ function renderCIE11AI(text, query) {
       style="display:block;margin:12px auto 0;background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer">
       🔄 Nueva búsqueda</button>`;
   results.style.display = 'block';
+}
+
+// ── ECG Analyzer ─────────────────────────────────────────────
+let ecgImageBase64 = null;
+
+function handleECGUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    ecgImageBase64 = e.target.result;
+    document.getElementById('ecg-preview-img').src = ecgImageBase64;
+    document.getElementById('ecg-upload-area').style.display = 'none';
+    document.getElementById('ecg-preview-area').style.display = 'block';
+    document.getElementById('ecg-result').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function analyzeECG() {
+  if (!ecgImageBase64) return;
+  if (!token) { showToast('Inicia sesión para usar ECG Analyzer'); return; }
+
+  document.getElementById('ecg-loading').style.display = 'block';
+  document.getElementById('ecg-preview-area').style.display = 'none';
+  document.getElementById('ecg-result').style.display = 'none';
+
+  const contexto = document.getElementById('ecg-contexto').value.trim();
+  const base64Data = ecgImageBase64.split(',')[1];
+  const mimeType = ecgImageBase64.split(';')[0].split(':')[1];
+
+  try {
+    const res = await fetch(`${API}/analysis/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        message: `Eres un cardiólogo experto en interpretación de ECG. Analiza este electrocardiograma.
+${contexto ? `Contexto clínico: ${contexto}` : ''}
+
+Responde SOLO con JSON válido sin markdown:
+{
+  "urgencia": "NORMAL|URGENTE|CRITICO",
+  "ritmo": "descripción del ritmo",
+  "fc": "frecuencia cardíaca en lpm",
+  "eje": "eje eléctrico en grados o descripción",
+  "intervalos": "PR: Xms · QRS: Xms · QTc: Xms",
+  "diagnostico": "diagnóstico principal",
+  "hallazgos": "hallazgos detallados del ECG (morfología, segmentos, ondas)",
+  "conducta": "conducta clínica sugerida basada en los hallazgos"
+}`,
+        mode: 'chat',
+        image_base64: base64Data,
+        image_mime: mimeType,
+        session_id: null
+      })
+    });
+    const data = await res.json();
+    const text = (data.response || '').replace(/```json|```/g, '').trim();
+    const ecg = JSON.parse(text);
+    renderECGResult(ecg);
+  } catch(e) {
+    // Fallback — análisis sin imagen via texto
+    try {
+      const res = await fetch(`${API}/analysis/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          message: `Eres un cardiólogo experto. ${contexto ? `Contexto: ${contexto}. ` : ''}El médico subió una imagen de ECG para análisis. Proporciona una guía de interpretación de ECG basada en el contexto clínico disponible. Responde en JSON: {"urgencia":"URGENTE","ritmo":"Pendiente de análisis visual","fc":"Ver trazado","eje":"Ver trazado","intervalos":"Ver trazado","diagnostico":"Imagen recibida — análisis visual requerido","hallazgos":"${contexto ? 'Basado en contexto: ' + contexto : 'Por favor describe los hallazgos del ECG manualmente'}","conducta":"Correlacionar hallazgos del ECG con clínica del paciente"}`,
+          mode: 'chat', session_id: null
+        })
+      });
+      const data = await res.json();
+      const text = (data.response||'').replace(/```json|```/g,'').trim();
+      renderECGResult(JSON.parse(text));
+    } catch(e2) {
+      showToast('Error al analizar el ECG. Intenta de nuevo.');
+    }
+  } finally {
+    document.getElementById('ecg-loading').style.display = 'none';
+  }
+}
+
+function renderECGResult(ecg) {
+  const urgencia = ecg.urgencia || 'NORMAL';
+  const badge = document.getElementById('ecg-urgencia-badge');
+  if (urgencia === 'CRITICO') {
+    badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:var(--danger)';
+    badge.textContent = '🚨 CRÍTICO — Atención inmediata requerida';
+  } else if (urgencia === 'URGENTE') {
+    badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:var(--warning)';
+    badge.textContent = '⚠️ URGENTE — Evaluación médica inmediata';
+  } else {
+    badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--success)';
+    badge.textContent = '✅ Sin hallazgos críticos inmediatos';
+  }
+  document.getElementById('ecg-ritmo').textContent = ecg.ritmo || '—';
+  document.getElementById('ecg-fc').textContent = ecg.fc || '—';
+  document.getElementById('ecg-eje').textContent = ecg.eje || '—';
+  document.getElementById('ecg-intervalos').textContent = ecg.intervalos || '—';
+  document.getElementById('ecg-dx').textContent = ecg.diagnostico || '—';
+  document.getElementById('ecg-hallazgos').textContent = ecg.hallazgos || '—';
+  document.getElementById('ecg-conducta').textContent = ecg.conducta || '—';
+  document.getElementById('ecg-result').style.display = 'block';
+}
+
+function resetECG() {
+  ecgImageBase64 = null;
+  document.getElementById('ecg-input').value = '';
+  document.getElementById('ecg-upload-area').style.display = 'block';
+  document.getElementById('ecg-preview-area').style.display = 'none';
+  document.getElementById('ecg-result').style.display = 'none';
+  document.getElementById('ecg-loading').style.display = 'none';
+  document.getElementById('ecg-contexto').value = '';
 }
 
 // ── Guardia Plus sub-tabs ─────────────────────────────────────
