@@ -3232,7 +3232,12 @@ async function sendMessage() {
     appendMessage(data.response, 'ai', data.tokens_used);
   } catch(e) {
     hideTyping();
-    appendMessage('⚠️ Error de conexión. Verifica tu internet.', 'error');
+    const msg = e.message || '';
+    if (msg.includes('429') || msg.toLowerCase().includes('límite') || msg.toLowerCase().includes('limite')) {
+      appendMessage('⚠️ Límite diario alcanzado. Intenta mañana o actualiza tu plan.', 'error');
+    } else {
+      appendMessage('⚠️ Error de conexión. Verifica tu internet e intenta de nuevo.', 'error');
+    }
   } finally {
     btn.disabled = false;
   }
