@@ -1212,6 +1212,7 @@
       <button class="calc-tab" onclick="switchCalc('pesoFetal', this)">📊 Peso Fetal</button>
       <button class="calc-tab" onclick="switchCalc('dosisAdulto', this)">💊 Dosis Adulto</button>
       <button class="calc-tab" onclick="switchCalc('liquidosIV', this)">💧 Líquidos IV</button>
+      <button class="calc-tab" onclick="switchCalc('imc', this)">⚖️ IMC</button>
     </div>
     <div class="calc-content">
 
@@ -1926,6 +1927,46 @@
             style="margin-top:10px;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;padding:6px 16px;border-radius:8px;cursor:pointer;width:100%">
             🗑 Limpiar
           </button>
+        </div>
+      </div>
+
+      <!-- IMC -->
+      <div class="calc-panel" id="calc-imc">
+        <div class="calc-title">⚖️ Índice de Masa Corporal</div>
+        <div class="calc-subtitle">Clasificación OMS — kg/m²</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button id="imc-btn-kg" onclick="setIMCUnidad('kg')"
+            style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:white;border:none">kg / m</button>
+          <button id="imc-btn-lb" onclick="setIMCUnidad('lb')"
+            style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--bg-surface);color:var(--text-muted);border:1.5px solid var(--border)">lb / m</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div>
+            <div class="calc-label" id="imc-peso-label">PESO (kg)</div>
+            <input type="number" id="imc-peso" class="calc-input" placeholder="70">
+          </div>
+          <div>
+            <div class="calc-label">TALLA (m o cm)</div>
+            <input type="number" id="imc-talla" class="calc-input" placeholder="1.70">
+          </div>
+        </div>
+        <button onclick="calcularIMC()"
+          style="width:100%;padding:12px;background:var(--blue);border:none;border-radius:10px;color:white;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:14px">
+          Calcular IMC
+        </button>
+        <div id="imc-result" style="display:none">
+          <div id="imc-badge" style="padding:16px;border-radius:12px;text-align:center;margin-bottom:12px">
+            <div id="imc-valor" style="font-size:36px;font-weight:800"></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">kg/m²</div>
+            <div id="imc-clasif" style="font-size:16px;font-weight:700;margin-top:6px"></div>
+          </div>
+          <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px">
+            <div style="font-size:11px;color:var(--text-secondary);font-weight:600;margin-bottom:8px">CLASIFICACIÓN OMS</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+              &lt; 18.5 → Bajo peso<br>18.5–24.9 → Normal<br>25–29.9 → Sobrepeso<br>
+              30–34.9 → Obesidad I<br>35–39.9 → Obesidad II<br>≥ 40 → Obesidad III (Mórbida)
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3512,6 +3553,42 @@ function setCHADS(key,val,el){
   box.style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
   document.getElementById('chads-interp').textContent=interp;
   document.getElementById('chads-result').style.display='block';
+}
+
+// ── IMC ───────────────────────────────────────────────────────
+let imcUnidad = 'kg';
+
+function setIMCUnidad(u) {
+  imcUnidad = u;
+  document.getElementById('imc-btn-kg').style.cssText = u==='kg'
+    ? 'flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:white;border:none'
+    : 'flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--bg-surface);color:var(--text-muted);border:1.5px solid var(--border)';
+  document.getElementById('imc-btn-lb').style.cssText = u==='lb'
+    ? 'flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--blue);color:white;border:none'
+    : 'flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:var(--bg-surface);color:var(--text-muted);border:1.5px solid var(--border)';
+  document.getElementById('imc-peso-label').textContent = u==='kg' ? 'PESO (kg)' : 'PESO (lb)';
+}
+
+function calcularIMC() {
+  const pesoRaw = parseFloat(document.getElementById('imc-peso').value);
+  const tallaRaw = parseFloat(document.getElementById('imc-talla').value);
+  if (isNaN(pesoRaw) || isNaN(tallaRaw) || tallaRaw <= 0) return;
+  const pesoKg = imcUnidad === 'lb' ? pesoRaw * 0.453592 : pesoRaw;
+  const tallaMt = tallaRaw > 3 ? tallaRaw / 100 : tallaRaw;
+  const imc = pesoKg / (tallaMt * tallaMt);
+
+  let clasif, color, bg;
+  if (imc < 18.5) { clasif='⚠️ Bajo peso'; color='var(--warning)'; bg='rgba(245,158,11,0.1)'; }
+  else if (imc < 25) { clasif='✅ Normal'; color='var(--success)'; bg='rgba(16,185,129,0.1)'; }
+  else if (imc < 30) { clasif='⚠️ Sobrepeso'; color='var(--warning)'; bg='rgba(245,158,11,0.1)'; }
+  else { clasif='🔴 Obesidad'; color='var(--danger)'; bg='rgba(239,68,68,0.1)'; }
+
+  document.getElementById('imc-valor').textContent = imc.toFixed(1);
+  document.getElementById('imc-valor').style.color = color;
+  document.getElementById('imc-clasif').textContent = clasif;
+  document.getElementById('imc-clasif').style.color = color;
+  document.getElementById('imc-badge').style.cssText = `padding:16px;border-radius:12px;text-align:center;margin-bottom:12px;background:${bg};border:1px solid ${color}`;
+  document.getElementById('imc-result').style.display = 'block';
 }
 
 // ── OB Wheel ─────────────────────────────────────────────────
