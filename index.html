@@ -3060,7 +3060,7 @@ async function loadPlans(tier) {
           <div style="font-size:12px;line-height:1.8;color:var(--text-secondary);margin-bottom:10px">
             ${p.features.map(f => `✅ ${f}`).join('<br>')}
           </div>
-          <button onclick="checkoutPayPal('${p.id}')"
+          <button onclick="checkoutPayPal('${p.id}', '${p.price}')"
             style="width:100%;padding:11px;background:var(--blue);border:none;border-radius:10px;color:white;font-size:13px;font-weight:600;cursor:pointer">
             Suscribirse — $${p.price}/mes
           </button>
@@ -3073,21 +3073,79 @@ async function loadPlans(tier) {
   } catch(e) { console.error('Error cargando planes:', e); }
 }
 
-async function checkoutPayPal(plan) {
+async function checkoutPayPal(plan, price) {
   if (!token) { showToast('Inicia sesión primero'); return; }
-  try {
-    showToast('Conectando con PayPal...');
-    const res = await fetch(`${API}/subscription/checkout`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ plan })
+
+  // Crear modal con PayPal Smart Buttons
+  const modal = document.createElement('div');
+  modal.id = 'paypal-modal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:flex-end;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:var(--bg-primary);border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:500px;max-height:80vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div style="font-size:16px;font-weight:700">Suscripción Medix AI</div>
+          <div style="font-size:13px;color:var(--text-secondary)">${plan.toUpperCase()} — $${price}/mes</div>
+        </div>
+        <button onclick="document.getElementById('paypal-modal').remove()" 
+          style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted)">✕</button>
+      </div>
+      <div id="paypal-button-container" style="min-height:120px"></div>
+      <div style="text-align:center;margin-top:12px">
+        <div style="font-size:11px;color:var(--text-muted)">🔒 Pago seguro con PayPal · SSL encrypted</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Puedes pagar con tarjeta sin tener cuenta PayPal</div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  // Cargar PayPal JS SDK si no está cargado
+  if (!window.paypal) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://www.paypal.com/sdk/js?client-id=AXErNwtQGpFGg7i5T03bJ5ONw0H-I0NFT05lHKO36sygzfcI6sJNg5Vq9J5RIEYTKZUXCfm2rvuA0pVQ&currency=USD&intent=capture';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || 'Error');
-    window.open(data.approval_url, '_blank');
-  } catch(e) {
-    showToast(`Error: ${e.message}`);
   }
+
+  // Renderizar botones
+  window.paypal.Buttons({
+    style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' },
+    createOrder: async () => {
+      const res = await fetch(`${API}/subscription/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ plan })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Error');
+      return data.order_id;
+    },
+    onApprove: async (data) => {
+      try {
+        const res = await fetch(`${API}/subscription/capture`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ order_id: data.orderID, plan })
+        });
+        const result = await res.json();
+        document.getElementById('paypal-modal').remove();
+        showToast(`🎉 ¡Bienvenido a Medix AI ${plan.toUpperCase()}!`);
+        await loadProfile();
+      } catch(e) {
+        showToast('Error al confirmar pago. Contacta soporte.');
+      }
+    },
+    onError: (err) => {
+      showToast('Error en el pago. Intenta de nuevo.');
+      console.error('PayPal error:', err);
+    },
+    onCancel: () => {
+      document.getElementById('paypal-modal').remove();
+      showToast('Pago cancelado.');
+    }
+  }).render('#paypal-button-container');
 }
 
 // ── Navigation ─────────────────────────────────────────────────
