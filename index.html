@@ -2256,19 +2256,43 @@
       </div>
 
       <div class="section-title">Mi Plan</div>
-      <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:20px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-          <span style="font-weight:700;font-size:16px">Plan Free</span>
-          <span style="color:var(--text-secondary)">L 0 / mes</span>
+      <div id="plan-section">
+        <!-- Plan Free -->
+        <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-weight:700;font-size:14px">Plan Free — Gratis</span>
+            <span id="free-badge" style="display:none;background:rgba(26,86,219,0.15);color:var(--blue);font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px">Actual</span>
+          </div>
+          <div style="font-size:12px;line-height:2;color:var(--text-secondary)">
+            ✅ 20 mensajes Chat IA / día<br>
+            ✅ 3 MedScans / día<br>
+            ✅ Modo Guardia offline<br>
+            ✅ Calculadoras offline<br>
+            ❌ Chat IA ilimitado<br>
+            ❌ MedScan ilimitado<br>
+            ❌ SOAP + ECOE ilimitado
+          </div>
         </div>
-        <div style="font-size:13px;line-height:2">
-          ✅ 20 mensajes de chat / día<br>
-          ✅ Modo Guardia offline<br>
-          ✅ Normas SESAL<br>
-          ❌ Dictado SOAP<br>
-          ❌ MedScan<br>
+
+        <!-- Banner lanzamiento -->
+        <div id="launch-banner" style="display:none;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:10px;padding:10px;margin-bottom:10px">
+          <span style="font-size:14px">🚀</span>
+          <span id="launch-text" style="font-size:12px;font-weight:600;color:#B8860B;margin-left:6px">¡Precio de lanzamiento!</span>
         </div>
-        <button class="btn btn-primary" style="margin-top:14px" onclick="showToast('Próximamente disponible en Honduras 🇭🇳')">Mejorar a Pro — L 299/mes</button>
+
+        <!-- Planes Pro/Clinical -->
+        <div id="plans-container"></div>
+
+        <!-- Plan activo (si ya tiene Pro/Clinical) -->
+        <div id="active-plan" style="display:none;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:14px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:24px">✅</span>
+            <div>
+              <div id="active-plan-name" style="font-weight:700;font-size:15px;color:var(--success)"></div>
+              <div style="font-size:12px;color:var(--text-secondary)">Gracias por apoyar Medix AI 🏥</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="section-title">Configuración</div>
@@ -3004,7 +3028,66 @@ async function loadProfile() {
     else if (tier === 'clinical') { badge.style.background='rgba(139,92,246,0.2)'; badge.style.color='var(--purple)'; }
     document.getElementById('profileName') && 
       (document.querySelector('.welcome-greeting').textContent = `Bienvenido, Dr. ${user.first_name} 👋`);
+
+    // Cargar planes PayPal
+    await loadPlans(tier);
   } catch(e) { /* fail silently */ }
+}
+
+async function loadPlans(tier) {
+  try {
+    const res = await fetch(`${API}/subscription/plans`);
+    const data = await res.json();
+    const isLaunch = data.is_launch_active;
+    const remaining = data.launch_slots_remaining;
+
+    if (tier === 'free') {
+      document.getElementById('free-badge').style.display = 'inline-block';
+      if (isLaunch) {
+        document.getElementById('launch-banner').style.display = 'block';
+        document.getElementById('launch-text').textContent = `¡Precio lanzamiento! ${remaining} cupos disponibles`;
+      }
+      const container = document.getElementById('plans-container');
+      container.innerHTML = data.plans.map(p => `
+        <div style="background:var(--bg-surface);border:1px solid rgba(26,86,219,0.3);border-radius:14px;padding:14px;margin-bottom:10px;background:linear-gradient(135deg,rgba(26,86,219,0.08),var(--bg-surface))">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-weight:700;font-size:14px;color:var(--blue)">${p.name}</span>
+            <div>
+              ${isLaunch ? `<span style="text-decoration:line-through;color:var(--text-muted);font-size:11px">$${p.regular_price}</span> ` : ''}
+              <span style="font-weight:700;color:var(--blue);font-size:13px">$${p.price}/mes</span>
+            </div>
+          </div>
+          <div style="font-size:12px;line-height:1.8;color:var(--text-secondary);margin-bottom:10px">
+            ${p.features.map(f => `✅ ${f}`).join('<br>')}
+          </div>
+          <button onclick="checkoutPayPal('${p.id}')"
+            style="width:100%;padding:11px;background:var(--blue);border:none;border-radius:10px;color:white;font-size:13px;font-weight:600;cursor:pointer">
+            Suscribirse — $${p.price}/mes
+          </button>
+        </div>`).join('');
+    } else {
+      document.getElementById('active-plan').style.display = 'block';
+      document.getElementById('active-plan-name').textContent = `Plan ${tier.toUpperCase()} Activo`;
+      document.getElementById('plans-container').innerHTML = '';
+    }
+  } catch(e) { console.error('Error cargando planes:', e); }
+}
+
+async function checkoutPayPal(plan) {
+  if (!token) { showToast('Inicia sesión primero'); return; }
+  try {
+    showToast('Conectando con PayPal...');
+    const res = await fetch(`${API}/subscription/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ plan })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error');
+    window.open(data.approval_url, '_blank');
+  } catch(e) {
+    showToast(`Error: ${e.message}`);
+  }
 }
 
 // ── Navigation ─────────────────────────────────────────────────
