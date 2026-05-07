@@ -2313,7 +2313,15 @@
       </div>
       <div class="setting-tile" onclick="openSoporte()">
         <span class="setting-icon">💬</span>
-        <span class="setting-label">Soporte</span>
+        <span class="setting-label">Soporte WhatsApp</span>
+        <span class="setting-arrow">›</span>
+      </div>
+      <div class="setting-tile" onclick="openSoporteEmail()">
+        <span class="setting-icon">📧</span>
+        <span class="setting-label" style="display:flex;flex-direction:column">
+          Soporte Email
+          <small style="color:var(--text-muted);font-size:11px">medixaisupport@gmail.com</small>
+        </span>
         <span class="setting-arrow">›</span>
       </div>
 
@@ -5341,6 +5349,10 @@ async function startCustomECOE(id) {
 function openSoporte() {
   const msg = encodeURIComponent('Hola Medix AI! Necesito soporte con la app. 🏥');
   window.open(`https://wa.me/50499913123?text=${msg}`, '_blank');
+}
+
+function openSoporteEmail() {
+  window.open('mailto:medixaisupport@gmail.com?subject=Soporte%20Medix%20AI&body=Hola%2C%20necesito%20ayuda%20con%20la%20app%20Medix%20AI.', '_blank');
 }
 
 // ── Toast ──────────────────────────────────────────────────────
