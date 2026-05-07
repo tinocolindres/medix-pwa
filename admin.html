@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medix AI — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060910;
+  --surface: #0d1117;
+  --surface2: #161b22;
+  --border: rgba(56,189,248,0.12);
+  --blue: #38bdf8;
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --purple: #a78bfa;
+  --text: #f0f6fc;
+  --muted: #8b949e;
+  --accent: #0ea5e9;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; }
+
+/* Grid background */
+body::before {
+  content:''; position:fixed; inset:0; z-index:0;
+  background-image: linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events:none;
+}
+
+.app { position:relative; z-index:1; }
+
+/* Header */
+.header {
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  display:flex; align-items:center; justify-content:space-between;
+  height:64px;
+  background:rgba(6,9,16,0.8);
+  backdrop-filter:blur(12px);
+  position:sticky; top:0; z-index:100;
+}
+.logo { display:flex; align-items:center; gap:12px; }
+.logo-icon {
+  width:36px; height:36px; border-radius:10px;
+  background:linear-gradient(135deg, var(--blue), var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; box-shadow:0 0 20px rgba(56,189,248,0.3);
+}
+.logo-text { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; }
+.logo-badge { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--blue); background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:2px 8px; border-radius:4px; }
+.status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* Login */
+#login-screen {
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:20px;
+}
+.login-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; padding:40px; width:100%; max-width:400px;
+  box-shadow:0 0 60px rgba(56,189,248,0.08);
+}
+.login-title { font-family:'Syne',sans-serif; font-size:24px; font-weight:800; margin-bottom:8px; }
+.login-sub { color:var(--muted); font-size:14px; margin-bottom:28px; }
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-family:'JetBrains Mono',monospace; letter-spacing:0.05em; }
+.field input { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 14px; color:var(--text); font-size:14px; outline:none; transition:border-color 0.2s; }
+.field input:focus { border-color:var(--blue); }
+.btn-login { width:100%; padding:13px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:10px; color:white; font-size:14px; font-weight:600; cursor:pointer; margin-top:8px; transition:opacity 0.2s; }
+.btn-login:hover { opacity:0.9; }
+.login-error { color:var(--red); font-size:13px; margin-top:10px; display:none; text-align:center; }
+
+/* Main layout */
+#dashboard { display:none; }
+.main { padding:32px; max-width:1400px; margin:0 auto; }
+.page-title { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; margin-bottom:4px; }
+.page-sub { color:var(--muted); font-size:14px; margin-bottom:32px; }
+
+/* Stat cards */
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:32px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:20px;
+  position:relative; overflow:hidden;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(0,0,0,0.3); }
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.stat-card.blue::before { background:linear-gradient(90deg,var(--blue),transparent); }
+.stat-card.green::before { background:linear-gradient(90deg,var(--green),transparent); }
+.stat-card.yellow::before { background:linear-gradient(90deg,var(--yellow),transparent); }
+.stat-card.purple::before { background:linear-gradient(90deg,var(--purple),transparent); }
+.stat-card.red::before { background:linear-gradient(90deg,var(--red),transparent); }
+.stat-label { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.08em; margin-bottom:10px; }
+.stat-value { font-family:'Syne',sans-serif; font-size:36px; font-weight:800; line-height:1; margin-bottom:6px; }
+.stat-value.blue { color:var(--blue); }
+.stat-value.green { color:var(--green); }
+.stat-value.yellow { color:var(--yellow); }
+.stat-value.purple { color:var(--purple); }
+.stat-value.red { color:var(--red); }
+.stat-desc { font-size:12px; color:var(--muted); }
+
+/* Section */
+.section { margin-bottom:32px; }
+.section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.section-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; }
+.section-badge { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--blue); background:rgba(56,189,248,0.1); border:1px solid var(--border); padding:3px 10px; border-radius:20px; }
+
+/* Table */
+.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+table { width:100%; border-collapse:collapse; }
+th { background:var(--surface2); padding:12px 16px; text-align:left; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.08em; font-weight:600; }
+td { padding:12px 16px; font-size:13px; border-top:1px solid var(--border); }
+tr:hover td { background:rgba(56,189,248,0.03); }
+.badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; }
+.badge-free { background:rgba(139,148,158,0.15); color:var(--muted); }
+.badge-pro { background:rgba(56,189,248,0.15); color:var(--blue); }
+.badge-clinical { background:rgba(167,139,250,0.15); color:var(--purple); }
+.badge-active { background:rgba(74,222,128,0.15); color:var(--green); }
+.badge-inactive { background:rgba(248,113,113,0.15); color:var(--red); }
+
+/* Broadcast */
+.broadcast-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px; }
+.broadcast-fields { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.broadcast-fields .field { margin-bottom:0; }
+.btn-broadcast { padding:12px 24px; background:linear-gradient(135deg,var(--blue),var(--purple)); border:none; border-radius:10px; color:white; font-size:14px; font-weight:600; cursor:pointer; }
+
+/* Loading */
+.loading { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:13px; padding:20px; }
+.spinner { width:16px; height:16px; border:2px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* Feedback stars */
+.stars { color:var(--yellow); font-size:13px; }
+
+/* Nav tabs */
+.nav-tabs { display:flex; gap:4px; margin-bottom:24px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:4px; width:fit-content; }
+.nav-tab { padding:8px 20px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.2s; color:var(--muted); border:none; background:none; }
+.nav-tab.active { background:var(--blue); color:white; }
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Refresh btn */
+.btn-refresh { padding:8px 16px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--muted); font-size:12px; cursor:pointer; transition:all 0.2s; }
+.btn-refresh:hover { border-color:var(--blue); color:var(--blue); }
+
+/* Logout */
+.btn-logout { padding:8px 16px; background:none; border:1px solid rgba(248,113,113,0.3); border-radius:8px; color:var(--red); font-size:12px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Login -->
+<div id="login-screen">
+  <div class="login-card">
+    <div style="font-size:40px;margin-bottom:16px;text-align:center">🏥</div>
+    <div class="login-title" style="text-align:center">Medix AI</div>
+    <div class="login-sub" style="text-align:center">Admin Dashboard — Solo administradores</div>
+    <div class="field">
+      <label>EMAIL</label>
+      <input type="email" id="loginEmail" placeholder="griego2@medix.hn">
+    </div>
+    <div class="field">
+      <label>PASSWORD</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Acceder al Dashboard</button>
+    <div class="login-error" id="loginError">Credenciales incorrectas o sin permisos admin</div>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🏥</div>
+      <div>
+        <div class="logo-text">Medix AI</div>
+      </div>
+      <div class="logo-badge">ADMIN</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)">
+        <div class="status-dot"></div> Sistema activo
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub" id="lastUpdate">Cargando estadísticas...</div>
+
+    <!-- Nav tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('overview')">📊 Resumen</button>
+      <button class="nav-tab" onclick="showTab('users')">👥 Usuarios</button>
+      <button class="nav-tab" onclick="showTab('feedback')">⭐ Feedback</button>
+      <button class="nav-tab" onclick="showTab('broadcast')">📢 Broadcast</button>
+    </div>
+
+    <!-- Overview Tab -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="stats-grid" id="statsGrid">
+        <div class="loading"><div class="spinner"></div> Cargando métricas...</div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Distribución de Usuarios</div>
+          <button class="btn-refresh" onclick="loadStats()">↻ Actualizar</button>
+        </div>
+        <div class="stats-grid" id="distGrid"></div>
+      </div>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="tab-content" id="tab-users">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Usuarios Registrados</div>
+          <div style="display:flex;gap:8px">
+            <select id="filterTier" onchange="loadUsers()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-size:12px">
+              <option value="">Todos los planes</option>
+              <option value="free">Free</option>
+              <option value="pro">Pro</option>
+              <option value="clinical">Clinical</option>
+            </select>
+            <button class="btn-refresh" onclick="loadUsers()">↻ Actualizar</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>NOMBRE</th>
+                <th>EMAIL</th>
+                <th>ROL</th>
+                <th>PLAN</th>
+                <th>ESTADO</th>
+                <th>CHATS HOY</th>
+                <th>SCANS HOY</th>
+                <th>REGISTRO</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable">
+              <tr><td colspan="8"><div class="loading"><div class="spinner"></div> Cargando usuarios...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feedback Tab -->
+    <div class="tab-content" id="tab-feedback">
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">Feedback Beta Testers</div>
+          <button class="btn-refresh" onclick="loadFeedback()">↻ Actualizar</button>
+        </div>
+        <div id="feedbackSummary" style="margin-bottom:16px"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>RATING</th><th>MÓDULO</th><th>MENSAJE</th><th>FECHA</th></tr>
+            </thead>
+            <tbody id="feedbackTable">
+              <tr><td colspan="4"><div class="loading"><div class="spinner"></div> Cargando feedback...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Broadcast Tab -->
+    <div class="tab-content" id="tab-broadcast">
+      <div class="section">
+        <div class="section-title" style="margin-bottom:16px">📢 Enviar Notificación Push</div>
+        <div class="broadcast-card">
+          <div class="broadcast-fields">
+            <div class="field">
+              <label>TÍTULO</label>
+              <input type="text" id="bTitle" placeholder="Ej: Nueva función disponible">
+            </div>
+            <div class="field">
+              <label>FILTRO DE PLAN</label>
+              <select id="bTier" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-size:14px">
+                <option value="">Todos los usuarios</option>
+                <option value="free">Solo Free</option>
+                <option value="pro">Solo Pro</option>
+                <option value="clinical">Solo Clinical</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:16px">
+            <label>MENSAJE</label>
+            <input type="text" id="bBody" placeholder="Ej: Revisa el nuevo módulo de ECG Analyzer">
+          </div>
+          <button class="btn-broadcast" onclick="sendBroadcast()">🚀 Enviar Notificación</button>
+          <div id="broadcastResult" style="margin-top:12px;font-size:13px"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = 'https://medix-ai-production.up.railway.app/api/v1';
+let token = localStorage.getItem('admin_token');
+
+// Auto-login si hay token
+if (token) showDashboard();
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  document.getElementById('loginError').style.display = 'none';
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail);
+    if (data.role !== 'admin') throw new Error('Sin permisos admin');
+    token = data.access_token;
+    localStorage.setItem('admin_token', token);
+    showDashboard();
+  } catch(e) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = e.message;
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('admin_token');
+  token = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadStats();
+  loadUsers();
+  loadFeedback();
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+async function loadStats() {
+  try {
+    const res = await fetch(`${API}/admin/stats/realtime`, {headers:{Authorization:`Bearer ${token}`}});
+    const data = await res.json();
+    document.getElementById('lastUpdate').textContent = `Última actualización: ${new Date().toLocaleTimeString('es-HN')} — ${new Date().toLocaleDateString('es-HN', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}`;
+
+    const stats = [
+      {label:'USUARIOS TOTALES', value: data.total_users ?? '—', color:'blue', desc:'Registrados en Medix AI'},
+      {label:'ACTIVOS HOY', value: data.active_users_today ?? '—', color:'green', desc:'Usuarios con actividad hoy'},
+      {label:'CHATS HOY', value: data.total_chats_today ?? '—', color:'purple', desc:'Mensajes Chat IA enviados'},
+      {label:'SCANS HOY', value: data.total_scans_today ?? '—', color:'yellow', desc:'MedScans realizados hoy'},
+      {label:'PLAN PRO', value: data.user_distribution?.pro ?? '—', color:'blue', desc:'Usuarios con plan Pro'},
+      {label:'PLAN CLINICAL', value: data.user_distribution?.clinical ?? '—', color:'purple', desc:'Usuarios con plan Clinical'},
+    ];
+
+    document.getElementById('statsGrid').innerHTML = stats.map(s => `
+      <div class="stat-card ${s.color}">
+        <div class="stat-label">${s.label}</div>
+        <div class="stat-value ${s.color}">${s.value}</div>
+        <div class="stat-desc">${s.desc}</div>
+      </div>`).join('');
+
+    // Distribution
+    const dist = data.user_distribution || {};
+    document.getElementById('distGrid').innerHTML = `
+      <div class="stat-card green"><div class="stat-label">FREE</div><div class="stat-value green">${dist.free??0}</div><div class="stat-desc">Usuarios gratuitos</div></div>
+      <div class="stat-card blue"><div class="stat-label">PRO</div><div class="stat-value blue">${dist.pro??0}</div><div class="stat-desc">Suscriptores Pro</div></div>
+      <div class="stat-card purple"><div class="stat-label">CLINICAL</div><div class="stat-value purple">${dist.clinical??0}</div><div class="stat-desc">Suscriptores Clinical</div></div>`;
+  } catch(e) {
+    document.getElementById('statsGrid').innerHTML = `<div style="color:var(--red);padding:20px">Error cargando estadísticas: ${e.message}</div>`;
+  }
+}
+
+async function loadUsers() {
+  const tier = document.getElementById('filterTier')?.value || '';
+  try {
+    const url = `${API}/admin/users?limit=100${tier ? '&tier='+tier : ''}`;
+    const res = await fetch(url, {headers:{Authorization:`Bearer ${token}`}});
+    const users = await res.json();
+    document.getElementById('usersTable').innerHTML = users.map(u => `
+      <tr>
+        <td style="font-weight:500">${u.full_name}</td>
+        <td style="color:var(--muted);font-size:12px">${u.email}</td>
+        <td><span class="badge" style="background:rgba(56,189,248,0.1);color:var(--blue)">${u.role}</span></td>
+        <td><span class="badge badge-${u.tier}">${u.tier.toUpperCase()}</span></td>
+        <td><span class="badge ${u.is_active ? 'badge-active' : 'badge-inactive'}">${u.is_active ? 'Activo' : 'Inactivo'}</span></td>
+        <td style="text-align:center;font-family:'JetBrains Mono',monospace">${u.chat_today}</td>
+        <td style="text-align:center;font-family:'JetBrains Mono',monospace">${u.scan_today}</td>
+        <td style="color:var(--muted);font-size:11px">${new Date(u.created_at).toLocaleDateString('es-HN')}</td>
+      </tr>`).join('');
+  } catch(e) {
+    document.getElementById('usersTable').innerHTML = `<tr><td colspan="8" style="color:var(--red);padding:20px">Error: ${e.message}</td></tr>`;
+  }
+}
+
+async function loadFeedback() {
+  try {
+    const res = await fetch(`${API}/admin/feedback`, {headers:{Authorization:`Bearer ${token}`}});
+    const data = await res.json();
+    document.getElementById('feedbackSummary').innerHTML = `
+      <div class="stat-card yellow" style="display:inline-block;min-width:200px">
+        <div class="stat-label">RATING PROMEDIO</div>
+        <div class="stat-value yellow">${data.avg_rating} ⭐</div>
+        <div class="stat-desc">${data.total} respuestas totales</div>
+      </div>`;
+    document.getElementById('feedbackTable').innerHTML = data.feedback.map(f => `
+      <tr>
+        <td><span class="stars">${'⭐'.repeat(f.rating)}</span></td>
+        <td><span class="badge" style="background:rgba(56,189,248,0.1);color:var(--blue)">${f.module || 'General'}</span></td>
+        <td style="color:var(--muted)">${f.message || '—'}</td>
+        <td style="color:var(--muted);font-size:11px">${new Date(f.created_at).toLocaleDateString('es-HN')}</td>
+      </tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted);padding:20px;text-align:center">Sin feedback aún</td></tr>';
+  } catch(e) {
+    document.getElementById('feedbackTable').innerHTML = `<tr><td colspan="4" style="color:var(--red);padding:20px">Error: ${e.message}</td></tr>`;
+  }
+}
+
+async function sendBroadcast() {
+  const title = document.getElementById('bTitle').value.trim();
+  const body = document.getElementById('bBody').value.trim();
+  const tier = document.getElementById('bTier').value;
+  if (!title || !body) { alert('Completa título y mensaje'); return; }
+  try {
+    const res = await fetch(`${API}/admin/broadcast`, {
+      method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${token}`},
+      body: JSON.stringify({title, body, tier_filter: tier || null})
+    });
+    const data = await res.json();
+    document.getElementById('broadcastResult').innerHTML = `<span style="color:var(--green)">✅ Notificación enviada correctamente</span>`;
+  } catch(e) {
+    document.getElementById('broadcastResult').innerHTML = `<span style="color:var(--red)">❌ Error: ${e.message}</span>`;
+  }
+}
+</script>
+</body>
+</html>
