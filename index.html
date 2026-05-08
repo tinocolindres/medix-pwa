@@ -493,7 +493,9 @@
     .send-btn:disabled { background: var(--text-muted); cursor: not-allowed; }
 
     /* ── Modo Guardia ── */
-    .calc-tabs {
+    .enf-calc { display:none; }
+.enf-calc.active { display:block; }
+
       display: flex; overflow-x: auto;
       padding: 12px 16px;
       gap: 8px;
@@ -1972,6 +1974,228 @@
 
     </div>
   </div>
+  <div class="tab-content" id="tab-enfermeria">
+    <div class="appbar">
+      <div class="appbar-icon" style="background:rgba(236,72,153,0.15)">🩺</div>
+      <div>
+        <div class="appbar-title">Módulo Enfermería</div>
+        <div class="appbar-sub" style="color:#ec4899">Calculadoras clínicas offline</div>
+      </div>
+    </div>
+
+    <div style="padding:16px">
+      <div class="calc-tabs" style="flex-wrap:wrap;gap:6px;margin-bottom:16px">
+        <button class="calc-tab active" onclick="switchEnfCalc('goteo',this)">💧 Goteo IV</button>
+        <button class="calc-tab" onclick="switchEnfCalc('balance',this)">⚖️ Balance</button>
+        <button class="calc-tab" onclick="switchEnfCalc('dosis-enf',this)">💊 Dosis</button>
+        <button class="calc-tab" onclick="switchEnfCalc('dilucion',this)">🧪 Dilución</button>
+        <button class="calc-tab" onclick="switchEnfCalc('signos',this)">🩺 Signos V.</button>
+        <button class="calc-tab" onclick="switchEnfCalc('barthel',this)">📊 Barthel</button>
+        <button class="calc-tab" onclick="switchEnfCalc('braden',this)">🛏️ Braden</button>
+        <button class="calc-tab" onclick="switchEnfCalc('eva',this)">😣 EVA Dolor</button>
+        <button class="calc-tab" onclick="switchEnfCalc('temp',this)">🌡️ Temperatura</button>
+        <button class="calc-tab" onclick="switchEnfCalc('norton',this)">🏥 Norton</button>
+      </div>
+
+      <!-- Goteo IV -->
+      <div class="enf-calc active" id="enf-goteo">
+        <div class="calc-card">
+          <div class="calc-title">💧 Cálculo de Goteo IV</div>
+          <div class="input-group">
+            <label>Volumen total (mL)</label>
+            <input type="number" id="goteo-vol" placeholder="500" oninput="calcGoteo()">
+          </div>
+          <div class="input-group">
+            <label>Tiempo (horas)</label>
+            <input type="number" id="goteo-tiempo" placeholder="8" oninput="calcGoteo()">
+          </div>
+          <div class="input-group">
+            <label>Factor de goteo (gtt/mL)</label>
+            <select id="goteo-factor" onchange="calcGoteo()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">
+              <option value="20">20 gtt/mL (equipo estándar)</option>
+              <option value="60">60 gtt/mL (microgotero)</option>
+              <option value="15">15 gtt/mL (sangre)</option>
+              <option value="10">10 gtt/mL (oncología)</option>
+            </select>
+          </div>
+          <div class="result-box" id="goteo-result" style="display:none">
+            <div class="result-label">Goteo</div>
+            <div class="result-value" id="goteo-gtt" style="color:#38bdf8"></div>
+            <div style="margin-top:8px;font-size:13px;color:var(--text-secondary)">ml/hora: <span id="goteo-mlhr" style="color:#4ade80;font-weight:600"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Balance Hídrico -->
+      <div class="enf-calc" id="enf-balance">
+        <div class="calc-card">
+          <div class="calc-title">⚖️ Balance Hídrico</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">INGRESOS</div>
+          <div class="input-group"><label>IV (mL)</label><input type="number" id="bal-iv" placeholder="0" oninput="calcBalance()"></div>
+          <div class="input-group"><label>Oral (mL)</label><input type="number" id="bal-oral" placeholder="0" oninput="calcBalance()"></div>
+          <div class="input-group"><label>SNG/Otros (mL)</label><input type="number" id="bal-sng" placeholder="0" oninput="calcBalance()"></div>
+          <div style="font-size:12px;color:var(--text-secondary);margin:12px 0 8px">EGRESOS</div>
+          <div class="input-group"><label>Orina (mL)</label><input type="number" id="bal-orina" placeholder="0" oninput="calcBalance()"></div>
+          <div class="input-group"><label>Heces (mL)</label><input type="number" id="bal-heces" placeholder="0" oninput="calcBalance()"></div>
+          <div class="input-group"><label>Drenajes (mL)</label><input type="number" id="bal-drenaje" placeholder="0" oninput="calcBalance()"></div>
+          <div class="input-group"><label>Pérdidas insensibles (mL)</label><input type="number" id="bal-insensible" placeholder="0" oninput="calcBalance()"></div>
+          <div class="result-box" id="balance-result" style="display:none">
+            <div class="result-label">Balance Hídrico</div>
+            <div class="result-value" id="balance-valor"></div>
+            <div id="balance-interp" style="margin-top:6px;font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dosis Enfermería -->
+      <div class="enf-calc" id="enf-dosis-enf">
+        <div class="calc-card">
+          <div class="calc-title">💊 Cálculo de Dosis</div>
+          <div class="input-group"><label>Dosis prescrita (mg)</label><input type="number" id="dosisEnf-prescrita" placeholder="500" oninput="calcDosisEnf()"></div>
+          <div class="input-group"><label>Concentración disponible (mg)</label><input type="number" id="dosisEnf-conc" placeholder="250" oninput="calcDosisEnf()"></div>
+          <div class="input-group"><label>Presentación (mL o tabletas)</label><input type="number" id="dosisEnf-pres" placeholder="5" oninput="calcDosisEnf()"></div>
+          <div class="result-box" id="dosisEnf-result" style="display:none">
+            <div class="result-label">Administrar</div>
+            <div class="result-value" id="dosisEnf-valor" style="color:#4ade80"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dilución -->
+      <div class="enf-calc" id="enf-dilucion">
+        <div class="calc-card">
+          <div class="calc-title">🧪 Concentración de Soluciones</div>
+          <div class="input-group"><label>Dosis requerida (mg/hr o mcg/kg/min)</label><input type="number" id="dil-dosis" placeholder="5" oninput="calcDilucion()"></div>
+          <div class="input-group"><label>Peso del paciente (kg)</label><input type="number" id="dil-peso" placeholder="70" oninput="calcDilucion()"></div>
+          <div class="input-group"><label>Concentración del fármaco (mg/mL)</label><input type="number" id="dil-conc" placeholder="1" oninput="calcDilucion()"></div>
+          <div class="result-box" id="dilucion-result" style="display:none">
+            <div class="result-label">Velocidad de infusión</div>
+            <div class="result-value" id="dilucion-valor" style="color:#a78bfa"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signos Vitales -->
+      <div class="enf-calc" id="enf-signos">
+        <div class="calc-card">
+          <div class="calc-title">🩺 Clasificación de Signos Vitales</div>
+          <div class="input-group"><label>Presión Sistólica (mmHg)</label><input type="number" id="sv-sis" placeholder="120" oninput="calcSignos()"></div>
+          <div class="input-group"><label>Presión Diastólica (mmHg)</label><input type="number" id="sv-dias" placeholder="80" oninput="calcSignos()"></div>
+          <div class="input-group"><label>Frecuencia Cardíaca (lpm)</label><input type="number" id="sv-fc" placeholder="72" oninput="calcSignos()"></div>
+          <div class="input-group"><label>Frecuencia Respiratoria (rpm)</label><input type="number" id="sv-fr" placeholder="16" oninput="calcSignos()"></div>
+          <div class="input-group"><label>Temperatura (°C)</label><input type="number" id="sv-temp" placeholder="36.5" step="0.1" oninput="calcSignos()"></div>
+          <div class="input-group"><label>SpO₂ (%)</label><input type="number" id="sv-spo2" placeholder="98" oninput="calcSignos()"></div>
+          <div id="signos-result" style="margin-top:12px;display:none"></div>
+        </div>
+      </div>
+
+      <!-- Barthel -->
+      <div class="enf-calc" id="enf-barthel">
+        <div class="calc-card">
+          <div class="calc-title">📊 Índice de Barthel</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Independencia en Actividades de la Vida Diaria</div>
+          ${[
+            {id:'bart-comida',label:'Alimentación',opts:['0 — Dependiente','5 — Necesita ayuda','10 — Independiente']},
+            {id:'bart-bano',label:'Baño',opts:['0 — Dependiente','5 — Independiente']},
+            {id:'bart-aseo',label:'Aseo personal',opts:['0 — Dependiente','5 — Independiente']},
+            {id:'bart-vestido',label:'Vestirse',opts:['0 — Dependiente','5 — Necesita ayuda','10 — Independiente']},
+            {id:'bart-intestino',label:'Control intestinal',opts:['0 — Incontinente','5 — Accidente ocasional','10 — Continente']},
+            {id:'bart-vejiga',label:'Control vesical',opts:['0 — Incontinente','5 — Accidente ocasional','10 — Continente']},
+            {id:'bart-retrete',label:'Uso del retrete',opts:['0 — Dependiente','5 — Necesita ayuda','10 — Independiente']},
+            {id:'bart-traslado',label:'Traslado cama-silla',opts:['0 — Dependiente','5 — Ayuda mayor','10 — Mínima ayuda','15 — Independiente']},
+            {id:'bart-deambulacion',label:'Deambulación',opts:['0 — Dependiente','5 — Independiente en silla','10 — Anda con ayuda','15 — Independiente']},
+            {id:'bart-escaleras',label:'Escaleras',opts:['0 — Dependiente','5 — Necesita ayuda','10 — Independiente']},
+          ].map(i => `<div class="input-group"><label>${i.label}</label><select id="${i.id}" onchange="calcBarthel()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">${i.opts.map(o=>`<option value="${o.split(' ')[0]}">${o}</option>`).join('')}</select></div>`).join('')}
+          <div class="result-box" id="barthel-result" style="margin-top:12px">
+            <div class="result-label">Puntuación Barthel</div>
+            <div class="result-value" id="barthel-valor">0</div>
+            <div id="barthel-interp" style="margin-top:6px;font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Braden -->
+      <div class="enf-calc" id="enf-braden">
+        <div class="calc-card">
+          <div class="calc-title">🛏️ Escala de Braden — Úlceras por Presión</div>
+          ${[
+            {id:'brad-percepcion',label:'Percepción sensorial',opts:['1 — Completamente limitada','2 — Muy limitada','3 — Ligeramente limitada','4 — Sin alteración']},
+            {id:'brad-humedad',label:'Humedad',opts:['1 — Constantemente húmeda','2 — Muy húmeda','3 — Ocasionalmente húmeda','4 — Raramente húmeda']},
+            {id:'brad-actividad',label:'Actividad',opts:['1 — Encamado','2 — En silla','3 — Deambula ocasionalmente','4 — Deambula frecuentemente']},
+            {id:'brad-movilidad',label:'Movilidad',opts:['1 — Completamente inmóvil','2 — Muy limitada','3 — Ligeramente limitada','4 — Sin limitación']},
+            {id:'brad-nutricion',label:'Nutrición',opts:['1 — Muy pobre','2 — Probablemente inadecuada','3 — Adecuada','4 — Excelente']},
+            {id:'brad-friccion',label:'Fricción y rozamiento',opts:['1 — Problema','2 — Problema potencial','3 — Sin problema aparente']},
+          ].map(i=>`<div class="input-group"><label>${i.label}</label><select id="${i.id}" onchange="calcBraden()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">${i.opts.map(o=>`<option value="${o.split(' ')[0]}">${o}</option>`).join('')}</select></div>`).join('')}
+          <div class="result-box" id="braden-result" style="margin-top:12px">
+            <div class="result-label">Puntuación Braden</div>
+            <div class="result-value" id="braden-valor">6</div>
+            <div id="braden-interp" style="margin-top:6px;font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVA Dolor -->
+      <div class="enf-calc" id="enf-eva">
+        <div class="calc-card">
+          <div class="calc-title">😣 Escala Visual Analógica — EVA</div>
+          <div style="text-align:center;margin:20px 0">
+            <div style="font-size:48px;margin-bottom:8px" id="eva-emoji">😐</div>
+            <div style="font-size:28px;font-weight:800;color:#38bdf8" id="eva-num">5</div>
+            <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px" id="eva-label">Dolor moderado</div>
+            <input type="range" id="eva-slider" min="0" max="10" value="5" oninput="calcEVA()" style="width:100%;accent-color:#38bdf8">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px">
+              <span>Sin dolor</span><span>Dolor máximo</span>
+            </div>
+          </div>
+          <div class="result-box" id="eva-result">
+            <div class="result-label">Clasificación</div>
+            <div class="result-value" id="eva-clasificacion" style="font-size:16px"></div>
+            <div id="eva-conducta" style="margin-top:6px;font-size:12px;color:var(--text-secondary)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temperatura -->
+      <div class="enf-calc" id="enf-temp">
+        <div class="calc-card">
+          <div class="calc-title">🌡️ Conversión de Temperatura</div>
+          <div class="input-group">
+            <label>Temperatura en °C</label>
+            <input type="number" id="temp-c" placeholder="36.5" step="0.1" oninput="calcTemp('c')">
+          </div>
+          <div class="input-group">
+            <label>Temperatura en °F</label>
+            <input type="number" id="temp-f" placeholder="97.7" step="0.1" oninput="calcTemp('f')">
+          </div>
+          <div class="result-box" id="temp-result" style="display:none">
+            <div class="result-label">Clasificación</div>
+            <div class="result-value" id="temp-clasificacion"></div>
+            <div id="temp-interp" style="margin-top:6px;font-size:13px;color:var(--text-secondary)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Norton -->
+      <div class="enf-calc" id="enf-norton">
+        <div class="calc-card">
+          <div class="calc-title">🏥 Escala de Norton — Riesgo de Úlceras</div>
+          ${[
+            {id:'nort-condicion',label:'Condición física',opts:['1 — Muy mala','2 — Regular','3 — Buena','4 — Excelente']},
+            {id:'nort-mental',label:'Estado mental',opts:['1 — Estuporoso','2 — Confuso','3 — Apático','4 — Alerta']},
+            {id:'nort-actividad',label:'Actividad',opts:['1 — En cama','2 — En silla','3 — Camina con ayuda','4 — Ambulatorio']},
+            {id:'nort-movilidad',label:'Movilidad',opts:['1 — Inmóvil','2 — Muy limitada','3 — Algo limitada','4 — Total']},
+            {id:'nort-incontinencia',label:'Incontinencia',opts:['1 — Doble','2 — Habitualmente urinaria','3 — Ocasional','4 — Ninguna']},
+          ].map(i=>`<div class="input-group"><label>${i.label}</label><select id="${i.id}" onchange="calcNorton()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">${i.opts.map(o=>`<option value="${o.split(' ')[0]}">${o}</option>`).join('')}</select></div>`).join('')}
+          <div class="result-box" id="norton-result" style="margin-top:12px">
+            <div class="result-label">Puntuación Norton</div>
+            <div class="result-value" id="norton-valor">5</div>
+            <div id="norton-interp" style="margin-top:6px;font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
   <div class="tab-content" id="tab-sesal">
     <div class="appbar">
       <div class="appbar-icon" style="background:rgba(6,182,212,0.15)">📋</div>
@@ -2797,13 +3021,13 @@
       <span class="nav-icon">🚨</span>
       <span>Guardia</span>
     </button>
+    <button class="nav-item" onclick="switchTab('enfermeria')" id="nav-enfermeria">
+      <span class="nav-icon">🩺</span>
+      <span>Enf.</span>
+    </button>
     <button class="nav-item" onclick="switchTab('ecoe')" id="nav-ecoe">
       <span class="nav-icon">🎭</span>
       <span>ECOE</span>
-    </button>
-    <button class="nav-item" onclick="switchTab('ifom')" id="nav-ifom">
-      <span class="nav-icon">📚</span>
-      <span>IFOM</span>
     </button>
     <button class="nav-item" onclick="switchTab('profile')" id="nav-profile">
       <span class="nav-icon">👤</span>
@@ -5354,6 +5578,187 @@ function openSoporte() {
 function openSoporteEmail() {
   window.open('mailto:medixaisupport@gmail.com?subject=Soporte%20Medix%20AI&body=Hola%2C%20necesito%20ayuda%20con%20la%20app%20Medix%20AI.', '_blank');
 }
+
+// ── Enfermería ────────────────────────────────────────────────
+function switchEnfCalc(name, btn) {
+  document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
+  document.getElementById('enf-' + name).classList.add('active');
+  document.querySelectorAll('#tab-enfermeria .calc-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name === 'eva') calcEVA();
+  if (name === 'barthel') calcBarthel();
+  if (name === 'braden') calcBraden();
+  if (name === 'norton') calcNorton();
+}
+
+function calcGoteo() {
+  const vol = parseFloat(document.getElementById('goteo-vol').value);
+  const tiempo = parseFloat(document.getElementById('goteo-tiempo').value);
+  const factor = parseFloat(document.getElementById('goteo-factor').value);
+  if (!vol || !tiempo) return;
+  const mlhr = vol / tiempo;
+  const gtt = (mlhr * factor) / 60;
+  document.getElementById('goteo-result').style.display = 'block';
+  document.getElementById('goteo-gtt').textContent = gtt.toFixed(1) + ' gtt/min';
+  document.getElementById('goteo-mlhr').textContent = mlhr.toFixed(1) + ' mL/hr';
+}
+
+function calcBalance() {
+  const iv = parseFloat(document.getElementById('bal-iv').value) || 0;
+  const oral = parseFloat(document.getElementById('bal-oral').value) || 0;
+  const sng = parseFloat(document.getElementById('bal-sng').value) || 0;
+  const orina = parseFloat(document.getElementById('bal-orina').value) || 0;
+  const heces = parseFloat(document.getElementById('bal-heces').value) || 0;
+  const drenaje = parseFloat(document.getElementById('bal-drenaje').value) || 0;
+  const insensible = parseFloat(document.getElementById('bal-insensible').value) || 0;
+  const ingresos = iv + oral + sng;
+  const egresos = orina + heces + drenaje + insensible;
+  const balance = ingresos - egresos;
+  document.getElementById('balance-result').style.display = 'block';
+  const el = document.getElementById('balance-valor');
+  el.textContent = (balance >= 0 ? '+' : '') + balance.toFixed(0) + ' mL';
+  el.style.color = balance > 500 ? '#f87171' : balance < -500 ? '#fbbf24' : '#4ade80';
+  document.getElementById('balance-interp').innerHTML = balance > 500
+    ? '<span style="color:#f87171">⚠️ Balance positivo — riesgo de sobrecarga hídrica</span>'
+    : balance < -500
+    ? '<span style="color:#fbbf24">⚠️ Balance negativo — riesgo de deshidratación</span>'
+    : '<span style="color:#4ade80">✅ Balance hídrico adecuado</span>';
+}
+
+function calcDosisEnf() {
+  const prescrita = parseFloat(document.getElementById('dosisEnf-prescrita').value);
+  const conc = parseFloat(document.getElementById('dosisEnf-conc').value);
+  const pres = parseFloat(document.getElementById('dosisEnf-pres').value);
+  if (!prescrita || !conc || !pres) return;
+  const resultado = (prescrita / conc) * pres;
+  document.getElementById('dosisEnf-result').style.display = 'block';
+  document.getElementById('dosisEnf-valor').textContent = resultado.toFixed(2) + ' mL (o unidades)';
+}
+
+function calcDilucion() {
+  const dosis = parseFloat(document.getElementById('dil-dosis').value);
+  const peso = parseFloat(document.getElementById('dil-peso').value);
+  const conc = parseFloat(document.getElementById('dil-conc').value);
+  if (!dosis || !peso || !conc) return;
+  const velocidad = (dosis * peso) / conc;
+  document.getElementById('dilucion-result').style.display = 'block';
+  document.getElementById('dilucion-valor').textContent = velocidad.toFixed(2) + ' mL/hr';
+}
+
+function calcSignos() {
+  const sis = parseFloat(document.getElementById('sv-sis').value);
+  const dias = parseFloat(document.getElementById('sv-dias').value);
+  const fc = parseFloat(document.getElementById('sv-fc').value);
+  const fr = parseFloat(document.getElementById('sv-fr').value);
+  const temp = parseFloat(document.getElementById('sv-temp').value);
+  const spo2 = parseFloat(document.getElementById('sv-spo2').value);
+  if (!sis && !dias && !fc && !fr && !temp && !spo2) return;
+  let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+  if (sis && dias) {
+    let pa, paColor;
+    if (sis < 90 || dias < 60) { pa = 'Hipotensión'; paColor = '#f87171'; }
+    else if (sis < 120 && dias < 80) { pa = 'Normal'; paColor = '#4ade80'; }
+    else if (sis < 130 && dias < 80) { pa = 'Elevada'; paColor = '#fbbf24'; }
+    else if (sis < 140 || dias < 90) { pa = 'HTA Estadio 1'; paColor = '#f97316'; }
+    else { pa = 'HTA Estadio 2'; paColor = '#f87171'; }
+    html += `<div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-surface);border-radius:8px"><span>Presión Arterial</span><span style="color:${paColor};font-weight:600">${pa}</span></div>`;
+  }
+  if (fc) {
+    let r, c; if (fc < 60) { r='Bradicardia'; c='#fbbf24'; } else if (fc <= 100) { r='Normal'; c='#4ade80'; } else { r='Taquicardia'; c='#f87171'; }
+    html += `<div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-surface);border-radius:8px"><span>FC ${fc} lpm</span><span style="color:${c};font-weight:600">${r}</span></div>`;
+  }
+  if (fr) {
+    let r, c; if (fr < 12) { r='Bradipnea'; c='#fbbf24'; } else if (fr <= 20) { r='Normal'; c='#4ade80'; } else { r='Taquipnea'; c='#f87171'; }
+    html += `<div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-surface);border-radius:8px"><span>FR ${fr} rpm</span><span style="color:${c};font-weight:600">${r}</span></div>`;
+  }
+  if (temp) {
+    let r, c; if (temp < 36) { r='Hipotermia'; c='#38bdf8'; } else if (temp <= 37.5) { r='Normal'; c='#4ade80'; } else if (temp <= 38) { r='Febrícula'; c='#fbbf24'; } else if (temp <= 39) { r='Fiebre moderada'; c='#f97316'; } else { r='Fiebre alta'; c='#f87171'; }
+    html += `<div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-surface);border-radius:8px"><span>Temp ${temp}°C</span><span style="color:${c};font-weight:600">${r}</span></div>`;
+  }
+  if (spo2) {
+    let r, c; if (spo2 >= 95) { r='Normal'; c='#4ade80'; } else if (spo2 >= 90) { r='Hipoxemia leve'; c='#fbbf24'; } else { r='Hipoxemia severa'; c='#f87171'; }
+    html += `<div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-surface);border-radius:8px"><span>SpO₂ ${spo2}%</span><span style="color:${c};font-weight:600">${r}</span></div>`;
+  }
+  html += '</div>';
+  const el = document.getElementById('signos-result');
+  el.style.display = 'block';
+  el.innerHTML = html;
+}
+
+function calcBarthel() {
+  const ids = ['bart-comida','bart-bano','bart-aseo','bart-vestido','bart-intestino','bart-vejiga','bart-retrete','bart-traslado','bart-deambulacion','bart-escaleras'];
+  const total = ids.reduce((s,id) => s + (parseInt(document.getElementById(id)?.value) || 0), 0);
+  document.getElementById('barthel-valor').textContent = total + '/100';
+  let interp, color;
+  if (total === 100) { interp = '✅ Independiente total'; color = '#4ade80'; }
+  else if (total >= 80) { interp = '🟡 Dependencia leve'; color = '#fbbf24'; }
+  else if (total >= 60) { interp = '🟠 Dependencia moderada'; color = '#f97316'; }
+  else if (total >= 40) { interp = '🔴 Dependencia grave'; color = '#f87171'; }
+  else { interp = '🔴 Dependencia total'; color = '#f87171'; }
+  document.getElementById('barthel-interp').innerHTML = `<span style="color:${color}">${interp}</span>`;
+}
+
+function calcBraden() {
+  const ids = ['brad-percepcion','brad-humedad','brad-actividad','brad-movilidad','brad-nutricion','brad-friccion'];
+  const total = ids.reduce((s,id) => s + (parseInt(document.getElementById(id)?.value) || 1), 0);
+  document.getElementById('braden-valor').textContent = total + '/23';
+  let interp, color;
+  if (total <= 9) { interp = '🔴 Riesgo muy alto'; color = '#f87171'; }
+  else if (total <= 12) { interp = '🔴 Riesgo alto'; color = '#f87171'; }
+  else if (total <= 14) { interp = '🟠 Riesgo moderado'; color = '#f97316'; }
+  else if (total <= 18) { interp = '🟡 Riesgo bajo'; color = '#fbbf24'; }
+  else { interp = '✅ Sin riesgo'; color = '#4ade80'; }
+  document.getElementById('braden-interp').innerHTML = `<span style="color:${color}">${interp}</span>`;
+}
+
+function calcEVA() {
+  const val = parseInt(document.getElementById('eva-slider').value);
+  const emojis = ['😌','🙂','😐','😕','😟','😣','😖','😫','😭','🤯','💀'];
+  const labels = ['Sin dolor','Dolor mínimo','Dolor leve','Dolor leve-mod','Dolor moderado','Dolor moderado','Dolor moderado-intenso','Dolor intenso','Dolor muy intenso','Dolor severo','Dolor insoportable'];
+  const conductas = ['No requiere analgesia','Analgésico no opioide PRN','Analgésico no opioide regular','Analgésico no opioide + coadyuvante','Valorar AINE + analgésico','Escalonamiento analgésico','Opioide débil (tramadol)','Opioide débil + no opioide','Opioide fuerte (morfina)','Opioide fuerte + coadyuvante','Manejo del dolor urgente'];
+  const colors = ['#4ade80','#4ade80','#86efac','#fbbf24','#fbbf24','#f97316','#f97316','#f87171','#f87171','#dc2626','#dc2626'];
+  document.getElementById('eva-num').textContent = val;
+  document.getElementById('eva-emoji').textContent = emojis[val];
+  document.getElementById('eva-label').textContent = labels[val];
+  document.getElementById('eva-label').style.color = colors[val];
+  document.getElementById('eva-clasificacion').textContent = labels[val];
+  document.getElementById('eva-clasificacion').style.color = colors[val];
+  document.getElementById('eva-conducta').textContent = '💊 ' + conductas[val];
+}
+
+function calcTemp(from) {
+  let c, f;
+  if (from === 'c') { c = parseFloat(document.getElementById('temp-c').value); f = (c * 9/5) + 32; document.getElementById('temp-f').value = f.toFixed(1); }
+  else { f = parseFloat(document.getElementById('temp-f').value); c = (f - 32) * 5/9; document.getElementById('temp-c').value = c.toFixed(1); }
+  if (isNaN(c)) return;
+  let clasif, color, interp;
+  if (c < 35) { clasif = 'Hipotermia severa'; color = '#38bdf8'; interp = 'Emergencia médica — calentamiento activo'; }
+  else if (c < 36) { clasif = 'Hipotermia leve'; color = '#38bdf8'; interp = 'Cubrir y calentar al paciente'; }
+  else if (c <= 37.5) { clasif = 'Temperatura normal'; color = '#4ade80'; interp = 'Temperatura dentro de rangos normales'; }
+  else if (c <= 38) { clasif = 'Febrícula'; color = '#fbbf24'; interp = 'Monitoreo — hidratación'; }
+  else if (c <= 39) { clasif = 'Fiebre moderada'; color = '#f97316'; interp = 'Antipiréticos — identificar causa'; }
+  else if (c <= 40) { clasif = 'Fiebre alta'; color = '#f87171'; interp = 'Antipiréticos urgentes — médico'; }
+  else { clasif = 'Hiperpirexia'; color = '#dc2626'; interp = '⚠️ Emergencia — enfriamiento inmediato'; }
+  document.getElementById('temp-result').style.display = 'block';
+  document.getElementById('temp-clasificacion').textContent = clasif;
+  document.getElementById('temp-clasificacion').style.color = color;
+  document.getElementById('temp-interp').textContent = interp;
+}
+
+function calcNorton() {
+  const ids = ['nort-condicion','nort-mental','nort-actividad','nort-movilidad','nort-incontinencia'];
+  const total = ids.reduce((s,id) => s + (parseInt(document.getElementById(id)?.value) || 1), 0);
+  document.getElementById('norton-valor').textContent = total + '/20';
+  let interp, color;
+  if (total <= 12) { interp = '🔴 Riesgo muy alto de úlceras'; color = '#f87171'; }
+  else if (total <= 14) { interp = '🟠 Riesgo alto'; color = '#f97316'; }
+  else if (total <= 16) { interp = '🟡 Riesgo medio'; color = '#fbbf24'; }
+  else { interp = '✅ Riesgo mínimo'; color = '#4ade80'; }
+  document.getElementById('norton-interp').innerHTML = `<span style="color:${color}">${interp}</span>`;
+}
+
+// Init EVA
+document.addEventListener('DOMContentLoaded', () => { calcEVA(); calcBarthel(); calcBraden(); calcNorton(); });
 
 // ── Toast ──────────────────────────────────────────────────────
 function showToast(msg) {
