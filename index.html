@@ -3502,8 +3502,7 @@ window.addEventListener('popstate', (e) => {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const el = document.getElementById(`tab-${tab}`);
   if (!el) return;
-  el.classList.add('active');
-  el.style.display = tab === 'chat' ? 'flex' : 'block';
+ el.classList.add('active');
   const navEl = document.getElementById(`nav-${tab}`);
   if (navEl) navEl.classList.add('active');
 });
