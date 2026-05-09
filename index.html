@@ -2204,11 +2204,11 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div class="input-group">
               <label>Edad gestacional (semanas)</label>
-              <input type="number" id="pf-semanas" placeholder="28" min="20" max="42" oninput="calcPercentilFetal()">
+              <input type="number" id="pfb-semanas" placeholder="28" min="20" max="42" oninput="calcPercentilFetal()">
             </div>
             <div class="input-group">
               <label>Días adicionales</label>
-              <input type="number" id="pf-dias" placeholder="0" min="0" max="6" oninput="calcPercentilFetal()">
+              <input type="number" id="pfb-dias" placeholder="0" min="0" max="6" oninput="calcPercentilFetal()">
             </div>
           </div>
 
@@ -2216,56 +2216,56 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div class="input-group">
               <label>DBP — Diámetro Biparietal</label>
-              <input type="number" id="pf-dbp" placeholder="ej. 72" oninput="calcPercentilFetal()">
+              <input type="number" id="pfb-dbp" placeholder="ej. 72" oninput="calcPercentilFetal()">
             </div>
             <div class="input-group">
               <label>CC — Circunferencia Cefálica</label>
-              <input type="number" id="pf-cc" placeholder="ej. 260" oninput="calcPercentilFetal()">
+              <input type="number" id="pfb-cc" placeholder="ej. 260" oninput="calcPercentilFetal()">
             </div>
             <div class="input-group">
               <label>CA — Circunferencia Abdominal</label>
-              <input type="number" id="pf-ca" placeholder="ej. 240" oninput="calcPercentilFetal()">
+              <input type="number" id="pfb-ca" placeholder="ej. 240" oninput="calcPercentilFetal()">
             </div>
             <div class="input-group">
               <label>LF — Longitud de Fémur</label>
-              <input type="number" id="pf-lf" placeholder="ej. 53" oninput="calcPercentilFetal()">
+              <input type="number" id="pfb-lf" placeholder="ej. 53" oninput="calcPercentilFetal()">
             </div>
           </div>
 
           <div class="input-group" style="margin-top:4px">
             <label>Sexo fetal (opcional)</label>
-            <select id="pf-sexo" onchange="calcPercentilFetal()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">
+            <select id="pfb-sexo" onchange="calcPercentilFetal()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">
               <option value="0">No determinado</option>
               <option value="F">Femenino</option>
               <option value="M">Masculino</option>
             </select>
           </div>
 
-          <div id="pf-result" style="display:none;margin-top:14px">
+          <div id="pfb-result" style="display:none;margin-top:14px">
             <!-- EFW -->
             <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600">PESO FETAL ESTIMADO (Hadlock)</div>
-              <div style="font-size:28px;font-weight:800;color:#38bdf8" id="pf-efw"></div>
-              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px" id="pf-efw-rango"></div>
+              <div style="font-size:28px;font-weight:800;color:#38bdf8" id="pfb-efw"></div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px" id="pfb-efw-rango"></div>
             </div>
             <!-- Percentil -->
-            <div id="pf-percentil-card" style="border-radius:12px;padding:14px;margin-bottom:10px">
+            <div id="pfb-percentil-card" style="border-radius:12px;padding:14px;margin-bottom:10px">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600">PERCENTIL</div>
-              <div style="font-size:36px;font-weight:800" id="pf-percentil-valor"></div>
-              <div style="font-size:13px;margin-top:4px;font-weight:600" id="pf-clasificacion"></div>
+              <div style="font-size:36px;font-weight:800" id="pfb-percentil-valor"></div>
+              <div style="font-size:13px;margin-top:4px;font-weight:600" id="pfb-clasificacion"></div>
             </div>
             <!-- Barra visual -->
             <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
               <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">CURVA DE CRECIMIENTO</div>
               <div style="position:relative;height:20px;border-radius:10px;overflow:hidden;background:linear-gradient(90deg,#f87171 0%,#fbbf24 10%,#4ade80 10%,#4ade80 90%,#fbbf24 90%,#f87171 100%)">
-                <div id="pf-marker" style="position:absolute;top:-3px;width:4px;height:26px;background:white;border-radius:2px;transform:translateX(-50%);box-shadow:0 0 6px rgba(0,0,0,0.5)"></div>
+                <div id="pfb-marker" style="position:absolute;top:-3px;width:4px;height:26px;background:white;border-radius:2px;transform:translateX(-50%);box-shadow:0 0 6px rgba(0,0,0,0.5)"></div>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
                 <span>p3</span><span>p10</span><span>p50</span><span>p90</span><span>p97</span>
               </div>
             </div>
             <!-- Conducta -->
-            <div id="pf-conducta" style="border-radius:12px;padding:12px;font-size:13px"></div>
+            <div id="pfb-conducta" style="border-radius:12px;padding:12px;font-size:13px"></div>
           </div>
         </div>
       </div>
@@ -5837,12 +5837,12 @@ document.addEventListener('DOMContentLoaded', () => { calcEVA(); calcBarthel(); 
 
 // ── Percentil Fetal (Hadlock + FMB) ──────────────────────────
 function calcPercentilFetal() {
-  const semanas = parseInt(document.getElementById('pf-semanas').value) || 0;
-  const dias = parseInt(document.getElementById('pf-dias').value) || 0;
-  const dbp = parseFloat(document.getElementById('pf-dbp').value);
-  const cc  = parseFloat(document.getElementById('pf-cc').value);
-  const ca  = parseFloat(document.getElementById('pf-ca').value);
-  const lf  = parseFloat(document.getElementById('pf-lf').value);
+  const semanas = parseInt(document.getElementById('pfb-semanas').value) || 0;
+  const dias = parseInt(document.getElementById('pfb-dias').value) || 0;
+  const dbp = parseFloat(document.getElementById('pfb-dbp').value);
+  const cc  = parseFloat(document.getElementById('pfb-cc').value);
+  const ca  = parseFloat(document.getElementById('pfb-ca').value);
+  const lf  = parseFloat(document.getElementById('pfb-lf').value);
 
   if (!semanas || semanas < 20 || semanas > 42) return;
   if (!cc || !ca || !lf) return;
@@ -5889,11 +5889,11 @@ function calcPercentilFetal() {
   const p97 = Math.round(media + 1.88*sd);
 
   // Mostrar resultado
-  document.getElementById('pf-result').style.display = 'block';
-  document.getElementById('pf-efw').textContent = efw.toLocaleString() + ' g';
-  document.getElementById('pf-efw-rango').textContent =
+  document.getElementById('pfb-result').style.display = 'block';
+  document.getElementById('pfb-efw').textContent = efw.toLocaleString() + ' g';
+  document.getElementById('pfb-efw-rango').textContent =
     `p3:${p3}g · p10:${p10}g · p50:${p50}g · p90:${p90}g · p97:${p97}g`;
-  document.getElementById('pf-percentil-valor').textContent = 'p' + p;
+  document.getElementById('pfb-percentil-valor').textContent = 'p' + p;
 
   // Clasificación y color
   let clasif, color, bg, conducta;
@@ -5914,19 +5914,19 @@ function calcPercentilFetal() {
     conducta='⚠️ <b>Macrosomía severa.</b> Evaluación obstétrica urgente. Valorar vía del parto. Descartar DG no controlada.';
   }
 
-  const card = document.getElementById('pf-percentil-card');
+  const card = document.getElementById('pfb-percentil-card');
   card.style.background = bg;
   card.style.border = '1px solid ' + color + '40';
-  document.getElementById('pf-percentil-valor').style.color = color;
-  document.getElementById('pf-clasificacion').style.color = color;
-  document.getElementById('pf-clasificacion').textContent = clasif;
+  document.getElementById('pfb-percentil-valor').style.color = color;
+  document.getElementById('pfb-clasificacion').style.color = color;
+  document.getElementById('pfb-clasificacion').textContent = clasif;
 
   // Barra visual — posición del marcador
   const pos = Math.max(2, Math.min(98, p));
-  document.getElementById('pf-marker').style.left = pos + '%';
+  document.getElementById('pfb-marker').style.left = pos + '%';
 
   // Conducta
-  const condEl = document.getElementById('pf-conducta');
+  const condEl = document.getElementById('pfb-conducta');
   condEl.style.background = bg;
   condEl.style.border = '1px solid ' + color + '40';
   condEl.innerHTML = conducta;
