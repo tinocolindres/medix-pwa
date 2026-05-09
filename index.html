@@ -3178,10 +3178,9 @@ function installApp() {
 // ── Init ───────────────────────────────────────────────────────
 window.addEventListener('load', async () => {
   // Hide all tabs initially
-  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.tab-content').forEach(t => { t.classList.remove('active'); t.style.display = ''; });
   // Show dashboard
   const dashboard = document.getElementById('tab-dashboard');
-  dashboard.style.display = 'block';
   dashboard.classList.add('active');
   initAPGAR();
   initSilverman();
