@@ -2001,6 +2001,7 @@
         <button class="calc-tab" onclick="switchEnfCalc('eva',this)">😣 EVA Dolor</button>
         <button class="calc-tab" onclick="switchEnfCalc('temp',this)">🌡️ Temperatura</button>
         <button class="calc-tab" onclick="switchEnfCalc('norton',this)">🏥 Norton</button>
+        <button class="calc-tab" onclick="switchEnfCalc('percentil-fetal',this)">👶 Percentil Fetal</button>
       </div>
 
       <!-- Goteo IV -->
@@ -2194,9 +2195,83 @@
         </div>
       </div>
 
+      <!-- Percentil Fetal Barcelona -->
+      <div class="enf-calc" id="enf-percentil-fetal">
+        <div class="calc-card">
+          <div class="calc-title">👶 Percentil Fetal — Medicina Fetal Barcelona</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Basado en fórmula Hadlock + tablas de referencia FMB. Ingresa biometrías del ultrasonido.</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="input-group">
+              <label>Edad gestacional (semanas)</label>
+              <input type="number" id="pf-semanas" placeholder="28" min="20" max="42" oninput="calcPercentilFetal()">
+            </div>
+            <div class="input-group">
+              <label>Días adicionales</label>
+              <input type="number" id="pf-dias" placeholder="0" min="0" max="6" oninput="calcPercentilFetal()">
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-secondary);margin:10px 0 8px;font-weight:600">Biometrías ecográficas (mm)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="input-group">
+              <label>DBP — Diámetro Biparietal</label>
+              <input type="number" id="pf-dbp" placeholder="ej. 72" oninput="calcPercentilFetal()">
+            </div>
+            <div class="input-group">
+              <label>CC — Circunferencia Cefálica</label>
+              <input type="number" id="pf-cc" placeholder="ej. 260" oninput="calcPercentilFetal()">
+            </div>
+            <div class="input-group">
+              <label>CA — Circunferencia Abdominal</label>
+              <input type="number" id="pf-ca" placeholder="ej. 240" oninput="calcPercentilFetal()">
+            </div>
+            <div class="input-group">
+              <label>LF — Longitud de Fémur</label>
+              <input type="number" id="pf-lf" placeholder="ej. 53" oninput="calcPercentilFetal()">
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-top:4px">
+            <label>Sexo fetal (opcional)</label>
+            <select id="pf-sexo" onchange="calcPercentilFetal()" style="width:100%;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;color:var(--text-primary)">
+              <option value="0">No determinado</option>
+              <option value="F">Femenino</option>
+              <option value="M">Masculino</option>
+            </select>
+          </div>
+
+          <div id="pf-result" style="display:none;margin-top:14px">
+            <!-- EFW -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600">PESO FETAL ESTIMADO (Hadlock)</div>
+              <div style="font-size:28px;font-weight:800;color:#38bdf8" id="pf-efw"></div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-top:4px" id="pf-efw-rango"></div>
+            </div>
+            <!-- Percentil -->
+            <div id="pf-percentil-card" style="border-radius:12px;padding:14px;margin-bottom:10px">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600">PERCENTIL</div>
+              <div style="font-size:36px;font-weight:800" id="pf-percentil-valor"></div>
+              <div style="font-size:13px;margin-top:4px;font-weight:600" id="pf-clasificacion"></div>
+            </div>
+            <!-- Barra visual -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">CURVA DE CRECIMIENTO</div>
+              <div style="position:relative;height:20px;border-radius:10px;overflow:hidden;background:linear-gradient(90deg,#f87171 0%,#fbbf24 10%,#4ade80 10%,#4ade80 90%,#fbbf24 90%,#f87171 100%)">
+                <div id="pf-marker" style="position:absolute;top:-3px;width:4px;height:26px;background:white;border-radius:2px;transform:translateX(-50%);box-shadow:0 0 6px rgba(0,0,0,0.5)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
+                <span>p3</span><span>p10</span><span>p50</span><span>p90</span><span>p97</span>
+              </div>
+            </div>
+            <!-- Conducta -->
+            <div id="pf-conducta" style="border-radius:12px;padding:12px;font-size:13px"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="tab-content" id="tab-sesal">
     <div class="appbar">
       <div class="appbar-icon" style="background:rgba(6,182,212,0.15)">📋</div>
       <div>
@@ -5759,6 +5834,111 @@ function calcNorton() {
 
 // Init EVA
 document.addEventListener('DOMContentLoaded', () => { calcEVA(); calcBarthel(); calcBraden(); calcNorton(); });
+
+// ── Percentil Fetal (Hadlock + FMB) ──────────────────────────
+function calcPercentilFetal() {
+  const semanas = parseInt(document.getElementById('pf-semanas').value) || 0;
+  const dias = parseInt(document.getElementById('pf-dias').value) || 0;
+  const dbp = parseFloat(document.getElementById('pf-dbp').value);
+  const cc  = parseFloat(document.getElementById('pf-cc').value);
+  const ca  = parseFloat(document.getElementById('pf-ca').value);
+  const lf  = parseFloat(document.getElementById('pf-lf').value);
+
+  if (!semanas || semanas < 20 || semanas > 42) return;
+  if (!cc || !ca || !lf) return;
+
+  // Convertir mm → cm para fórmula Hadlock
+  const CC_cm = cc / 10, CA_cm = ca / 10, LF_cm = lf / 10;
+  const DBP_cm = dbp ? dbp / 10 : null;
+
+  // Fórmula Hadlock 1985 (CC + CA + LF)
+  let logEFW;
+  if (DBP_cm) {
+    logEFW = 1.3596 + 0.0064*CC_cm + 0.0424*CA_cm + 0.174*LF_cm + 0.00061*DBP_cm*CA_cm - 0.00386*CA_cm*LF_cm;
+  } else {
+    logEFW = 1.326 - 0.00326*CA_cm*LF_cm + 0.0107*CC_cm + 0.0438*CA_cm + 0.158*LF_cm;
+  }
+  const efw = Math.round(Math.pow(10, logEFW));
+
+  // Tablas de referencia FMB/Hadlock (media y SD por semana)
+  const ref = {
+    20:{m:325,sd:55}, 21:{m:390,sd:65}, 22:{m:465,sd:78}, 23:{m:550,sd:92},
+    24:{m:645,sd:107}, 25:{m:755,sd:127}, 26:{m:875,sd:147}, 27:{m:1005,sd:169},
+    28:{m:1150,sd:193}, 29:{m:1305,sd:218}, 30:{m:1475,sd:245}, 31:{m:1650,sd:273},
+    32:{m:1840,sd:302}, 33:{m:2040,sd:332}, 34:{m:2250,sd:361}, 35:{m:2470,sd:391},
+    36:{m:2700,sd:419}, 37:{m:2930,sd:443}, 38:{m:3150,sd:463}, 39:{m:3360,sd:476},
+    40:{m:3540,sd:482}, 41:{m:3690,sd:482}, 42:{m:3800,sd:476}
+  };
+
+  // Interpolar por días adicionales
+  const r1 = ref[semanas]; const r2 = ref[Math.min(semanas+1, 42)];
+  const frac = dias / 7;
+  const media = r1.m + (r2.m - r1.m) * frac;
+  const sd    = r1.sd + (r2.sd - r1.sd) * frac;
+
+  // Calcular z-score y percentil
+  const z = (efw - media) / sd;
+  const percentil = Math.round(normCDF(z) * 100);
+  const p = Math.max(1, Math.min(99, percentil));
+
+  // Percentiles de referencia para rango
+  const p3  = Math.round(media - 1.88*sd);
+  const p10 = Math.round(media - 1.28*sd);
+  const p50 = Math.round(media);
+  const p90 = Math.round(media + 1.28*sd);
+  const p97 = Math.round(media + 1.88*sd);
+
+  // Mostrar resultado
+  document.getElementById('pf-result').style.display = 'block';
+  document.getElementById('pf-efw').textContent = efw.toLocaleString() + ' g';
+  document.getElementById('pf-efw-rango').textContent =
+    `p3:${p3}g · p10:${p10}g · p50:${p50}g · p90:${p90}g · p97:${p97}g`;
+  document.getElementById('pf-percentil-valor').textContent = 'p' + p;
+
+  // Clasificación y color
+  let clasif, color, bg, conducta;
+  if (p < 3) {
+    clasif='Pequeño para EG — PEG severo'; color='#f87171'; bg='rgba(248,113,113,0.1)';
+    conducta='⚠️ <b>Riesgo alto.</b> Evaluación inmediata con Doppler obstétrico. Valorar hospitalización y maduración fetal. Consulta con perinatología urgente.';
+  } else if (p < 10) {
+    clasif='Pequeño para EG — PEG'; color='#f97316'; bg='rgba(249,115,22,0.1)';
+    conducta='⚠️ <b>Vigilancia estrecha.</b> Doppler de arteria umbilical y cerebral media. Control ecográfico cada 2 semanas. Valorar perfil biofísico.';
+  } else if (p <= 90) {
+    clasif='Adecuado para EG — AEG'; color='#4ade80'; bg='rgba(74,222,128,0.1)';
+    conducta='✅ <b>Crecimiento normal.</b> Continuar controles prenatales de rutina según protocolo.';
+  } else if (p <= 97) {
+    clasif='Grande para EG — GEG'; color='#fbbf24'; bg='rgba(251,191,36,0.1)';
+    conducta='⚠️ <b>Macrosomía leve.</b> Descartar diabetes gestacional. Control glucémico materno. Vigilar bienestar fetal.';
+  } else {
+    clasif='Grande para EG — GEG severo'; color='#f87171'; bg='rgba(248,113,113,0.1)';
+    conducta='⚠️ <b>Macrosomía severa.</b> Evaluación obstétrica urgente. Valorar vía del parto. Descartar DG no controlada.';
+  }
+
+  const card = document.getElementById('pf-percentil-card');
+  card.style.background = bg;
+  card.style.border = '1px solid ' + color + '40';
+  document.getElementById('pf-percentil-valor').style.color = color;
+  document.getElementById('pf-clasificacion').style.color = color;
+  document.getElementById('pf-clasificacion').textContent = clasif;
+
+  // Barra visual — posición del marcador
+  const pos = Math.max(2, Math.min(98, p));
+  document.getElementById('pf-marker').style.left = pos + '%';
+
+  // Conducta
+  const condEl = document.getElementById('pf-conducta');
+  condEl.style.background = bg;
+  condEl.style.border = '1px solid ' + color + '40';
+  condEl.innerHTML = conducta;
+}
+
+// Función de distribución normal acumulada (aproximación)
+function normCDF(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989423 * Math.exp(-z*z/2);
+  const p = d * t * (0.3193815 + t*(-0.3565638 + t*(1.7814779 + t*(-1.8212560 + t*1.3302744))));
+  return z > 0 ? 1 - p : p;
+}
 
 // ── Toast ──────────────────────────────────────────────────────
 function showToast(msg) {
