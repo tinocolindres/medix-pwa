@@ -3468,7 +3468,7 @@ function switchTab(tab) {
   const el = document.getElementById(`tab-${tab}`);
   el.classList.add('active');
   el.style.display = tab === 'chat' ? 'flex' : 'block';
-  document.getElementById(`nav-${tab}`).classList.add('active');
+  document.getElementById(`nav-${tab}`)?.classList.add('active');
   // Restaurar mensajes del chat al regresar
   if (tab === 'chat' && chatMessages.length > 0) {
     document.getElementById('chatEmpty').style.display = 'none';
