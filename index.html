@@ -366,9 +366,10 @@
       display: flex; gap: 10px;
       align-items: flex-start;
     }
-
-    .disclaimer-icon { font-size: 18px; flex-shrink: 0; }
-    .disclaimer-text { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+const el = document.getElementById(`tab-${tab}`);
+  if (!el) return;
+  el.classList.add('active');
+  document.getElementById(`nav-${tab}`)?.classList.add('active');
 
     /* ── Chat ── */
     .chat-messages {
