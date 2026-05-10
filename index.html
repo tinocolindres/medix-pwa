@@ -5985,7 +5985,446 @@ function normCDF(z) {
   return z > 0 ? 1 - p : p;
 }
 
-// ── Toast ──────────────────────────────────────────────────────
+// ── Toast ──────────────────────────────────────────────────────// ── Vademécum Enfermería HN ──────────────────────────────────
+const vadData = [
+  // ANTIBIÓTICOS
+  {n:'Ampicilina',c:'Binotal, Totapen',cat:'antibioticos',color:'#3b82f6',
+   pres:'Ampolla 500mg, 1g',via:'IV · IM',
+   dosis:'500mg-2g c/6h (adulto) · 25-50mg/kg c/6h (pediátrico)',
+   inf:'Diluir en 50-100mL SSN. Pasar IV en 30-60 min.',
+   cuidados:['Vigilar alergia: rash, urticaria, anafilaxia','Compatible: SSN 0.9%, DAD5, RL','IM: inyectar profundo en glúteo'],
+   ci:'Alergia a penicilinas'},
+  {n:'Ceftriaxona',c:'Rocefín',cat:'antibioticos',color:'#3b82f6',
+   pres:'Ampolla 500mg, 1g',via:'IV · IM',
+   dosis:'1-2g c/24h (adulto) · 50-100mg/kg/día (pediátrico)',
+   inf:'Diluir en 50-100mL SSN. Pasar IV en 30 min.',
+   cuidados:['⚠️ NUNCA mezclar con calcio IV — precipitación fatal en neonatos','Compatible: SSN 0.9% únicamente','Reconstituir IM con lidocaína 1% para reducir dolor'],
+   ci:'Alergia a cefalosporinas. Neonatos con hiperbilirrubinemia.'},
+  {n:'Cefazolina',c:'Ancef, Kefazol',cat:'antibioticos',color:'#3b82f6',
+   pres:'Ampolla 500mg, 1g',via:'IV · IM',
+   dosis:'1-2g c/8h (adulto) · 25-50mg/kg c/8h (pediátrico)',
+   inf:'Diluir en 50-100mL SSN. Pasar IV en 30 min.',
+   cuidados:['Profilaxis quirúrgica: 1g IV 30-60 min antes de incisión','Compatible: SSN, DAD5, RL'],
+   ci:'Alergia a cefalosporinas'},
+  {n:'Clindamicina',c:'Dalacin C',cat:'antibioticos',color:'#3b82f6',
+   pres:'Ampolla 300mg, 600mg',via:'IV · IM',
+   dosis:'300-600mg c/6-8h IV (adulto)',
+   inf:'⚠️ NUNCA IV directo. Diluir 300mg en 50mL. Pasar en 30-60 min. Máx 30mg/min.',
+   cuidados:['Riesgo de colitis pseudomembranosa — vigilar diarrea','Puede causar flebitis — rotar sitio IV','Monitorizar función hepática'],
+   ci:'Historia de colitis asociada a antibióticos'},
+  {n:'Metronidazol',c:'Flagyl',cat:'antibioticos',color:'#3b82f6',
+   pres:'Frasco 500mg/100mL',via:'IV · VO',
+   dosis:'500mg c/8h IV (adulto)',
+   inf:'Listo para usar. Pasar IV en 30-60 min. Proteger de la luz.',
+   cuidados:['Puede oscurecer la orina — tranquilizar al paciente','Evitar alcohol durante tratamiento','Compatible: SSN, DAD5'],
+   ci:'Primer trimestre de embarazo'},
+  {n:'Gentamicina',c:'Garamicina',cat:'antibioticos',color:'#3b82f6',
+   pres:'Ampolla 80mg/2mL',via:'IV · IM',
+   dosis:'5mg/kg c/24h (adulto) · 7.5mg/kg c/24h (pediátrico)',
+   inf:'Diluir en 100mL SSN. Pasar IV en 60 min.',
+   cuidados:['⚠️ Ototoxicidad y nefrotoxicidad — monitorizar creatinina','Vigilar diuresis y mantener hidratación','No mezclar con penicilinas en misma jeringa'],
+   ci:'Alergia a aminoglucósidos. Insuficiencia renal sin ajuste.'},
+  {n:'Vancomicina',c:'Vancocin',cat:'antibioticos',color:'#3b82f6',
+   pres:'Ampolla 500mg, 1g',via:'IV',
+   dosis:'15-20mg/kg c/8-12h (adulto)',
+   inf:'Diluir 500mg en 100mL SSN. Pasar en MÍNIMO 60 min. Máx 10mg/min.',
+   cuidados:['⚠️ Síndrome del hombre rojo si se pasa rápido — reducir velocidad','Monitorizar función renal y niveles plasmáticos','Usar siempre bomba de infusión'],
+   ci:'Hipersensibilidad a vancomicina'},
+  {n:'Ciprofloxacino',c:'Cipro, Ciproxina',cat:'antibioticos',color:'#3b82f6',
+   pres:'Frasco 200mg/100mL IV · Tab 250mg, 500mg',via:'IV · VO',
+   dosis:'200-400mg c/12h IV · 250-750mg c/12h VO',
+   inf:'Pasar IV en 60 min. Compatible: SSN, DAD5.',
+   cuidados:['No administrar VO con antiácidos, calcio o hierro','Riesgo de tendinitis — especialmente adultos mayores','Fotosensibilidad — proteger de luz solar'],
+   ci:'Menores de 18 años. Embarazo.'},
+  {n:'Penicilina G Cristalina',c:'Penicilina G sódica',cat:'antibioticos',color:'#3b82f6',
+   pres:'Frasco 1,000,000 UI, 5,000,000 UI',via:'IV · IM',
+   dosis:'2-4 millones UI c/4-6h IV (adulto)',
+   inf:'Diluir en 100mL SSN. Pasar IV en 30-60 min.',
+   cuidados:['⚠️ Tener adrenalina disponible ante anafilaxia','Monitorizar electrolitos — contiene sodio','Compatible: SSN, DAD5'],
+   ci:'Alergia documentada a penicilinas'},
+  {n:'Ampicilina/Sulbactam',c:'Unasyn',cat:'antibioticos',color:'#3b82f6',
+   pres:'Frasco 1.5g, 3g',via:'IV · IM',
+   dosis:'1.5-3g c/6h IV (adulto)',
+   inf:'Diluir en 50-100mL SSN. Pasar IV en 15-30 min.',
+   cuidados:['Verificar alergia a penicilinas','Compatible: SSN 0.9%, RL'],
+   ci:'Alergia a penicilinas o sulbactam'},
+
+  // ANALGÉSICOS
+  {n:'Paracetamol/Acetaminofén',c:'Tylenol, Tempra',cat:'analgesicos',color:'#10b981',
+   pres:'Tab 500mg · Frasco 1g/100mL IV',via:'VO · IV · Rectal',
+   dosis:'500mg-1g c/6h (adulto) · 15mg/kg c/6h (pediátrico) · ⚠️ Máx 4g/día adulto',
+   inf:'IV: Pasar 1g en 15 min. Compatible: SSN, DAD5, RL.',
+   cuidados:['⚠️ Hepatotoxicidad con sobredosis o alcohol','Verificar otros productos que contengan paracetamol','Respetar dosis máxima estrictamente'],
+   ci:'Insuficiencia hepática severa'},
+  {n:'Ketorolac',c:'Toradol, Ketovías',cat:'analgesicos',color:'#10b981',
+   pres:'Ampolla 30mg/mL',via:'IV · IM',
+   dosis:'15-30mg c/6h · ⚠️ Máx 5 días · Máx 120mg/día',
+   inf:'IV lento mínimo 15 seg. IM: profundo en glúteo.',
+   cuidados:['⚠️ No usar más de 5 días — riesgo GI y renal','Vigilar signos de sangrado GI','Monitorizar función renal y PA'],
+   ci:'Sangrado activo. Insuficiencia renal. Anticoagulación. Embarazo.'},
+  {n:'Dipirona/Metamizol',c:'Novalgin, Dolfin',cat:'analgesicos',color:'#10b981',
+   pres:'Ampolla 1g/2mL · Tab 500mg',via:'IV · IM · VO',
+   dosis:'1-2g c/6-8h (adulto) · 15-20mg/kg c/6-8h (pediátrico)',
+   inf:'⚠️ IV muy lento en 100mL SSN en 30 min — hipotensión severa si rápido.',
+   cuidados:['⚠️ Monitorizar PA durante infusión IV — riesgo hipotensión','Riesgo de agranulocitosis con uso prolongado','Cambiar si el líquido toma color amarillo intenso'],
+   ci:'Hipersensibilidad. Porfiria. Déficit G6PD.'},
+  {n:'Tramadol',c:'Tramal, Zytram',cat:'analgesicos',color:'#10b981',
+   pres:'Ampolla 100mg/2mL · Cápsulas 50mg',via:'IV · IM · VO',
+   dosis:'50-100mg c/6-8h · Máx 400mg/día',
+   inf:'IV: Diluir en 100mL SSN. Pasar en 30-60 min.',
+   cuidados:['Monitorizar sedación y FR — depresión respiratoria','Náuseas frecuentes — valorar antiemético previo','⚠️ No combinar con IMAO o ISRS — síndrome serotoninérgico'],
+   ci:'Epilepsia no controlada. IMAO. Embarazo.'},
+  {n:'Morfina',c:'Morfina sulfato',cat:'analgesicos',color:'#10b981',
+   pres:'Ampolla 10mg/mL',via:'IV · IM · SC',
+   dosis:'2-10mg c/4h IV/IM (adulto) · 0.05-0.1mg/kg (pediátrico)',
+   inf:'⚠️ IV: Diluir en 10mL SSN. Pasar en 4-5 min. Tener NALOXONA disponible.',
+   cuidados:['🔴 OPIÁCEO: monitorizar FR, sedación, SpO2 continuamente','⚠️ Tener naloxona preparada siempre','FR <12 rpm: SUSPENDER y alertar médico','Registrar en libro de control de narcóticos'],
+   ci:'Depresión respiratoria. TCE. Íleo paralítico.'},
+  {n:'Diclofenac',c:'Voltaren, Refen',cat:'analgesicos',color:'#10b981',
+   pres:'Ampolla 75mg/3mL · Tab 50mg',via:'IM · VO',
+   dosis:'75mg c/12h IM · 50mg c/8h VO · Máx 150mg/día',
+   inf:'IM: Inyección profunda en glúteo. ⚠️ NUNCA IV directo.',
+   cuidados:['VO: administrar con alimentos','No usar más de 2 días IM','Rotar sitio de inyección IM'],
+   ci:'Úlcera péptica activa. Insuficiencia renal. Embarazo 3er trimestre.'},
+
+  // ANTIHIPERTENSIVOS
+  {n:'Hidralazina',c:'Apresolina',cat:'antihipertensivos',color:'#ef4444',
+   pres:'Ampolla 20mg/mL · Tab 25mg, 50mg',via:'IV · IM · VO',
+   dosis:'5-10mg IV lento c/20-30min (crisis) · Máx 40mg por episodio',
+   inf:'IV: Administrar lento en 1-2 min. Monitorizar PA cada 5 min.',
+   cuidados:['⚠️ Monitorizar PA y FC continuamente durante crisis','Efecto máximo 10-80 min después de IV','Primera línea en crisis HTA del embarazo (preeclampsia)'],
+   ci:'Aneurisma disecante. Lupus eritematoso.'},
+  {n:'Nifedipino',c:'Adalat, Nifedipina',cat:'antihipertensivos',color:'#ef4444',
+   pres:'Cápsulas 10mg · Tab liberación lenta 30mg',via:'VO · SL',
+   dosis:'10mg SL/VO c/30min según respuesta (crisis) · 30-60mg/día (crónico)',
+   inf:'SL: Perforar cápsula y colocar bajo lengua.',
+   cuidados:['Monitorizar PA y FC tras dosis','Evitar masticar tabletas de liberación lenta','Taquicardia refleja frecuente — vigilar'],
+   ci:'Shock cardiogénico. IAM reciente.'},
+  {n:'Captopril',c:'Capoten',cat:'antihipertensivos',color:'#ef4444',
+   pres:'Tab 25mg, 50mg',via:'VO · SL',
+   dosis:'12.5-25mg SL (crisis) · 25-150mg/día VO (crónico)',
+   inf:'SL: Triturar o colocar bajo lengua para efecto rápido.',
+   cuidados:['Tos seca: efecto adverso frecuente','Hipotensión primera dosis — administrar sentado','Monitorizar PA, K+ y creatinina'],
+   ci:'Embarazo. Angioedema previo por IECA.'},
+  {n:'Furosemida',c:'Lasix',cat:'antihipertensivos',color:'#ef4444',
+   pres:'Ampolla 20mg/2mL · Tab 40mg',via:'IV · IM · VO',
+   dosis:'20-40mg IV (adulto) · 1-2mg/kg (pediátrico) · Máx 600mg/día',
+   inf:'IV: Lento máx 4mg/min. Puede quemar si rápido.',
+   cuidados:['⚠️ Monitorizar diuresis, K+, Na+, creatinina','Peso diario en uso crónico','Ototoxicidad con dosis altas o infusión rápida','Registrar balance hídrico estrictamente'],
+   ci:'Anuria. Coma hepático. Hipocalemia severa.'},
+  {n:'Enalapril',c:'Vasotec, Renitec',cat:'antihipertensivos',color:'#ef4444',
+   pres:'Tab 5mg, 10mg · Ampolla 1.25mg/mL',via:'VO · IV',
+   dosis:'5-40mg/día VO · 1.25mg IV c/6h',
+   inf:'IV: Diluir en 50mL SSN. Pasar en 5 min.',
+   cuidados:['Tos seca frecuente — puede requerir cambio a ARA-II','Hipotensión primera dosis','Monitorizar PA, K+, creatinina'],
+   ci:'Embarazo. Angioedema previo por IECA.'},
+
+  // CARDIOVASCULAR
+  {n:'Amiodarona',c:'Cordarone, Atlansil',cat:'cardiovascular',color:'#f59e0b',
+   pres:'Ampolla 150mg/3mL',via:'IV',
+   dosis:'PCR: 300mg bolo IV · FV/TV: 150mg IV lento · Mantenimiento: bomba',
+   inf:'⚠️ SIEMPRE en DAD5 — NUNCA en SSN (precipita). Bomba de infusión. Vía central preferible.',
+   cuidados:['⚠️ Flebitis frecuente en vía periférica — preferir vía central','Monitorizar ECG, PA, FC continuamente','Vigilar función tiroidea, hepática y pulmonar en uso prolongado','No compatible con SSN'],
+   ci:'Bloqueo AV alto grado. Bradicardia sinusal. Disfunción tiroidea.'},
+  {n:'Atropina',c:'Sulfato de atropina',cat:'cardiovascular',color:'#f59e0b',
+   pres:'Ampolla 1mg/mL',via:'IV · IM · ET',
+   dosis:'0.5-1mg IV bolo (adulto) · 0.01-0.02mg/kg (pediátrico) · Repetir c/3-5min · Máx 3mg',
+   inf:'IV: Bolo rápido en bradicardia sintomática. Efecto en 1-2 min.',
+   cuidados:['Monitorizar FC y ECG','Boca seca, visión borrosa, retención urinaria: efectos anticolinérgicos','⚠️ Dosis <0.1mg puede causar bradicardia paradójica'],
+   ci:'Glaucoma. Taquicardia. Obstrucción urinaria.'},
+  {n:'Digoxina',c:'Lanoxin',cat:'cardiovascular',color:'#f59e0b',
+   pres:'Ampolla 0.5mg/2mL · Tab 0.25mg',via:'IV · VO',
+   dosis:'Digitalización: 0.25mg IV c/6h x4 · Mantenimiento: 0.125-0.25mg/día',
+   inf:'IV: Diluir en 10mL SSN. Pasar lento en 5-10 min.',
+   cuidados:['⚠️ Monitorizar ECG y niveles séricos (rango: 0.5-2 ng/mL)','Toxicidad: náuseas, visión amarilla/verde, bradicardia','⚠️ Hipocalemia potencia toxicidad — vigilar K+','Pulso <60 lpm: consultar antes de administrar'],
+   ci:'Fibrilación ventricular. Bloqueo AV alto grado.'},
+  {n:'Adrenalina/Epinefrina',c:'Epinefrina',cat:'cardiovascular',color:'#f59e0b',
+   pres:'Ampolla 1mg/mL (1:1000)',via:'IV · IM · ET · SC',
+   dosis:'PCR: 1mg IV c/3-5min · Anafilaxia: 0.3-0.5mg IM · Pediátrico: 0.01mg/kg',
+   inf:'Anafilaxia: IM cara anterolateral del muslo. PCR: bolo IV rápido.',
+   cuidados:['🔴 PRIMERA LÍNEA en anafilaxia — administrar IM inmediatamente','Tener siempre disponible en urgencias','Monitorizar FC, PA, ECG'],
+   ci:'HTA severa no controlada (relativo).'},
+  {n:'Dopamina',c:'Intropin',cat:'cardiovascular',color:'#f59e0b',
+   pres:'Ampolla 200mg/5mL',via:'IV',
+   dosis:'2-5mcg/kg/min (renal) · 5-10 (cardíaco) · >10 (vasopresor)',
+   inf:'🔴 SIEMPRE bomba de infusión. Vía central preferible. Diluir 200mg en 250mL DAD5.',
+   cuidados:['⚠️ NUNCA extravasación — necrosis tisular. Si extravasa: fentolamina local','Monitorizar PA, FC, diuresis, ECG continuamente','Puede causar taquicardia y arritmias'],
+   ci:'Feocromocitoma. Fibrilación ventricular.'},
+  {n:'Norepinefrina',c:'Levophed',cat:'cardiovascular',color:'#f59e0b',
+   pres:'Ampolla 4mg/4mL',via:'IV',
+   dosis:'0.01-3 mcg/kg/min en infusión continua',
+   inf:'🔴 VÍA CENTRAL OBLIGATORIA. SIEMPRE bomba. Diluir 4mg en 250mL DAD5.',
+   cuidados:['🔴 VÍA CENTRAL — extravasación causa necrosis extensa','Monitorizar PA invasiva idealmente','Vigilar extremidades: isquemia distal','Meta PAM ≥65mmHg en shock séptico'],
+   ci:'Hipovolemia no corregida.'},
+
+  // ANTICONVULSIVANTES
+  {n:'Diazepam',c:'Valium',cat:'anticonvulsivantes',color:'#8b5cf6',
+   pres:'Ampolla 10mg/2mL · Tab 5mg',via:'IV · IM · Rectal',
+   dosis:'Convulsión: 5-10mg IV lento (adulto) · 0.2-0.5mg/kg (pediátrico) · Repetir c/5-10min',
+   inf:'⚠️ IV MUY LENTO — máx 5mg/min. Puede causar apnea si rápido.',
+   cuidados:['🔴 Tener equipo de reanimación y AMBU disponible','Monitorizar FR, SpO2, nivel de conciencia','No mezclar con otros medicamentos en misma jeringa'],
+   ci:'Insuficiencia respiratoria. Miastenia gravis.'},
+  {n:'Sulfato de Magnesio',c:'Sulfato de magnesio',cat:'anticonvulsivantes',color:'#8b5cf6',
+   pres:'Ampolla 1g/2mL · 5g/10mL',via:'IV · IM',
+   dosis:'Preeclampsia: Carga 4-6g IV en 20 min, luego 1-2g/h · Pediátrico: 25-50mg/kg',
+   inf:'Carga: diluir 4-6g en 100mL SSN. Pasar en 20 min. Mantenimiento: bomba.',
+   cuidados:['🔴 ANTÍDOTO: Gluconato de calcio 1g IV — tener SIEMPRE listo','Monitorizar c/hora: reflejos rotulianos, FR, PA, diuresis','FR <12 rpm: SUSPENDER','Reflejos rotulianos ausentes: SUSPENDER y dar calcio','Diuresis mínima: 25mL/hora'],
+   ci:'Bloqueo cardíaco. Insuficiencia renal severa.'},
+  {n:'Fenobarbital',c:'Luminal, Gardenal',cat:'anticonvulsivantes',color:'#8b5cf6',
+   pres:'Ampolla 200mg/mL',via:'IV · IM',
+   dosis:'Estado epiléptico: 15-20mg/kg IV · Máx 100mg/min',
+   inf:'IV lento: máx 100mg/min. Monitorizar PA y FR durante infusión.',
+   cuidados:['⚠️ Riesgo hipotensión y depresión respiratoria — tener reanimación lista','Compatible: agua estéril para inyección','Monitorizar nivel de conciencia'],
+   ci:'Porfiria. Depresión respiratoria.'},
+  {n:'Fenitoína',c:'Epamin, Dilantín',cat:'anticonvulsivantes',color:'#8b5cf6',
+   pres:'Ampolla 250mg/5mL',via:'IV',
+   dosis:'Estado epiléptico: 15-20mg/kg IV · Máx 50mg/min (adulto)',
+   inf:'🔴 SOLO SSN — precipita en DAD5/glucosa. Máx 50mg/min adulto.',
+   cuidados:['🔴 SOLO compatible con SSN — jamás con glucosa','Monitorizar ECG continuo durante infusión','Síndrome de guante púrpura: cambiar sitio IV inmediatamente','Extravasación causa necrosis'],
+   ci:'Bradicardia sinusal. Bloqueo AV. Porfiria.'},
+
+  // CORTICOIDES
+  {n:'Dexametasona',c:'Decadron',cat:'corticoides',color:'#06b6d4',
+   pres:'Ampolla 4mg/mL, 8mg/2mL',via:'IV · IM · VO',
+   dosis:'0.1-0.5mg/kg c/6-24h · Edema cerebral: 10mg carga, luego 4mg c/6h',
+   inf:'IV: Lento en 1-2 min. Compatible: SSN, DAD5.',
+   cuidados:['Monitorizar glucemia — causa hiperglucemia','Usar IBP como gastroprotección','No suspender abruptamente si uso prolongado','Puede enmascarar signos de infección'],
+   ci:'Infecciones fúngicas sistémicas no tratadas.'},
+  {n:'Hidrocortisona',c:'Solu-Cortef',cat:'corticoides',color:'#06b6d4',
+   pres:'Ampolla 100mg, 500mg',via:'IV · IM',
+   dosis:'100-500mg c/6-8h IV · Crisis adrenal: 100mg IV bolo',
+   inf:'IV: Diluir en 100mL SSN o DAD5. Pasar en 30 min.',
+   cuidados:['Monitorizar glucemia y electrolitos','Retención de sodio y agua — vigilar edema y PA'],
+   ci:'Infecciones sistémicas no tratadas.'},
+  {n:'Betametasona',c:'Celestone',cat:'corticoides',color:'#06b6d4',
+   pres:'Ampolla 12mg/2mL',via:'IM',
+   dosis:'Maduración pulmonar fetal: 12mg IM, repetir en 24h (2 dosis)',
+   inf:'IM: Inyección profunda en glúteo. ⚠️ NUNCA IV.',
+   cuidados:['Indicado en embarazo 24-34 semanas con riesgo de parto prematuro','Monitorizar glucemia materna y fetal','Efecto máximo a las 24-48h de la primera dosis'],
+   ci:'Infección sistémica activa.'},
+
+  // GASTROINTESTINAL
+  {n:'Metoclopramida',c:'Primperan, Plasil',cat:'gastrointestinal',color:'#10b981',
+   pres:'Ampolla 10mg/2mL · Tab 10mg',via:'IV · IM · VO',
+   dosis:'10mg c/8h IV/IM/VO (adulto) · 0.1mg/kg c/6-8h (pediátrico)',
+   inf:'IV: Lento en 2-3 min. Puede causar espasmos si se pasa rápido.',
+   cuidados:['⚠️ Síntomas extrapiramidales: tortícolis, agitación — tratar con difenhidramina','No usar en niños <1 año','Monitorizar sedación'],
+   ci:'Hemorragia/perforación GI. Parkinson.'},
+  {n:'Ondansetrón',c:'Zofran',cat:'gastrointestinal',color:'#10b981',
+   pres:'Ampolla 4mg/2mL, 8mg · Tab 4mg',via:'IV · IM · VO',
+   dosis:'4-8mg c/8-12h IV (adulto) · 0.1mg/kg c/8h (pediátrico)',
+   inf:'IV: Diluir en 50mL SSN. Pasar en 15-30 min.',
+   cuidados:['Puede prolongar QT — monitorizar ECG','Constipación con uso prolongado','Compatible: SSN, DAD5'],
+   ci:'QT prolongado congénito.'},
+  {n:'Omeprazol',c:'Prilosec, Losec',cat:'gastrointestinal',color:'#10b981',
+   pres:'Frasco 40mg IV · Cápsulas 20mg, 40mg',via:'IV · VO',
+   dosis:'20-40mg c/24h IV/VO',
+   inf:'IV: Reconstituir con 10mL, diluir en 100mL SSN. Pasar en 30 min.',
+   cuidados:['VO: Administrar 30-60 min antes de comer','No triturar cápsulas de liberación prolongada','Compatible: SSN exclusivamente'],
+   ci:'Hipersensibilidad.'},
+  {n:'Hioscina/Buscapina',c:'Buscapina, Buscopan',cat:'gastrointestinal',color:'#10b981',
+   pres:'Ampolla 20mg/mL',via:'IV · IM · VO',
+   dosis:'20mg c/6-8h IV/IM · 10mg c/8h VO',
+   inf:'IV: Lento en 1-2 min. Puede causar taquicardia si rápido.',
+   cuidados:['Boca seca, taquicardia, retención urinaria: efectos anticolinérgicos','Útil en cólico renal, biliar e intestinal'],
+   ci:'Glaucoma. Obstrucción urinaria. Miastenia gravis.'},
+
+  // OXITÓCICOS
+  {n:'Oxitocina',c:'Syntocinon',cat:'oxitocicos',color:'#ec4899',
+   pres:'Ampolla 10UI/mL',via:'IV · IM',
+   dosis:'Inducción: 1-2mUI/min, aumentar c/30min · Posparto: 10-20UI IM o 10-40UI en 500mL IV',
+   inf:'🔴 SIEMPRE bomba de infusión para inducción. Diluir en SSN, RL o DAD5.',
+   cuidados:['🔴 Monitorizar FCF y dinámica uterina CONTINUAMENTE','⚠️ NUNCA bolo IV directo — hipotensión severa','Riesgo de hipertonía y ruptura uterina','Registrar dinámica y FCF c/15-30 min'],
+   ci:'Hiperactividad uterina. Desproporción cefalopélvica. FCF anormal.'},
+  {n:'Misoprostol',c:'Cytotec, Misotac',cat:'oxitocicos',color:'#ec4899',
+   pres:'Tab 200mcg',via:'VO · SL · Vaginal · Rectal',
+   dosis:'Posparto: 600mcg SL o 800mcg rectal · Inducción: 25mcg vaginal c/4-6h',
+   inf:'No aplica — uso de tabletas por vía específica.',
+   cuidados:['Monitorizar temperatura — puede causar fiebre','Supervisar sangrado y contracciones uterinas','⚠️ NUNCA para inducción en cesárea previa — riesgo de ruptura uterina'],
+   ci:'Cesárea previa (inducción). Hipersensibilidad a prostaglandinas.'},
+  {n:'Ergometrina',c:'Ergotrometrina, Methergin',cat:'oxitocicos',color:'#ec4899',
+   pres:'Ampolla 0.2mg/mL',via:'IM',
+   dosis:'0.2mg IM posparto (hemorragia)',
+   inf:'IM preferida. IV solo en emergencia vital — riesgo de HTA severa.',
+   cuidados:['Controla hemorragia posparto por atonía uterina','⚠️ Verificar PA antes de administrar — causa vasoconstricción potente','NO usar en HTA, preeclampsia ni cardiopatía'],
+   ci:'HTA. Preeclampsia. Cardiopatía. Obliteración vascular periférica.'},
+
+  // ELECTROLITOS
+  {n:'Cloruro de Potasio',c:'KCl',cat:'electrolitos',color:'#f59e0b',
+   pres:'Ampolla 10mEq/10mL',via:'IV (diluido)',
+   dosis:'Reposición: 10-20mEq/h · ⚠️ NUNCA >40mEq/h · Máx 200mEq/día',
+   inf:'🔴 SIEMPRE diluido. NUNCA IV directo — paro cardíaco. 10mEq en mínimo 100mL SSN.',
+   cuidados:['🔴 MEDICAMENTO ALTO RIESGO — verificar dosis con 2 enfermeras','⚠️ IV directo causa FIBRILACIÓN VENTRICULAR fatal','Monitorizar ECG y K+ sérico durante infusión','Puede causar dolor en vena — diluir y pasar lento','Verificar diuresis antes de reponer'],
+   ci:'Hipercalemia. Anuria.'},
+  {n:'Gluconato de Calcio',c:'Gluconato de calcio 10%',cat:'electrolitos',color:'#f59e0b',
+   pres:'Ampolla 1g/10mL (10%)',via:'IV',
+   dosis:'1-2g IV lento · Antídoto Mg: 1g IV en 10 min',
+   inf:'⚠️ LENTO: 1g en 10-20 min. Monitorizar ECG. Bradicardia si rápido.',
+   cuidados:['🔴 ANTÍDOTO de toxicidad por sulfato de magnesio','Incompatible con bicarbonato y fosfatos — no mezclar','Extravasación causa necrosis — vigilar sitio IV'],
+   ci:'Hipercalcemia. Digitálicos (potencia toxicidad).'},
+  {n:'Bicarbonato de Sodio',c:'Bicarbonato sódico',cat:'electrolitos',color:'#f59e0b',
+   pres:'Frasco 8.4% (1mEq/mL)',via:'IV',
+   dosis:'PCR: 1mEq/kg IV bolo · Acidosis: según gasometría',
+   inf:'PCR: Bolo IV. Acidosis crónica: diluir al 50% y pasar lento.',
+   cuidados:['Incompatible con calcio y catecolaminas — enjuagar vía antes y después','Puede causar hipernatremia e hiperosmolaridad','Verificar gases arteriales para dosificación'],
+   ci:'Alcalosis metabólica. Hipocalcemia. Hipercapnia no corregida.'},
+
+  // ANTIHISTAMÍNICOS
+  {n:'Difenhidramina',c:'Benadryl',cat:'antihistaminicos',color:'#8b5cf6',
+   pres:'Ampolla 50mg/mL · Cap 25mg, 50mg',via:'IV · IM · VO',
+   dosis:'25-50mg c/6-8h IV/IM/VO (adulto) · 1mg/kg c/6h (pediátrico)',
+   inf:'IV: Diluir en 10-20mL SSN. Pasar en 2-3 min.',
+   cuidados:['⚠️ Sedación marcada — precaución al caminar','Antídoto para reacciones extrapiramidales (metoclopramida)','Efectos anticolinérgicos: boca seca, retención urinaria'],
+   ci:'Glaucoma. Obstrucción urinaria. Asma aguda.'},
+  {n:'Clorfeniramina',c:'Clortrimetón, Avapena',cat:'antihistaminicos',color:'#8b5cf6',
+   pres:'Ampolla 10mg/mL · Tab 4mg',via:'IV · IM · VO',
+   dosis:'4-10mg c/6-8h (adulto) · 0.35mg/kg/día (pediátrico)',
+   inf:'IV: Administrar lento en 1-2 min.',
+   cuidados:['Sedación — advertir sobre conducción de vehículos','Primera línea en reacciones alérgicas leves-moderadas'],
+   ci:'Glaucoma. Obstrucción urinaria.'},
+
+  // ANTICOAGULANTES
+  {n:'Heparina sódica',c:'Heparina',cat:'anticoagulantes',color:'#ef4444',
+   pres:'Frasco 5,000UI/mL, 25,000UI/5mL',via:'IV · SC',
+   dosis:'TVP/TEP: 80UI/kg bolo IV, luego 18UI/kg/h · Profilaxis: 5,000UI SC c/8-12h',
+   inf:'🔴 SIEMPRE bomba de infusión para infusión continua.',
+   cuidados:['🔴 MEDICAMENTO ALTO RIESGO — verificar dosis con 2 enfermeras','Monitorizar TTPa c/6h (meta: 60-100 seg)','Vigilar signos de sangrado: encías, orina, heces','ANTÍDOTO: Protamina sulfato','⚠️ No masajear sitio SC — hematoma'],
+   ci:'Sangrado activo. TIH. Cirugía ocular/neural reciente.'},
+  {n:'Enoxaparina',c:'Lovenox, Clexane',cat:'anticoagulantes',color:'#ef4444',
+   pres:'Jeringa prellenada 20mg, 40mg, 60mg, 80mg',via:'SC',
+   dosis:'Profilaxis: 40mg SC c/24h · Tratamiento: 1mg/kg SC c/12h',
+   inf:'SC: Abdomen (2-10cm del ombligo). Pliegue cutáneo. Aguja en 90°.',
+   cuidados:['Rotar sitios de inyección y registrar','⚠️ NO expulsar burbuja de aire de jeringa prefilled','Monitorizar plaquetas (TIH)','Reducir dosis en insuficiencia renal'],
+   ci:'Sangrado activo. TIH previa. IR severa (CrCl <30 — ajustar dosis).'},
+
+  // RESPIRATORIO
+  {n:'Salbutamol/Albuterol',c:'Ventolin, Salbulair',cat:'respiratorio',color:'#06b6d4',
+   pres:'Solución para nebulizar 5mg/mL · Inhaler 100mcg',via:'Nebulización · Inhaler',
+   dosis:'Nebulización: 2.5mg en 3mL SSN c/20min x3, luego c/4h · Inhaler: 2-4 puffs c/4-6h',
+   inf:'Nebulización: Mascarilla adecuada. Duración 10-15 min.',
+   cuidados:['Monitorizar FC — puede causar taquicardia','Temblor frecuente — tranquilizar al paciente','Técnica inhaler: sacudir, exhalar, activar, apnea 10 seg','Hipocalemia con dosis altas — vigilar K+'],
+   ci:'Taquiarritmias severas.'},
+  {n:'N-Acetilcisteína',c:'Mucomyst, Fluimucil',cat:'respiratorio',color:'#06b6d4',
+   pres:'Ampolla 300mg/3mL · Sobres 200mg',via:'IV · Nebulización · VO',
+   dosis:'Antídoto paracetamol: 150mg/kg IV en 1h, luego 50mg/kg en 4h, luego 100mg/kg en 16h · Mucolítico: 200mg c/8h VO',
+   inf:'IV: Diluir en DAD5 según peso. ⚠️ Reacción anafilactoide frecuente en 1ra hora — tener antihistamínico listo.',
+   cuidados:['Olor sulfuroso característico — advertir al paciente','🔴 Antídoto paracetamol — iniciar antes de 8-10h de la intoxicación','Mucolítico: fisioterapia respiratoria acompañante'],
+   ci:'Hipersensibilidad.'},
+
+  // ENDOCRINO
+  {n:'Insulina Regular',c:'Actrapid, Humulin R',cat:'endocrino',color:'#3b82f6',
+   pres:'Frasco 100UI/mL',via:'IV · SC · IM',
+   dosis:'CAD: 0.1UI/kg/h IV infusión · SC: según esquema',
+   inf:'🔴 IV: 50UI en 50mL SSN (1UI/mL). Siempre bomba. Purgar tubería antes (adsorción al plástico).',
+   cuidados:['🔴 MEDICAMENTO ALTO RIESGO — verificar con 2 enfermeras','Monitorizar glucemia c/1-2h en infusión IV','⚠️ Hipoglucemia: tener glucosa disponible siempre','Refrigerar frascos no abiertos'],
+   ci:'Hipoglucemia.'},
+
+  // OTROS
+  {n:'Vitamina K / Fitomenadiona',c:'Konakión',cat:'otros',color:'#10b981',
+   pres:'Ampolla 10mg/mL',via:'IV · IM · SC',
+   dosis:'Reversión anticoag.: 1-10mg IV/IM/SC · Profilaxis neonatal: 0.5-1mg IM al nacer',
+   inf:'IV: Diluir en 50-100mL SSN. Pasar lento en 30 min. ⚠️ Riesgo de anafilaxia IV.',
+   cuidados:['⚠️ IV: riesgo de anafilaxia — tener adrenalina lista. Preferir IM o SC.','Profilaxis neonatal: IM al nacer','Efecto tarda 6-8h — para reversión urgente usar plasma fresco'],
+   ci:'Hipersensibilidad.'},
+  {n:'Naloxona',c:'Narcan',cat:'otros',color:'#10b981',
+   pres:'Ampolla 0.4mg/mL',via:'IV · IM · SC · ET',
+   dosis:'Adulto: 0.4-2mg IV c/2-3min · Pediátrico: 0.01mg/kg',
+   inf:'IV: Bolo rápido. Puede repetirse c/2-3min.',
+   cuidados:['🔴 ANTÍDOTO de opiáceos','Duración 30-90 min — puede necesitar redosificación','⚠️ Puede precipitar síndrome de abstinencia en adictos','Monitorizar FR, SpO2 y nivel de conciencia','Tener disponible en todas las áreas con opiáceos'],
+   ci:'Hipersensibilidad.'},
+];
+
+let vadCatActiva = 'todos';
+
+function initVademecum() {
+  renderVademecum(vadData);
+}
+
+function setVadCat(cat, el) {
+  vadCatActiva = cat;
+  document.querySelectorAll('.vad-cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  filterVademecum();
+}
+
+function filterVademecum() {
+  const q = (document.getElementById('vad-search')?.value || '').toLowerCase();
+  let lista = vadData;
+  if (vadCatActiva !== 'todos') lista = lista.filter(m => m.cat === vadCatActiva);
+  if (q) lista = lista.filter(m =>
+    m.n.toLowerCase().includes(q) || m.c.toLowerCase().includes(q)
+  );
+  renderVademecum(lista);
+}
+
+function renderVademecum(lista) {
+  const el = document.getElementById('vad-lista');
+  const cnt = document.getElementById('vad-count');
+  if (!el) return;
+  cnt.textContent = `${lista.length} medicamento${lista.length !== 1 ? 's' : ''}`;
+  if (!lista.length) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">No se encontraron resultados 🔍</div>';
+    return;
+  }
+  el.innerHTML = lista.map((m, i) => {
+    const catLabels = {
+      antibioticos:'Antibiótico', analgesicos:'Analgésico', antihipertensivos:'Antihipert.',
+      cardiovascular:'Cardiovascular', anticonvulsivantes:'Anticonvuls.', corticoides:'Corticoide',
+      gastrointestinal:'GI', oxitocicos:'Oxitócico', electrolitos:'Electrolito',
+      antihistaminicos:'Antihistam.', anticoagulantes:'Anticoag.',
+      respiratorio:'Respiratorio', endocrino:'Endocrino', otros:'Otro'
+    };
+    const cuidadosList = m.cuidados.map(c =>
+      `<div style="display:flex;gap:6px;margin-bottom:4px">
+        <span style="color:var(--cyan);flex-shrink:0">•</span>
+        <span style="font-size:12px;color:var(--text-secondary)">${c}</span>
+       </div>`
+    ).join('');
+    return `
+    <div class="vad-card" id="vad-card-${i}">
+      <div class="vad-card-header" onclick="toggleVadCard(${i})">
+        <div style="width:8px;height:8px;border-radius:50%;background:${m.color};flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:var(--text-primary)">${m.n}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${m.c}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="vad-badge" style="background:${m.color}22;color:${m.color}">${catLabels[m.cat]||m.cat}</span>
+          <span style="color:var(--text-muted);font-size:14px" id="vad-arrow-${i}">▾</span>
+        </div>
+      </div>
+      <div class="vad-card-body" id="vad-body-${i}">
+        <div class="vad-row" style="margin-top:10px">
+          <div class="vad-chip">📦 ${m.pres}</div>
+          <div class="vad-chip">🩺 ${m.via}</div>
+        </div>
+        <div class="vad-section">
+          <div class="vad-section-title">Dosis</div>
+          <div class="vad-section-text">${m.dosis}</div>
+        </div>
+        <div class="vad-section">
+          <div class="vad-section-title">Administración / Infusión</div>
+          <div class="vad-section-text">${m.inf}</div>
+        </div>
+        <div class="vad-section">
+          <div class="vad-section-title">Cuidados de enfermería</div>
+          ${cuidadosList}
+        </div>
+        <div class="vad-alert">⚠️ <strong>Contraindicaciones:</strong> ${m.ci}</div>
+        <div style="margin-top:10px;font-size:10px;color:var(--text-muted)">⚕️ Basado en Cuadro Básico SESAL HN. Verificar con vademécum oficial vigente.</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleVadCard(i) {
+  const body = document.getElementById(`vad-body-${i}`);
+  const arrow = document.getElementById(`vad-arrow-${i}`);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  arrow.textContent = isOpen ? '▾' : '▴';
+}
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
