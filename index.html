@@ -5701,8 +5701,21 @@ function openSoporteEmail() {
 
 // ── Enfermería ────────────────────────────────────────────────
 function switchEnfCalc(name, btn) {
+  const vadDiv = document.getElementById('enf-vademecum');
+  if (vadDiv) {
+    Array.from(vadDiv.parentElement.children).forEach(el => {
+      if (el !== vadDiv) el.style.display = '';
+    });
+  }
   document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
   document.getElementById('enf-' + name).classList.add('active');
+  if (name === 'vademecum') {
+    const parent = document.getElementById('enf-percentil-fetal');
+    parent.classList.add('active');
+    Array.from(vadDiv.parentElement.children).forEach(el => {
+      if (el !== vadDiv) el.style.display = 'none';
+    });
+  }
   document.querySelectorAll('#tab-enfermeria .calc-tab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   if (name === 'eva') calcEVA();
@@ -5710,7 +5723,6 @@ function switchEnfCalc(name, btn) {
   if (name === 'braden') calcBraden();
   if (name === 'norton') calcNorton();
 }
-
 function calcGoteo() {
   const vol = parseFloat(document.getElementById('goteo-vol').value);
   const tiempo = parseFloat(document.getElementById('goteo-tiempo').value);
