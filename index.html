@@ -2199,7 +2199,35 @@
         <div class="calc-card">
           <div class="calc-title">👶 Percentil Fetal — Medicina Fetal Barcelona</div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Basado en fórmula Hadlock + tablas de referencia FMB. Ingresa biometrías del ultrasonido.</div>
-
+<!-- Vademécum Enfermería HN -->
+      <div class="enf-calc" id="enf-vademecum">
+        <div style="margin-bottom:14px">
+          <div style="font-size:16px;font-weight:700;margin-bottom:10px">💊 Vademécum Enfermería HN</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Medicamentos del Cuadro Básico SESAL — 100% offline</div>
+          <input type="text" id="vad-search" placeholder="🔍 Buscar por nombre genérico o comercial..."
+            oninput="filterVademecum()"
+            style="width:100%;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px">
+          <div id="vad-cats" style="display:flex;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none">
+            <button onclick="setVadCat('todos',this)" class="vad-cat-btn active">Todos</button>
+            <button onclick="setVadCat('antibioticos',this)" class="vad-cat-btn">🦠 Antibióticos</button>
+            <button onclick="setVadCat('analgesicos',this)" class="vad-cat-btn">💊 Analgésicos</button>
+            <button onclick="setVadCat('antihipertensivos',this)" class="vad-cat-btn">❤️ Antihipert.</button>
+            <button onclick="setVadCat('cardiovascular',this)" class="vad-cat-btn">🫀 Cardiovascular</button>
+            <button onclick="setVadCat('anticonvulsivantes',this)" class="vad-cat-btn">🧠 Anticonvuls.</button>
+            <button onclick="setVadCat('corticoides',this)" class="vad-cat-btn">⚡ Corticoides</button>
+            <button onclick="setVadCat('gastrointestinal',this)" class="vad-cat-btn">🫃 GI</button>
+            <button onclick="setVadCat('oxitocicos',this)" class="vad-cat-btn">🤰 Oxitócicos</button>
+            <button onclick="setVadCat('electrolitos',this)" class="vad-cat-btn">⚗️ Electrolitos</button>
+            <button onclick="setVadCat('antihistaminicos',this)" class="vad-cat-btn">💉 Antihist.</button>
+            <button onclick="setVadCat('anticoagulantes',this)" class="vad-cat-btn">🩸 Anticoag.</button>
+            <button onclick="setVadCat('respiratorio',this)" class="vad-cat-btn">🫁 Respiratorio</button>
+            <button onclick="setVadCat('endocrino',this)" class="vad-cat-btn">🔬 Endocrino</button>
+            <button onclick="setVadCat('otros',this)" class="vad-cat-btn">➕ Otros</button>
+          </div>
+        </div>
+        <div id="vad-count" style="font-size:12px;color:var(--text-muted);margin-bottom:10px"></div>
+        <div id="vad-lista"></div>
+      </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div class="input-group">
               <label>Edad gestacional (semanas)</label>
