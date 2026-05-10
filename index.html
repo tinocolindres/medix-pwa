@@ -5700,7 +5700,7 @@ function openSoporteEmail() {
 }
 
 // ── Enfermería ────────────────────────────────────────────────
-function switchEnfCalc(name, btn) {
+function switchEnfCalc(name, btn) {try{var _v=document.getElementById('enf-vademecum');if(_v){_v.style.display='';Array.from(_v.parentElement.children).forEach(function(c){c.style.display='';});}}catch(e){}
   // Restaurar hermanos ocultos del vademecum si venimos de ahí
   const vadDiv = document.getElementById('enf-vademecum');
   if (vadDiv) {
