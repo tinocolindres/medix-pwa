@@ -5701,6 +5701,7 @@ function openSoporteEmail() {
 
 // ── Enfermería ────────────────────────────────────────────────
 function switchEnfCalc(name, btn) {
+  // Restaurar hermanos ocultos del vademecum si venimos de ahí
   const vadDiv = document.getElementById('enf-vademecum');
   if (vadDiv) {
     Array.from(vadDiv.parentElement.children).forEach(el => {
@@ -5709,21 +5710,6 @@ function switchEnfCalc(name, btn) {
   }
   document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
   document.getElementById('enf-' + name).classList.add('active');
-if(name==='vademecum')document.getElementById('enf-percentil-fetal').classList.add('active');
-  if (name === 'vademecum') {
-    const parent = document.getElementById('enf-percentil-fetal');
-    parent.classList.add('active');
-    Array.from(vadDiv.parentElement.children).forEach(el => {
-      if (el !== vadDiv) el.style.display = 'none';
-    });
-  }
-  document.querySelectorAll('#tab-enfermeria .calc-tab').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  if (name === 'eva') calcEVA();
-  if (name === 'barthel') calcBarthel();
-  if (name === 'braden') calcBraden();
-  if (name === 'norton') calcNorton();
-}
   // enf-vademecum está dentro de enf-percentil-fetal — mostrar padre y ocultar sus otros hijos
   if (name === 'vademecum') {
     const parent = document.getElementById('enf-percentil-fetal');
