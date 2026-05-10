@@ -5725,7 +5725,18 @@ function switchEnfCalc(name, btn) {
   if (name === 'braden') calcBraden();
   if (name === 'norton') calcNorton();
 }
-
+function switchVademecum(btn) {
+  try {
+    document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('#tab-enfermeria .calc-tab').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    var pf = document.getElementById('enf-percentil-fetal');
+    var vad = document.getElementById('enf-vademecum');
+    if(pf) pf.classList.add('active');
+    if(vad) { vad.classList.add('active'); vad.style.display='block'; }
+    if(pf) Array.from(pf.children).forEach(function(c){ if(c!==vad) c.style.display='none'; });
+  } catch(e) { console.log('switchVademecum error:',e); }
+}
 function calcGoteo() {
   const vol = parseFloat(document.getElementById('goteo-vol').value);
   const tiempo = parseFloat(document.getElementById('goteo-tiempo').value);
