@@ -5701,6 +5701,7 @@ function openSoporteEmail() {
 
 // ── Enfermería ────────────────────────────────────────────────
 function switchEnfCalc(name, btn) {
+  // Restaurar hermanos ocultos del vademecum si venimos de ahí
   const vadDiv = document.getElementById('enf-vademecum');
   if (vadDiv) {
     Array.from(vadDiv.parentElement.children).forEach(el => {
@@ -5709,6 +5710,7 @@ function switchEnfCalc(name, btn) {
   }
   document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
   document.getElementById('enf-' + name).classList.add('active');
+  // enf-vademecum está dentro de enf-percentil-fetal — mostrar padre y ocultar sus otros hijos
   if (name === 'vademecum') {
     const parent = document.getElementById('enf-percentil-fetal');
     parent.classList.add('active');
@@ -5723,6 +5725,7 @@ function switchEnfCalc(name, btn) {
   if (name === 'braden') calcBraden();
   if (name === 'norton') calcNorton();
 }
+
 function calcGoteo() {
   const vol = parseFloat(document.getElementById('goteo-vol').value);
   const tiempo = parseFloat(document.getElementById('goteo-tiempo').value);
