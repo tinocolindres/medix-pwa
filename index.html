@@ -5732,10 +5732,14 @@ function switchVademecum(btn) {
     if(btn) btn.classList.add('active');
     var pf = document.getElementById('enf-percentil-fetal');
     var vad = document.getElementById('enf-vademecum');
-    if(pf) pf.classList.add('active');
-    if(vad) { vad.classList.add('active'); vad.style.display='block'; }
-    if(pf) Array.from(pf.children).forEach(function(c){ if(c!==vad) c.style.display='none'; });
-  } catch(e) { console.log('switchVademecum error:',e); }
+    if(!pf || !vad) return;
+    pf.classList.add('active');
+    vad.classList.add('active');
+    vad.style.display = 'block';
+    Array.from(vad.parentElement.children).forEach(function(c){
+      if(c !== vad) c.style.display = 'none';
+    });
+  } catch(e) {}
 }
 function calcGoteo() {
   const vol = parseFloat(document.getElementById('goteo-vol').value);
