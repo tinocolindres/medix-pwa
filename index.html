@@ -3530,7 +3530,7 @@ const _gc = document.querySelector('#tab-guardia .calc-content');
   }
 });
 const _gfp=document.getElementById('calc-percFMB');
-if(_gfp&&_gc)_gc.appendChild(_gfp);
+if(_gfp&&_gc){_gc.appendChild(_gfp);const _gb=document.createElement('button');_gb.innerHTML='🗑 Limpiar';_gb.style.cssText='margin-top:10px;width:100%;padding:8px;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;border-radius:8px;cursor:pointer;font-family:"DM Sans",sans-serif';_gb.onclick=()=>limpiarCalc('calc-percFMB');_gfp.appendChild(_gb);}
 ['calc-regla9','calc-naCorr','calc-anionGap','calc-pfRatio','calc-tallaEst','calc-cockroft'].forEach(id => {
   const p = document.getElementById(id); if(p && _gc) _gc.appendChild(p);
 });
