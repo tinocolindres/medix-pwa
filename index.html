@@ -3517,7 +3517,6 @@ window.addEventListener('load', async () => {
   initNanda();
   // Mover paneles Guardia al calc-content correcto
 const _gc = document.querySelector('#tab-guardia .calc-content');
-  ['calc-percFMB','calc-regla9','calc-naCorr','calc-anionGap','calc-pfRatio','calc-tallaEst','calc-cockroft'].forEach(id => {
 ['calc-regla9','calc-naCorr','calc-anionGap','calc-pfRatio','calc-tallaEst','calc-cockroft'].forEach(id => {
   const p = document.getElementById(id);
   if(p && _gc) {
