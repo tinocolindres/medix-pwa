@@ -6032,7 +6032,469 @@ function normCDF(z) {
   const p = d * t * (0.3193815 + t*(-0.3565638 + t*(1.7814779 + t*(-1.8212560 + t*1.3302744))));
   return z > 0 ? 1 - p : p;
 }
+// ── NANDA · NOC · NIC ────────────────────────────────────────
+const nandaData = [
+  // CARDIOVASCULAR
+  {codigo:'00029',nombre:'Disminución del gasto cardíaco',sistema:'cardiovascular',
+   definicion:'Cantidad de sangre bombeada por el corazón insuficiente para cubrir las demandas metabólicas del organismo.',
+   factores:['Alteración de la frecuencia/ritmo cardíaco','Alteración de la contractilidad','Alteración de la precarga o poscarga'],
+   caracteristicas:['Alteración del ritmo cardíaco','Cambios en la PA','Disnea','Edema','Oliguria','Palidez','Fatiga extrema'],
+   noc:[
+     {codigo:'0400',nombre:'Efectividad de la bomba cardíaca',indicadores:['PA sistólica 90-120 mmHg','FC 60-100 lpm','Ausencia de edema periférico','Diuresis >0.5 mL/kg/h']},
+     {codigo:'0401',nombre:'Estado circulatorio',indicadores:['Pulsos periféricos palpables','Llenado capilar <3 seg','Saturación O₂ ≥94%']}
+   ],
+   nic:[
+     {codigo:'4040',nombre:'Cuidados cardíacos',actividades:['Monitorizar ECG continuo y notificar arritmias','Registrar PA, FC, SpO₂ c/1-4h según gravedad','Administrar medicamentos inotrópicos prescritos','Controlar balance hídrico estrictamente']},
+     {codigo:'6680',nombre:'Monitorización de signos vitales',actividades:['Registrar signos vitales c/hora en fase aguda','Notificar si FC <50 o >120 lpm','Documentar cambios hemodinámicos significativos']}
+   ]},
+  {codigo:'00204',nombre:'Perfusión tisular periférica ineficaz',sistema:'cardiovascular',
+   definicion:'Disminución de la circulación sanguínea en la periferia que puede comprometer la salud.',
+   factores:['Diabetes mellitus','Hipertensión','Tabaquismo','Sedentarismo','Dislipidemia'],
+   caracteristicas:['Ausencia de pulsos periféricos','Cambios en la piel (color, temperatura)','Llenado capilar >3 seg','Claudicación','Edema','Dolor en extremidades'],
+   noc:[
+     {codigo:'0407',nombre:'Perfusión tisular: periférica',indicadores:['Pulsos periféricos palpables','Temperatura cutánea normal','Ausencia de dolor en reposo','Llenado capilar <3 seg']},
+     {codigo:'1101',nombre:'Integridad tisular: piel y membranas',indicadores:['Piel íntegra','Temperatura cutánea normal','Ausencia de lesiones']}
+   ],
+   nic:[
+     {codigo:'3490',nombre:'Manejo de la sensibilidad periférica alterada',actividades:['Inspeccionar diariamente pies y extremidades','Proteger de traumatismos y temperatura extrema','Evitar presión prolongada en zonas comprometidas']},
+     {codigo:'4070',nombre:'Precauciones circulatorias',actividades:['Elevar extremidades 20-30° si hay edema sin arteriopatía','Evitar cruzar piernas','Fomentar movilización activa-pasiva','Monitorizar pulsos cada turno']}
+   ]},
+  {codigo:'00026',nombre:'Exceso de volumen de líquidos',sistema:'cardiovascular',
+   definicion:'Retención excesiva de líquidos isotónicos.',
+   factores:['Insuficiencia cardíaca','Cirrosis hepática','Insuficiencia renal','Aporte excesivo de sodio','Terapia con corticoides'],
+   caracteristicas:['Edema','Aumento de peso rápido','Distensión venosa yugular','Crepitantes pulmonares','Ascitis','Oliguria','Disnea'],
+   noc:[
+     {codigo:'0601',nombre:'Equilibrio hídrico',indicadores:['Peso estable','Ausencia de edema','Presión venosa normal','Electrolitos en rango normal']},
+     {codigo:'0400',nombre:'Efectividad de la bomba cardíaca',indicadores:['Sin crepitantes','SpO₂ ≥94%','Diuresis adecuada']}
+   ],
+   nic:[
+     {codigo:'4120',nombre:'Manejo de líquidos',actividades:['Registrar balance hídrico cada 8h','Pesar al paciente cada día a la misma hora','Administrar diuréticos prescritos','Restringir líquidos si está indicado']},
+     {codigo:'4130',nombre:'Monitorización de líquidos',actividades:['Vigilar signos de sobrecarga hídrica','Monitorizar electrolitos diarios','Auscultar pulmones en cada turno','Controlar presión venosa central si aplica']}
+   ]},
+  {codigo:'00025',nombre:'Riesgo de desequilibrio del volumen de líquidos',sistema:'cardiovascular',
+   definicion:'Susceptibilidad de sufrir una disminución, aumento o desplazamiento rápido de los líquidos intravasculares, intersticiales y/o intracelulares.',
+   factores:['Cirugía mayor programada','Quemaduras','Pérdidas por drenajes','Sepsis','Pancreatitis aguda'],
+   caracteristicas:['Factor de riesgo — sin signos actuales'],
+   noc:[
+     {codigo:'0601',nombre:'Equilibrio hídrico',indicadores:['Diuresis 0.5-1 mL/kg/h','Mucosas húmedas','PA estable','Sin edema']},
+   ],
+   nic:[
+     {codigo:'4120',nombre:'Manejo de líquidos',actividades:['Registrar ingresos y egresos cada 4-8h','Monitorizar signos de deshidratación o sobrecarga','Administrar fluidoterapia según prescripción']},
+     {codigo:'4180',nombre:'Manejo de la hipovolemia',actividades:['Vigilar signos de shock: PA, FC, llenado capilar','Notificar pérdidas superiores a 500mL/4h','Preparar acceso venoso de gran calibre']}
+   ]},
 
+  // RESPIRATORIO
+  {codigo:'00030',nombre:'Deterioro del intercambio gaseoso',sistema:'respiratorio',
+   definicion:'Exceso o déficit en la oxigenación y/o eliminación de dióxido de carbono en la membrana alveolo-capilar.',
+   factores:['Desequilibrio de la ventilación-perfusión','Cambios en la membrana alveolo-capilar','Hipoventilación'],
+   caracteristicas:['Cianosis','Confusión','Diaforesis','Disnea','Hipercapnia','Hipoxemia','SpO₂ <94%','Taquicardia'],
+   noc:[
+     {codigo:'0402',nombre:'Estado respiratorio: intercambio gaseoso',indicadores:['SpO₂ ≥94%','PaO₂ 80-100 mmHg','PaCO₂ 35-45 mmHg','Sin cianosis']},
+     {codigo:'0403',nombre:'Estado respiratorio: ventilación',indicadores:['FR 12-20 rpm','Uso mínimo de músculos accesorios','Ruidos respiratorios normales']}
+   ],
+   nic:[
+     {codigo:'3320',nombre:'Oxigenoterapia',actividades:['Administrar O₂ según prescripción y SpO₂','Vigilar la tolerancia y efectividad del O₂','Cambiar sistemas de O₂ según indicación (mascarilla, cánula)','Monitorizar gases arteriales según indicación']},
+     {codigo:'3350',nombre:'Monitorización respiratoria',actividades:['Monitorizar FR, SpO₂ c/1-4h','Auscultar campos pulmonares en cada turno','Registrar signos de dificultad respiratoria','Notificar SpO₂ <92%']}
+   ]},
+  {codigo:'00032',nombre:'Patrón respiratorio ineficaz',sistema:'respiratorio',
+   definicion:'La inspiración y/o espiración no proporciona una ventilación adecuada.',
+   factores:['Ansiedad','Deterioro neuromuscular','Obesidad','Dolor','Posición corporal','Fatiga muscular respiratoria'],
+   caracteristicas:['Alteración de la profundidad respiratoria','Disnea','Uso de músculos accesorios','FR <12 o >20 rpm','Reducción de la capacidad vital'],
+   noc:[
+     {codigo:'0403',nombre:'Estado respiratorio: ventilación',indicadores:['FR 12-20 rpm','Sin uso de músculos accesorios','Volumen tidal adecuado','Paciente eupneico']},
+   ],
+   nic:[
+     {codigo:'3140',nombre:'Manejo de las vías aéreas',actividades:['Colocar al paciente en posición semifowler 30-45°','Enseñar técnicas de respiración diafragmática','Administrar broncodilatadores prescritos','Aspirar secreciones si es necesario']},
+     {codigo:'5820',nombre:'Disminución de la ansiedad',actividades:['Permanecer con el paciente durante episodios de disnea','Hablar con calma y de forma tranquilizadora','Enseñar técnicas de relajación']}
+   ]},
+  {codigo:'00031',nombre:'Limpieza ineficaz de las vías aéreas',sistema:'respiratorio',
+   definicion:'Incapacidad para eliminar las secreciones u obstrucciones del tracto respiratorio para mantener las vías aéreas permeables.',
+   factores:['Tabaquismo','Infección','Vía aérea artificial','Retención de secreciones','Disfunción neuromuscular'],
+   caracteristicas:['Ausencia de tos efectiva','Cianosis','Disnea','Ruidos respiratorios anormales','Secreciones excesivas','SpO₂ disminuida'],
+   noc:[
+     {codigo:'0410',nombre:'Estado respiratorio: permeabilidad de las vías respiratorias',indicadores:['Vías aéreas permeables','Capacidad para expectorar','Ausencia de ruidos sobreañadidos','FR normal']},
+   ],
+   nic:[
+     {codigo:'3250',nombre:'Mejora de la tos',actividades:['Enseñar técnica de tos controlada y huffle cough','Hidratar adecuadamente para fluidificar secreciones','Fisioterapia respiratoria según indicación']},
+     {codigo:'3160',nombre:'Aspiración de las vías aéreas',actividades:['Aspirar solo cuando necesario (signos de obstrucción)','Técnica aséptica estricta','Preoxigenar antes de aspirar','Registrar características de secreciones']}
+   ]},
+  {codigo:'00039',nombre:'Riesgo de aspiración',sistema:'respiratorio',
+   definicion:'Susceptibilidad de sufrir la entrada de secreciones gastrointestinales, orofaríngeas, sólidos o líquidos en el tracto traqueobronquial.',
+   factores:['Nivel de conciencia reducido','Reflejo nauseoso deteriorado','Sonda nasogástrica','Disfagia','Posición supina'],
+   caracteristicas:['Factor de riesgo — sin signos actuales'],
+   noc:[
+     {codigo:'1918',nombre:'Prevención de la aspiración',indicadores:['Posición cabecera elevada','Reflejo de deglución presente','Vaciamiento gástrico adecuado']},
+   ],
+   nic:[
+     {codigo:'3200',nombre:'Precauciones para evitar la aspiración',actividades:['Mantener cabecera 30-45° durante y después de la alimentación','Verificar residuo gástrico antes de cada toma','Posicionar en decúbito lateral si hay riesgo','Tener aspirador disponible y funcional']},
+   ]},
+
+  // NEUROLÓGICO
+  {codigo:'00085',nombre:'Deterioro de la movilidad física',sistema:'neurologico',
+   definicion:'Limitación del movimiento físico independiente e intencionado del cuerpo o de una o más extremidades.',
+   factores:['ACV','Lesión medular','Dolor','Deterioro cognitivo','Debilidad muscular','Dispositivos de inmovilización'],
+   caracteristicas:['Disminución de la fuerza muscular','Dificultad para el movimiento','Limitación de la amplitud articular','Marcha inestable','Temblores'],
+   noc:[
+     {codigo:'0208',nombre:'Movilidad',indicadores:['Mantiene postura correcta','Se mueve con/sin asistencia','Amplitud de movimiento conservada']},
+     {codigo:'0200',nombre:'Ambulación',indicadores:['Camina con ayuda técnica si precisa','Sube/baja escaleras','Tolera ejercicio']}
+   ],
+   nic:[
+     {codigo:'0740',nombre:'Cuidados del paciente encamado',actividades:['Cambios posturales c/2h','Colchón antiescaras si riesgo elevado','Mantener alineación corporal correcta','Ejercicios pasivos en extremidades paralizadas']},
+     {codigo:'0224',nombre:'Terapia de ejercicios: movilidad articular',actividades:['ROM pasivo/activo c/8h','Coordinar con fisioterapia','Enseñar al paciente y familia técnicas de movilización']}
+   ]},
+  {codigo:'00087',nombre:'Riesgo de caídas',sistema:'neurologico',
+   definicion:'Susceptibilidad a caídas que pueden causar daño físico y comprometer la salud.',
+   factores:['Edad ≥65 años','Historial de caídas','Deterioro cognitivo','Marcha inestable','Hipotensión ortostática','Polifarmacia','Entorno inseguro'],
+   caracteristicas:['Factor de riesgo — sin caída actual'],
+   noc:[
+     {codigo:'1912',nombre:'Caídas: prevención',indicadores:['Usa barandillas','Solicita ayuda para deambular','Entorno libre de obstáculos','Calzado antideslizante']},
+   ],
+   nic:[
+     {codigo:'6490',nombre:'Prevención de caídas',actividades:['Evaluar riesgo con escala Morse al ingreso y cada turno','Barandillas elevadas siempre','Llamador al alcance','Iluminación adecuada','Calzado antideslizante obligatorio','Educar a paciente y familia']},
+   ]},
+  {codigo:'00051',nombre:'Deterioro de la comunicación verbal',sistema:'neurologico',
+   definicion:'Disminución, retraso o ausencia de la capacidad para recibir, procesar, transmitir y/o usar un sistema de símbolos.',
+   factores:['ACV','Intubación orotraqueal','Laringectomía','Barreras idiomáticas','Deterioro cognitivo'],
+   caracteristicas:['Dificultad para expresarse','No habla','Usa lenguaje no verbal','Frustración','No comprende mensajes'],
+   noc:[
+     {codigo:'0902',nombre:'Comunicación',indicadores:['Utiliza alternativas de comunicación','Comprende mensajes','Reduce frustración comunicativa']},
+   ],
+   nic:[
+     {codigo:'4974',nombre:'Mejora de la comunicación: déficit del habla',actividades:['Usar tablero de comunicación pictográfico','Hacer preguntas de sí/no','Hablar despacio y claramente','Coordinar con fonoaudiología']},
+   ]},
+
+  // RENAL
+  {codigo:'00023',nombre:'Retención urinaria',sistema:'renal',
+   definicion:'Vaciamiento incompleto de la vejiga.',
+   factores:['Obstrucción uretral','Hipertrofia prostática','Efectos de medicamentos','Lesión medular','Posición incómoda para micción'],
+   caracteristicas:['Distensión vesical','Ausencia de micción','Disuria','Sensación de vaciamiento incompleto','Goteo postmiccional','Globo vesical'],
+   noc:[
+     {codigo:'0503',nombre:'Eliminación urinaria',indicadores:['Vaciamiento vesical completo','Ausencia de distensión','Diuresis adecuada','Sin dolor suprapúbico']},
+   ],
+   nic:[
+     {codigo:'0590',nombre:'Manejo de la eliminación urinaria',actividades:['Registrar diuresis cada 4-8h','Palpar globo vesical si no orina en 6h','Sondaje vesical según prescripción','Mantener permeabilidad de catéter si presente']},
+     {codigo:'0580',nombre:'Sondaje vesical',actividades:['Técnica aséptica estricta','Registrar características de la orina','Fijación correcta del catéter','Higiene del meato uretral cada turno']}
+   ]},
+  {codigo:'00016',nombre:'Deterioro de la eliminación urinaria',sistema:'renal',
+   definicion:'Disfunción en la eliminación de orina.',
+   factores:['Infección urinaria','Vejiga hiperactiva','Obstrucción','Deterioro sensoriomotor'],
+   caracteristicas:['Disuria','Frecuencia urinaria alterada','Incontinencia','Nicturia','Urgencia miccional','Orina residual'],
+   noc:[
+     {codigo:'0503',nombre:'Eliminación urinaria',indicadores:['Patrón miccional regular','Orina clara sin signos de infección','Sin incontinencia involuntaria']},
+   ],
+   nic:[
+     {codigo:'0590',nombre:'Manejo de la eliminación urinaria',actividades:['Registrar patrón miccional','Promover hidratación 1.5-2L/día si no contraindicado','Evitar irritantes vesicales (cafeína, alcohol)','Enseñar técnicas de vaciamiento']},
+   ]},
+  {codigo:'00203',nombre:'Riesgo de desequilibrio electrolítico',sistema:'renal',
+   definicion:'Susceptibilidad de presentar cambios en el nivel de electrolitos séricos que pueden comprometer la salud.',
+   factores:['Insuficiencia renal','Uso de diuréticos','Vómitos y diarrea','Disfunción endocrina','NPT'],
+   caracteristicas:['Factor de riesgo — sin signos actuales'],
+   noc:[
+     {codigo:'0602',nombre:'Hidratación',indicadores:['Electrolitos en rango normal','Sin edema','Mucosas húmedas','PA estable']},
+   ],
+   nic:[
+     {codigo:'2080',nombre:'Manejo de electrolitos',actividades:['Monitorizar Na, K, Ca, Mg según indicación','Administrar reposición electrolítica prescrita','Vigilar signos de hiper/hipocalemia','Registrar balance hídrico diario']}
+   ]},
+
+  // GASTROINTESTINAL
+  {codigo:'00011',nombre:'Estreñimiento',sistema:'gastrointestinal',
+   definicion:'Disminución de la frecuencia normal de defecación acompañada de eliminación dificultosa o incompleta de heces.',
+   factores:['Inactividad física','Ingesta insuficiente de fibra/líquidos','Medicamentos (opiáceos, anticolinérgicos)','Cambios en el entorno','Dolor al defecar'],
+   caracteristicas:['Heces duras/secas','Defecación menos de 3 veces/semana','Esfuerzo excesivo','Distensión abdominal','Flatulencia','Sensación de evacuación incompleta'],
+   noc:[
+     {codigo:'0501',nombre:'Eliminación intestinal',indicadores:['Defecación regular 1-3/semana','Heces blandas formadas','Sin dolor al defecar','Sin distensión abdominal']},
+   ],
+   nic:[
+     {codigo:'0450',nombre:'Manejo del estreñimiento/impactación',actividades:['Promover ingesta hídrica 2L/día si no contraindicado','Fomentar dieta rica en fibra','Movilización activa según tolerancia','Administrar laxantes prescritos','Masaje abdominal en sentido horario']},
+   ]},
+  {codigo:'00013',nombre:'Diarrea',sistema:'gastrointestinal',
+   definicion:'Eliminación de heces líquidas, no formadas.',
+   factores:['Infección GI','Antibioticoterapia','Alimentación por sonda','Estrés','Colitis','Síndrome de intestino irritable'],
+   caracteristicas:['Deposiciones líquidas >3/día','Urgencia defecatoria','Dolor/cólico abdominal','Ruidos intestinales hiperactivos'],
+   noc:[
+     {codigo:'0501',nombre:'Eliminación intestinal',indicadores:['Heces de consistencia normal','Frecuencia ≤3/día','Sin cólicos intensos','Sin deshidratación']},
+     {codigo:'0602',nombre:'Hidratación',indicadores:['Mucosas húmedas','Diuresis adecuada','Electrolitos normales']}
+   ],
+   nic:[
+     {codigo:'0460',nombre:'Manejo de la diarrea',actividades:['Registrar número, consistencia y características de deposiciones','Monitorizar signos de deshidratación','Reponer líquidos y electrolitos prescritos','Higiene perianal tras cada deposición','Cultivo de heces si se sospecha infección']}
+   ]},
+  {codigo:'00002',nombre:'Desequilibrio nutricional: ingesta inferior a las necesidades',sistema:'gastrointestinal',
+   definicion:'Ingesta de nutrientes insuficiente para satisfacer las necesidades metabólicas.',
+   factores:['Dificultad para deglutir','Náuseas/vómitos','Anorexia','Dolor al comer','Ayuno prolongado','Falta de acceso a alimentos'],
+   caracteristicas:['Pérdida de peso involuntaria','IMC <18.5','Albúmina sérica baja','Debilidad muscular','Mucosas pálidas'],
+   noc:[
+     {codigo:'1004',nombre:'Estado nutricional',indicadores:['Peso estable o ganancia progresiva','Albúmina sérica ≥3.5 g/dL','Ingesta calórica adecuada','Sin pérdida muscular']},
+   ],
+   nic:[
+     {codigo:'1100',nombre:'Manejo de la nutrición',actividades:['Pesar al paciente cada 48-72h','Registrar ingesta alimentaria','Ofrecer comidas pequeñas y frecuentes','Coordinar con nutricionista','Administrar suplementos nutricionales prescritos']},
+     {codigo:'1120',nombre:'Terapia nutricional',actividades:['Iniciar NE o NPT según prescripción','Verificar posición de sonda antes de cada toma','Monitorizar tolerancia a la alimentación enteral']}
+   ]},
+
+  // ENDOCRINO
+  {codigo:'00179',nombre:'Riesgo de nivel de glucemia inestable',sistema:'endocrino',
+   definicion:'Susceptibilidad a variaciones en los niveles normales de glucemia en sangre que pueden comprometer la salud.',
+   factores:['Diabetes mellitus','Corticoterapia','NPT','Estrés físico/emocional','Disfunción pancreática','Ayuno prolongado'],
+   caracteristicas:['Factor de riesgo — sin episodio actual'],
+   noc:[
+     {codigo:'2300',nombre:'Nivel de glucemia',indicadores:['Glucemia en ayunas 70-130 mg/dL','Glucemia postprandial <180 mg/dL','Sin episodios de hipoglucemia','HbA1c en rango objetivo']},
+   ],
+   nic:[
+     {codigo:'2130',nombre:'Manejo de la hipoglucemia',actividades:['Monitorizar glucemia según esquema prescrito','Tener glucosa al 50% preparada siempre','Si glucemia <70: administrar 15g carbohidratos y re-controlar en 15 min','Identificar y tratar la causa']},
+     {codigo:'2120',nombre:'Manejo de la hiperglucemia',actividades:['Monitorizar glucemia c/4-6h o según indicación','Administrar insulina según escala prescrita','Hidratación adecuada','Monitorizar cetonas si glucemia >300']}
+   ]},
+
+  // TEGUMENTARIO
+  {codigo:'00046',nombre:'Deterioro de la integridad cutánea',sistema:'tegumentario',
+   definicion:'Alteración de la epidermis y/o dermis.',
+   factores:['Presión prolongada','Humedad excesiva','Fricción','Nutrición deficiente','Inmovilidad','Circulación comprometida'],
+   caracteristicas:['Úlcera por presión','Herida quirúrgica','Lesión cutánea','Eritema no blanqueable','Destrucción tisular'],
+   noc:[
+     {codigo:'1101',nombre:'Integridad tisular: piel y membranas mucosas',indicadores:['Piel íntegra en zonas en riesgo','Lesión sin signos de infección','Disminución del tamaño de la herida','Sin áreas de eritema no blanqueable']},
+   ],
+   nic:[
+     {codigo:'3590',nombre:'Vigilancia de la piel',actividades:['Inspeccionar piel completa en cada turno','Valorar zonas de presión (sacro, talones, maléolos)','Registrar características de lesiones con escala PUSH','Fotografiar heridas para seguimiento']},
+     {codigo:'3520',nombre:'Cuidados de las úlceras por presión',actividades:['Limpiar con SSN y desbridar según indicación','Aplicar apósito apropiado según estadio','Cambios posturales c/2h','Colchón antiescaras','Coordinación con wound care si disponible']}
+   ]},
+  {codigo:'00047',nombre:'Riesgo de deterioro de la integridad cutánea',sistema:'tegumentario',
+   definicion:'Susceptibilidad de sufrir una alteración en la epidermis y/o dermis.',
+   factores:['Inmovilidad','Humedad excesiva (incontinencia)','Malnutrición','Edema','Diabetes','Medicamentos'],
+   caracteristicas:['Factor de riesgo — sin lesión actual'],
+   noc:[
+     {codigo:'1101',nombre:'Integridad tisular: piel y membranas mucosas',indicadores:['Piel íntegra','Sin eritema en zonas de presión','Hidratación cutánea adecuada']},
+   ],
+   nic:[
+     {codigo:'3540',nombre:'Prevención de úlceras por presión',actividades:['Valorar riesgo con escala Braden al ingreso','Cambios posturales c/2h','Colchón antiescaras si Braden ≤16','Hidratación cutánea con emolientes','Protección con apósitos preventivos en zonas de riesgo']}
+   ]},
+  {codigo:'00045',nombre:'Deterioro de la mucosa oral',sistema:'tegumentario',
+   definicion:'Lesiones o heridas en los labios, tejidos blandos, cavidad bucal y/u orofaringe.',
+   factores:['Quimioterapia','Radioterapia de cabeza/cuello','Intubación','Deshidratación','Higiene oral deficiente','Inmunosupresión'],
+   caracteristicas:['Úlceras orales','Dolor bucal','Xerostomía','Sangrado gingival','Placas blanquecinas','Dificultad para deglutir'],
+   noc:[
+     {codigo:'1100',nombre:'Salud oral',indicadores:['Mucosas húmedas y rosadas','Sin lesiones ni úlceras','Higiene oral adecuada','Ausencia de dolor bucal']},
+   ],
+   nic:[
+     {codigo:'1710',nombre:'Mantenimiento de la salud bucal',actividades:['Higiene oral c/4-8h con cepillo suave o torundas','Aplicar humectantes labiales','Enjuagues con clorhexidina 0.12% si indicado','Tratar candidiasis según prescripción','Valorar boca en cada turno']}
+   ]},
+
+  // DOLOR
+  {codigo:'00132',nombre:'Dolor agudo',sistema:'dolor',
+   definicion:'Experiencia sensitiva y emocional desagradable ocasionada por una lesión tisular real o potencial, de aparición súbita, de intensidad leve a intensa, con un final anticipado o previsible.',
+   factores:['Agentes lesivos físicos (cirugía, trauma, procedimientos)','Infección','Isquemia'],
+   caracteristicas:['Expresión facial de dolor','Conducta de protección','Informe verbal de dolor','Cambios en signos vitales','Postura antiálgica','Diaforesis'],
+   noc:[
+     {codigo:'2102',nombre:'Nivel del dolor',indicadores:['EVA ≤3/10','Sin expresión facial de dolor','Signos vitales estables','Paciente refiere alivio']},
+     {codigo:'1605',nombre:'Control del dolor',indicadores:['Usa analgesia preventiva','Reconoce factores agravantes','Refiere alivio con medidas farmacológicas']}
+   ],
+   nic:[
+     {codigo:'1400',nombre:'Manejo del dolor',actividades:['Valorar dolor con escala EVA en cada turno y PRN','Administrar analgesia prescrita con horario fijo','Evaluar efectividad a los 30-60 min post-analgesia','Aplicar medidas no farmacológicas (frío/calor, posición)','Documentar características del dolor']},
+     {codigo:'2210',nombre:'Administración de analgésicos',actividades:['Verificar los 10 correctos antes de administrar','Respetar intervalos entre dosis','Monitorizar efectos adversos (depresión respiratoria con opiáceos)','Registrar respuesta al analgésico']}
+   ]},
+  {codigo:'00133',nombre:'Dolor crónico',sistema:'dolor',
+   definicion:'Experiencia sensitiva y emocional desagradable relacionada con daño tisular real o potencial, que persiste o reaparece durante más de 3 meses.',
+   factores:['Fibromialgia','Artritis','Neuropatía','Cáncer','Enfermedad degenerativa'],
+   caracteristicas:['Expresión de dolor persistente','Cambios de humor','Insomnio','Anorexia','Fatiga','Limitación funcional'],
+   noc:[
+     {codigo:'2102',nombre:'Nivel del dolor',indicadores:['EVA controlado <5','Sueño adecuado','Función diaria mantenida']},
+   ],
+   nic:[
+     {codigo:'1400',nombre:'Manejo del dolor',actividades:['Plan de analgesia horaria fija + rescates','Terapias complementarias (fisioterapia, TENS)','Apoyo psicológico','Educar sobre manejo del dolor crónico','Coordinación interdisciplinaria']}
+   ]},
+
+  // PSICOSOCIAL
+  {codigo:'00146',nombre:'Ansiedad',sistema:'psicosocial',
+   definicion:'Sensación vaga e intranquilizadora de malestar o amenaza acompañada de una respuesta autónoma; sentimiento de aprensión causado por la anticipación de un peligro.',
+   factores:['Amenaza al estado de salud','Hospitalización','Cirugía próxima','Crisis situacionales','Dolor no controlado'],
+   caracteristicas:['Agitación','Insomnio','Taquicardia','Diaforesis','Expresión de preocupación','Irritabilidad','Dificultad para concentrarse'],
+   noc:[
+     {codigo:'1211',nombre:'Nivel de ansiedad',indicadores:['Refiere disminución de la ansiedad','FC y FR normales','Capaz de dormir','Muestra estrategias de afrontamiento']},
+   ],
+   nic:[
+     {codigo:'5820',nombre:'Disminución de la ansiedad',actividades:['Escuchar activamente al paciente','Explicar todos los procedimientos antes de realizarlos','Crear ambiente tranquilo y calmado','Técnicas de respiración y relajación','Informar al médico si ansiedad severa para valorar ansiolíticos']}
+   ]},
+  {codigo:'00148',nombre:'Temor',sistema:'psicosocial',
+   definicion:'Respuesta a la percepción de una amenaza que se reconoce conscientemente como un peligro.',
+   factores:['Diagnóstico nuevo','Procedimientos dolorosos','Separación del sistema de soporte','Desconocimiento del entorno hospitalario'],
+   caracteristicas:['Comportamiento de evitación','Agresividad','Llanto','Expresión verbal de miedo','Taquicardia','Diaforesis'],
+   noc:[
+     {codigo:'1404',nombre:'Autocontrol del miedo',indicadores:['Identifica el miedo','Busca información','Usa estrategias de afrontamiento','Refiere disminución del miedo']},
+   ],
+   nic:[
+     {codigo:'5380',nombre:'Potenciación de la seguridad',actividades:['Escuchar y validar el temor del paciente','Proporcionar información clara y veraz','Permitir presencia de familiar de apoyo','Orientar sobre el entorno hospitalario']}
+   ]},
+  {codigo:'00069',nombre:'Afrontamiento ineficaz',sistema:'psicosocial',
+   definicion:'Incapacidad para formular una valoración válida de los agentes estresantes, elecciones inadecuadas de respuestas practicadas y/o incapacidad para utilizar los recursos disponibles.',
+   factores:['Falta de confianza en la capacidad para manejar la situación','Apoyo social inadecuado','Recursos insuficientes'],
+   caracteristicas:['Expresión de incapacidad','Conductas destructivas','Fatiga de la toma de decisiones','Incapacidad para manejar el estrés'],
+   noc:[
+     {codigo:'1302',nombre:'Afrontamiento de problemas',indicadores:['Identifica estrategias efectivas','Busca apoyo social','Refiere sensación de control']},
+   ],
+   nic:[
+     {codigo:'5230',nombre:'Aumentar el afrontamiento',actividades:['Escucha activa sin juicios','Identificar fortalezas del paciente','Ofrecer alternativas de manejo','Referir a psicología si precisa']}
+   ]},
+
+  // MATERNO-INFANTIL
+  {codigo:'00036',nombre:'Riesgo de asfixia',sistema:'materno',
+   definicion:'Susceptibilidad de sufrir una restricción de oxígeno inadecuada para la función celular.',
+   factores:['Disminución de la motricidad o fuerza muscular','Disfagia','Nivel de conciencia reducido','Aspiración de cuerpo extraño','Lesión medular cervical'],
+   caracteristicas:['Factor de riesgo — sin episodio actual'],
+   noc:[
+     {codigo:'1920',nombre:'Control del riesgo',indicadores:['Vías aéreas permeables','Sin episodios de apnea','SpO₂ ≥94%']},
+   ],
+   nic:[
+     {codigo:'6480',nombre:'Manejo ambiental: seguridad',actividades:['Aspirador funcional y disponible','Posición lateral de seguridad si riesgo de aspiración','Monitorización continua de SpO₂','Tener equipamiento de reanimación próximo']}
+   ]},
+  {codigo:'00196',nombre:'Motilidad gastrointestinal disfuncional',sistema:'materno',
+   definicion:'Aumento, disminución, ineficacia o ausencia de actividad peristáltica en el sistema gastrointestinal.',
+   factores:['Cirugía abdominal','Inmovilidad','Medicamentos (opiáceos)','Inflamación GI','Prematuridad (neonato)'],
+   caracteristicas:['Distensión abdominal','Ausencia de ruidos intestinales','Náuseas/vómitos','Diarrea o estreñimiento','Regurgitación'],
+   noc:[
+     {codigo:'0501',nombre:'Eliminación intestinal',indicadores:['Ruidos intestinales presentes','Sin distensión','Deposiciones normales']},
+   ],
+   nic:[
+     {codigo:'0430',nombre:'Manejo intestinal',actividades:['Auscultar ruidos intestinales en cada turno','Registrar fecha de última deposición','Movilización temprana','Administrar procinéticos prescritos','Evitar medicamentos que enlentecen la motilidad']}
+   ]},
+
+  // MOVILIDAD
+  {codigo:'00108',nombre:'Déficit de autocuidado: baño',sistema:'movilidad',
+   definicion:'Deterioro de la capacidad para realizar o completar las actividades de baño/higiene de forma independiente.',
+   factores:['Deterioro cognitivo','Debilidad muscular','Dolor','Deterioro musculoesquelético','Barreras ambientales'],
+   caracteristicas:['Incapacidad para acceder al cuarto de baño','No puede lavarse el cuerpo o partes del cuerpo','No puede regular el agua'],
+   noc:[
+     {codigo:'0301',nombre:'Autocuidados: baño',indicadores:['Se baña con asistencia mínima','Piel limpia e íntegra','Participa en la medida de sus posibilidades']},
+   ],
+   nic:[
+     {codigo:'1801',nombre:'Ayuda con el autocuidado: baño/higiene',actividades:['Asistir respetando la intimidad del paciente','Fomentar independencia máxima posible','Valorar la piel durante el baño','Higiene oral, capilar y perineal completa']}
+   ]},
+  {codigo:'00109',nombre:'Déficit de autocuidado: vestido',sistema:'movilidad',
+   definicion:'Deterioro de la capacidad para realizar o completar de manera independiente las actividades de vestirse.',
+   factores:['Debilidad muscular','Deterioro cognitivo','Dolor','Inmovilidad'],
+   caracteristicas:['Incapacidad para elegir la ropa','No puede ponerse o quitarse prendas','No puede abotonarse ni usar cremalleras'],
+   noc:[
+     {codigo:'0302',nombre:'Autocuidados: vestirse',indicadores:['Se viste con asistencia mínima','Mantiene apariencia apropiada']},
+   ],
+   nic:[
+     {codigo:'1802',nombre:'Ayuda con el autocuidado: vestirse/arreglo personal',actividades:['Ofrecer ropa adaptada (velcro, abertura dorsal)','Comenzar por el lado afectado al vestir','Motivar independencia progresiva','Involucrar a familia en el cuidado']}
+   ]},
+  {codigo:'00120',nombre:'Baja autoestima situacional',sistema:'psicosocial',
+   definicion:'Desarrollo de una percepción negativa de la propia valía en respuesta a una situación actual.',
+   factores:['Cambio en la imagen corporal','Enfermedad crónica','Pérdida de función','Dependencia de terceros'],
+   caracteristicas:['Expresiones de vergüenza','Rechazo de la situación','Expresión de inutilidad','Retraimiento social'],
+   noc:[
+     {codigo:'1205',nombre:'Autoestima',indicadores:['Expresa aceptación de sí mismo','Mantiene contacto visual','Participa en el cuidado']},
+   ],
+   nic:[
+     {codigo:'5400',nombre:'Potenciación de la autoestima',actividades:['Escucha activa y empática','Reforzar los logros del paciente','Involucrar en la toma de decisiones del cuidado','Referir a psicología o trabajo social si precisa']}
+   ]},
+];
+
+let nandaCatActiva = 'todos';
+
+function initNanda() {
+  renderNanda(nandaData);
+}
+
+function setNandaCat(cat, el) {
+  nandaCatActiva = cat;
+  document.querySelectorAll('#nanda-cats .vad-cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  filterNanda();
+}
+
+function filterNanda() {
+  const q = (document.getElementById('nanda-search')?.value || '').toLowerCase();
+  let lista = nandaData;
+  if (nandaCatActiva !== 'todos') lista = lista.filter(d => d.sistema === nandaCatActiva);
+  if (q) lista = lista.filter(d =>
+    d.nombre.toLowerCase().includes(q) ||
+    d.codigo.includes(q) ||
+    d.definicion.toLowerCase().includes(q)
+  );
+  renderNanda(lista);
+}
+
+const sistemaColors = {
+  cardiovascular:'#ef4444', respiratorio:'#06b6d4', neurologico:'#8b5cf6',
+  renal:'#3b82f6', gastrointestinal:'#10b981', endocrino:'#f59e0b',
+  tegumentario:'#ec4899', dolor:'#f97316', psicosocial:'#a78bfa',
+  materno:'#ec4899', movilidad:'#14b8a6'
+};
+const sistemaLabels = {
+  cardiovascular:'Cardiovascular', respiratorio:'Respiratorio', neurologico:'Neurológico',
+  renal:'Renal', gastrointestinal:'GI', endocrino:'Endocrino',
+  tegumentario:'Tegumentario', dolor:'Dolor', psicosocial:'Psicosocial',
+  materno:'Materno', movilidad:'Movilidad'
+};
+
+function renderNanda(lista) {
+  const el = document.getElementById('nanda-lista');
+  const cnt = document.getElementById('nanda-count');
+  if (!el) return;
+  cnt.textContent = `${lista.length} diagnóstico${lista.length !== 1 ? 's' : ''}`;
+  if (!lista.length) {
+    el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">No se encontraron diagnósticos 🔍</div>';
+    return;
+  }
+  el.innerHTML = lista.map((d, i) => {
+    const color = sistemaColors[d.sistema] || '#64748b';
+    const label = sistemaLabels[d.sistema] || d.sistema;
+    const nocHtml = d.noc.map(n => `
+      <div class="nanda-noc">
+        <div class="nanda-item-title" style="color:#10b981">📊 ${n.codigo} — ${n.nombre}</div>
+        <div class="nanda-item-list">${n.indicadores.map(ind => `• ${ind}`).join('<br>')}</div>
+      </div>`).join('');
+    const nicHtml = d.nic.map(n => `
+      <div class="nanda-nic">
+        <div class="nanda-item-title" style="color:#3b82f6">⚙️ ${n.codigo} — ${n.nombre}</div>
+        <div class="nanda-item-list">${n.actividades.map(a => `• ${a}`).join('<br>')}</div>
+      </div>`).join('');
+    return `
+    <div class="nanda-card" id="nanda-card-${i}">
+      <div class="nanda-header" onclick="toggleNandaCard(${i})">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700;color:var(--text-primary)">${d.nombre}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px">NANDA ${d.codigo}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="vad-badge" style="background:${color}22;color:${color}">${label}</span>
+          <span style="color:var(--text-muted);font-size:14px" id="nanda-arrow-${i}">▾</span>
+        </div>
+      </div>
+      <div class="nanda-body" id="nanda-body-${i}">
+        <div class="nanda-section">
+          <div class="nanda-section-title" style="background:${color}22;color:${color}">📋 Definición</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:6px;line-height:1.6">${d.definicion}</div>
+        </div>
+        <div class="nanda-section">
+          <div class="nanda-section-title" style="background:rgba(245,158,11,0.15);color:var(--warning)">⚠️ Factores relacionados</div>
+          <div style="margin-top:6px">${d.factores.map(f => `<span class="nanda-tag">${f}</span>`).join('')}</div>
+        </div>
+        <div class="nanda-section">
+          <div class="nanda-section-title" style="background:rgba(239,68,68,0.15);color:var(--danger)">🔍 Características definitorias</div>
+          <div style="margin-top:6px">${d.caracteristicas.map(c => `<span class="nanda-tag">${c}</span>`).join('')}</div>
+        </div>
+        <div class="nanda-section">
+          <div class="nanda-section-title" style="background:rgba(16,185,129,0.15);color:var(--success)">🎯 NOC — Resultados esperados</div>
+          <div style="margin-top:6px">${nocHtml}</div>
+        </div>
+        <div class="nanda-section">
+          <div class="nanda-section-title" style="background:rgba(59,130,246,0.15);color:var(--blue)">💊 NIC — Intervenciones</div>
+          <div style="margin-top:6px">${nicHtml}</div>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:var(--text-muted)">📚 Basado en NANDA-I 2021-2023 · Moorhead NOC · Bulechek NIC</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleNandaCard(i) {
+  const body = document.getElementById(`nanda-body-${i}`);
+  const arrow = document.getElementById(`nanda-arrow-${i}`);
+  if (!body) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open');
+  arrow.textContent = isOpen ? '▾' : '▴';
+}
 // ── Toast ──────────────────────────────────────────────────────// ── Vademécum Enfermería HN ──────────────────────────────────
 const vadData = [
   // ANTIBIÓTICOS
