@@ -3525,9 +3525,11 @@ const _gc = document.querySelector('#tab-guardia .calc-content');
     btn.innerHTML = '🗑 Limpiar';
     btn.style.cssText = 'margin-top:10px;width:100%;padding:8px;background:none;border:1px solid var(--border);color:var(--text-muted);font-size:12px;border-radius:8px;cursor:pointer;font-family:"DM Sans",sans-serif';
     btn.onclick = () => limpiarCalc(id);
-    p.appendChild(btn);
+   p.appendChild(btn);
   }
 });
+const _gfp=document.getElementById('calc-percFMB');
+if(_gfp&&_gc)_gc.appendChild(_gfp);
 ['calc-regla9','calc-naCorr','calc-anionGap','calc-pfRatio','calc-tallaEst','calc-cockroft'].forEach(id => {
   const p = document.getElementById(id); if(p && _gc) _gc.appendChild(p);
 });
