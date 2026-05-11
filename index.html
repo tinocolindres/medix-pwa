@@ -6347,6 +6347,14 @@ function calcTallaEst(){
 
 let cgSexo='M';
 function setCGSexo(s,el){cgSexo=s;document.querySelectorAll('#calc-cockroft .score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calcCockroft();}
+  function limpiarCalc(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  panel.querySelectorAll('input[type="number"],input[type="text"]').forEach(i => i.value = '');
+  panel.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  panel.querySelectorAll('[id$="-result"],[id$="r-result"]').forEach(d => d.style.display = 'none');
+  panel.querySelectorAll('.score-btn').forEach((b,i) => { b.classList.toggle('active', i===0); });
+}
 function calcCockroft(){
   const edad=parseFloat(document.getElementById('cg-edad').value)||0;
   const peso=parseFloat(document.getElementById('cg-peso').value)||0;
