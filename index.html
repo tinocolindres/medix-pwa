@@ -6254,6 +6254,118 @@ function normCDF(z) {
   const p = d * t * (0.3193815 + t*(-0.3565638 + t*(1.7814779 + t*(-1.8212560 + t*1.3302744))));
   return z > 0 ? 1 - p : p;
 }
+  // ── Calculadoras extra Guardia ────────────────────────────────
+function calcRegla9() {
+  const ids=['r9-cabeza','r9-torax-ant','r9-torax-post','r9-abd-ant','r9-abd-post','r9-brazo-d','r9-brazo-i','r9-pierna-d','r9-pierna-i','r9-genitales'];
+  const scq=ids.reduce((s,id)=>s+(parseFloat(document.getElementById(id)?.value)||0),0);
+  const peso=parseFloat(document.getElementById('r9-peso').value)||0;
+  if(scq===0){document.getElementById('r9-result').style.display='none';return;}
+  let grav,color;
+  if(scq<10){grav='Quemadura leve — Manejo ambulatorio posible';color='success';}
+  else if(scq<20){grav='Quemadura moderada — Hospitalización recomendada';color='warning';}
+  else if(scq<40){grav='Quemadura grave — UCI / Centro de quemados';color='danger';}
+  else{grav='Quemadura crítica — Centro especializado urgente';color='danger';}
+  document.getElementById('r9-scq').textContent=scq.toFixed(1)+'% SCQ';
+  document.getElementById('r9-grav').textContent=grav;
+  document.getElementById('r9-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  let ph='<b>📋 Fórmula de Parkland (primeras 24h):</b><br>';
+  if(peso>0&&scq>=15){const t=4*peso*scq;ph+=`Total: <b>${t.toFixed(0)} mL Ringer Lactato</b><br>• Primeras 8h: <b>${(t/2).toFixed(0)} mL</b><br>• Siguientes 16h: <b>${(t/2).toFixed(0)} mL</b><br><span style="color:var(--text-muted);font-size:11px">Meta diuresis: 0.5-1 mL/kg/h</span>`;}
+  else if(scq<15){ph+='SCQ <15%: Parkland no indicado. Rehidratación oral o IV.';}
+  else{ph+='Ingresa el peso para calcular Parkland.';}
+  document.getElementById('r9-parkland').innerHTML=ph;
+  document.getElementById('r9-result').style.display='block';
+}
+
+let naSexo='M';
+function setNaSexo(s,el){naSexo=s;document.querySelectorAll('#calc-naCorr .score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calcNaCorr();}
+function calcNaCorr(){
+  const na=parseFloat(document.getElementById('na-actual').value)||0;
+  const p=parseFloat(document.getElementById('na-peso').value)||0;
+  if(!na||!p){document.getElementById('na-result').style.display='none';return;}
+  const acf=naSexo==='M'?0.6:0.5;
+  const def=acf*p*(140-na);
+  let tipo,color;
+  if(na>=135){tipo='Na⁺ normal';color='success';}
+  else if(na>=125){tipo='Hiponatremia leve (125-134)';color='warning';}
+  else if(na>=120){tipo='Hiponatremia moderada (120-124)';color='danger';}
+  else{tipo='Hiponatremia severa (<120) — Urgencia';color='danger';}
+  document.getElementById('na-deficit').textContent=def>0?`${def.toFixed(0)} mEq Na⁺`:'Sin déficit';
+  document.getElementById('na-tipo').textContent=tipo;
+  document.getElementById('na-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('na-detalle').innerHTML=`<b>ACF:</b> ${(acf*p).toFixed(1)} L<br><b>Na⁺ objetivo:</b> 140 mEq/L<br><b>Velocidad:</b> 0.5-1 mEq/L/hora<br><b>⚠️ Máx corrección:</b> 10-12 mEq/L/día<br><b>SSN 0.9%:</b> 154 mEq/L · <b>SSN 3%:</b> 513 mEq/L`;
+  document.getElementById('na-result').style.display='block';
+}
+
+function calcAnionGap(){
+  const na=parseFloat(document.getElementById('ag-na').value)||0;
+  const cl=parseFloat(document.getElementById('ag-cl').value)||0;
+  const hco3=parseFloat(document.getElementById('ag-hco3').value)||0;
+  const alb=parseFloat(document.getElementById('ag-alb').value)||0;
+  if(!na||!cl||!hco3){document.getElementById('ag-result').style.display='none';return;}
+  const ag=na-cl-hco3;
+  const agC=alb>0?ag+2.5*(4.0-alb):ag;
+  let interp,color;
+  if(ag<=12){interp='Normal (8-12) — Sin acidosis de alto AG';color='success';}
+  else if(ag<=16){interp='Límite alto — Evaluar causas';color='warning';}
+  else{interp='ELEVADO — Acidosis metabólica de alto AG';color='danger';}
+  document.getElementById('ag-valor').textContent=ag.toFixed(1)+' mEq/L';
+  document.getElementById('ag-interp').textContent=interp;
+  document.getElementById('ag-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('ag-detalle').innerHTML=`<b>AG = ${na}−(${cl}+${hco3}) = ${ag.toFixed(1)}</b><br>${alb>0?`<b>AG corregido:</b> ${agC.toFixed(1)} mEq/L<br>`:''}<b>Causas AG elevado (MUDPILES):</b> Metanol · Uremia · CAD · Lactato · Etilenglicol · Salicilatos<br><b>AG normal:</b> Diarrea · Acidosis tubular · SSN`;
+  document.getElementById('ag-result').style.display='block';
+}
+
+function calcPFRatio(){
+  const pao2=parseFloat(document.getElementById('pf-pao2').value)||0;
+  const fio2=parseFloat(document.getElementById('pf-fio2').value)||0;
+  if(!pao2||!fio2){document.getElementById('pfr-result').style.display='none';return;}
+  const pf=pao2/fio2;
+  let interp,color,berlin;
+  if(pf>=400){interp='Normal';color='success';berlin='Sin insuficiencia respiratoria';}
+  else if(pf>=300){interp='Insuficiencia respiratoria leve';color='warning';berlin='⚠️ Vigilancia — Oxigenoterapia';}
+  else if(pf>=200){interp='SDRA leve (Berlin)';color='warning';berlin='🟡 SDRA LEVE — PEEP ≥5 cmH₂O';}
+  else if(pf>=100){interp='SDRA moderado (Berlin)';color='danger';berlin='🔴 SDRA MODERADO — VM protectora';}
+  else{interp='SDRA severo (Berlin)';color='danger';berlin='🔴 SDRA SEVERO — Decúbito prono, ECMO considerar';}
+  document.getElementById('pfr-valor').textContent=pf.toFixed(0);
+  document.getElementById('pfr-interp').textContent=interp;
+  document.getElementById('pfr-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('pfr-berlin').innerHTML=`<b>${berlin}</b><br><br><b>Clasificación Berlin:</b><br>≥400 Normal · 200-400 Leve · 100-200 Moderado · <100 Severo`;
+  document.getElementById('pfr-result').style.display='block';
+}
+
+let tallaModo='env',tallaSexo='M';
+function setTallaMode(m,el){tallaModo=m;el.parentElement.querySelectorAll('.score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('talla-env-section').style.display=m==='env'?'block':'none';document.getElementById('talla-rod-section').style.display=m==='rod'?'block':'none';document.getElementById('talla-result').style.display='none';}
+function setTallaSexo(s,el){tallaSexo=s;document.querySelectorAll('#talla-rod-section .score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calcTallaEst();}
+function calcTallaEst(){
+  let talla,metodo;
+  if(tallaModo==='env'){const e=parseFloat(document.getElementById('talla-env').value)||0;if(!e){document.getElementById('talla-result').style.display='none';return;}talla=e;metodo='Envergadura = Talla (adultos)';}
+  else{const r=parseFloat(document.getElementById('talla-rod').value)||0;const ed=parseFloat(document.getElementById('talla-edad').value)||0;if(!r||!ed){document.getElementById('talla-result').style.display='none';return;}talla=tallaSexo==='M'?(2.02*r)-(0.04*ed)+64.19:(1.83*r)-(0.24*ed)+84.88;metodo=`Fórmula Chumlea ${tallaSexo==='M'?'♂':'♀'}`;}
+  document.getElementById('talla-valor').textContent=talla.toFixed(1)+' cm';
+  document.getElementById('talla-sub').textContent=metodo;
+  document.getElementById('talla-result').style.display='block';
+}
+
+let cgSexo='M';
+function setCGSexo(s,el){cgSexo=s;document.querySelectorAll('#calc-cockroft .score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calcCockroft();}
+function calcCockroft(){
+  const edad=parseFloat(document.getElementById('cg-edad').value)||0;
+  const peso=parseFloat(document.getElementById('cg-peso').value)||0;
+  const crea=parseFloat(document.getElementById('cg-crea').value)||0;
+  if(!edad||!peso||!crea){document.getElementById('cg-result').style.display='none';return;}
+  let clcr=((140-edad)*peso)/(72*crea);
+  if(cgSexo==='F')clcr*=0.85;
+  let estadio,color,ajuste;
+  if(clcr>=90){estadio='Estadio 1 — Normal';color='success';ajuste='Sin ajuste necesario';}
+  else if(clcr>=60){estadio='Estadio 2 — Leve';color='success';ajuste='Precaución con nefrotóxicos';}
+  else if(clcr>=30){estadio='Estadio 3 — Moderada';color='warning';ajuste='Ajuste de dosis requerido';}
+  else if(clcr>=15){estadio='Estadio 4 — Grave';color='danger';ajuste='Ajuste significativo — Nefrología';}
+  else{estadio='Estadio 5 — Falla renal';color='danger';ajuste='Diálisis — Nefrología urgente';}
+  document.getElementById('cg-valor').textContent=clcr.toFixed(1)+' mL/min';
+  document.getElementById('cg-estadio').textContent=estadio;
+  document.getElementById('cg-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('cg-detalle').innerHTML=`<b>Fórmula:</b> [(140-${edad})×${peso}]/(72×${crea})${cgSexo==='F'?'×0.85':''} = ${clcr.toFixed(1)} mL/min<br><b>Ajuste:</b> ${ajuste}<br><b>Fármacos críticos:</b> Gentamicina · Vancomicina · Metformina · HBPM`;
+  document.getElementById('cg-result').style.display='block';
+}
 // ── NANDA · NOC · NIC ────────────────────────────────────────
 const nandaData = [
   // CARDIOVASCULAR
