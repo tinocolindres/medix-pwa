@@ -2027,7 +2027,214 @@ body.vad-mode [id^="pfb-"]{display:none!important}
         <div class="appbar-sub" style="color:#ec4899">Calculadoras clínicas offline</div>
       </div>
     </div>
+<!-- Regla de los 9s -->
+      <div class="calc-panel" id="calc-regla9">
+        <div class="calc-title">🔥 Regla de los 9s</div>
+        <div class="calc-sub">Estimación del área de superficie corporal quemada</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Cabeza y cuello</div>
+            <select class="calc-input" id="r9-cabeza" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5% (1/2)</option><option value="9">9% (total)</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Tórax anterior</div>
+            <select class="calc-input" id="r9-torax-ant" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5%</option><option value="9">9%</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Tórax posterior</div>
+            <select class="calc-input" id="r9-torax-post" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5%</option><option value="9">9%</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Abdomen anterior</div>
+            <select class="calc-input" id="r9-abd-ant" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5%</option><option value="9">9%</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Abdomen posterior</div>
+            <select class="calc-input" id="r9-abd-post" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5%</option><option value="9">9%</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Brazo derecho</div>
+            <select class="calc-input" id="r9-brazo-d" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5%</option><option value="9">9%</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Brazo izquierdo</div>
+            <select class="calc-input" id="r9-brazo-i" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="4.5">4.5%</option><option value="9">9%</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Pierna derecha</div>
+            <select class="calc-input" id="r9-pierna-d" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="9">9% (muslo)</option><option value="18">18% (total)</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Pierna izquierda</div>
+            <select class="calc-input" id="r9-pierna-i" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="9">9% (muslo)</option><option value="18">18% (total)</option>
+            </select>
+          </div>
+          <div>
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Genitales</div>
+            <select class="calc-input" id="r9-genitales" onchange="calcRegla9()" style="padding:8px">
+              <option value="0">0%</option><option value="1">1%</option>
+            </select>
+          </div>
+        </div>
+        <input type="number" class="calc-input" id="r9-peso" placeholder="Peso del paciente (kg)" oninput="calcRegla9()">
+        <div id="r9-result" style="display:none">
+          <div class="result-box" id="r9-box" style="color:var(--danger);border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.1)">
+            <div class="result-label">SCQ TOTAL</div>
+            <div class="result-value" id="r9-scq"></div>
+            <div class="result-sub" id="r9-grav"></div>
+          </div>
+          <div id="r9-parkland" style="margin-top:10px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:13px"></div>
+        </div>
+      </div>
 
+      <!-- Corrección de Na+ -->
+      <div class="calc-panel" id="calc-naCorr">
+        <div class="calc-title">🧪 Corrección de Na⁺</div>
+        <div class="calc-sub">Hiponatremia — Déficit de sodio y velocidad de corrección</div>
+        <input type="number" class="calc-input" id="na-actual" placeholder="Na⁺ actual (mEq/L)" oninput="calcNaCorr()">
+        <input type="number" class="calc-input" id="na-peso" placeholder="Peso (kg)" oninput="calcNaCorr()">
+        <div class="calc-group" style="margin-bottom:12px">
+          <div class="calc-label" style="font-size:12px;margin-bottom:4px">Sexo</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="setNaSexo('M',this)" id="na-btn-m" class="score-btn active" style="flex:1">Masculino</button>
+            <button onclick="setNaSexo('F',this)" id="na-btn-f" class="score-btn" style="flex:1">Femenino</button>
+          </div>
+        </div>
+        <div id="na-result" style="display:none">
+          <div class="result-box" id="na-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+            <div class="result-label">DÉFICIT DE SODIO</div>
+            <div class="result-value" id="na-deficit"></div>
+            <div class="result-sub" id="na-tipo"></div>
+          </div>
+          <div id="na-detalle" style="margin-top:10px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:13px;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- Anion Gap -->
+      <div class="calc-panel" id="calc-anionGap">
+        <div class="calc-title">⚗️ Anion Gap</div>
+        <div class="calc-sub">Brecha aniónica — Acidosis metabólica</div>
+        <input type="number" class="calc-input" id="ag-na" placeholder="Na⁺ (mEq/L) — normal: 136-145" oninput="calcAnionGap()">
+        <input type="number" class="calc-input" id="ag-cl" placeholder="Cl⁻ (mEq/L) — normal: 98-106" oninput="calcAnionGap()">
+        <input type="number" class="calc-input" id="ag-hco3" placeholder="HCO₃⁻ (mEq/L) — normal: 22-26" oninput="calcAnionGap()">
+        <input type="number" class="calc-input" id="ag-alb" placeholder="Albúmina (g/dL) — opcional, normal: 4.0" oninput="calcAnionGap()">
+        <div id="ag-result" style="display:none">
+          <div class="result-box" id="ag-box">
+            <div class="result-label">ANION GAP</div>
+            <div class="result-value" id="ag-valor"></div>
+            <div class="result-sub" id="ag-interp"></div>
+          </div>
+          <div id="ag-detalle" style="margin-top:10px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:12px;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- P/F Ratio -->
+      <div class="calc-panel" id="calc-pfRatio">
+        <div class="calc-title">🫁 Índice P/F (PaO₂/FiO₂)</div>
+        <div class="calc-sub">Severidad de la insuficiencia respiratoria — Berlin SDRA</div>
+        <input type="number" class="calc-input" id="pf-pao2" placeholder="PaO₂ (mmHg) — gases arteriales" oninput="calcPFRatio()">
+        <div class="calc-group" style="margin-bottom:12px">
+          <div class="calc-label" style="font-size:12px;margin-bottom:6px">FiO₂ — Fracción inspirada de O₂</div>
+          <select class="calc-input" id="pf-fio2" onchange="calcPFRatio()">
+            <option value="">Selecciona fuente O₂</option>
+            <option value="0.21">0.21 — Aire ambiente</option>
+            <option value="0.24">0.24 — Cánula 1 L/min</option>
+            <option value="0.28">0.28 — Cánula 2 L/min</option>
+            <option value="0.32">0.32 — Cánula 3 L/min</option>
+            <option value="0.36">0.36 — Cánula 4 L/min</option>
+            <option value="0.40">0.40 — Cánula 5 L/min / Mascarilla simple</option>
+            <option value="0.44">0.44 — Cánula 6 L/min</option>
+            <option value="0.50">0.50 — Mascarilla simple alta</option>
+            <option value="0.60">0.60 — Mascarilla reservorio 60%</option>
+            <option value="0.70">0.70 — Mascarilla reservorio 70%</option>
+            <option value="0.80">0.80 — Mascarilla reservorio 80%</option>
+            <option value="0.90">0.90 — Mascarilla reservorio 90%</option>
+            <option value="1.00">1.00 — FiO₂ 100% / Ventilación mecánica</option>
+          </select>
+        </div>
+        <div id="pf-result" style="display:none">
+          <div class="result-box" id="pf-box">
+            <div class="result-label">ÍNDICE P/F</div>
+            <div class="result-value" id="pf-valor"></div>
+            <div class="result-sub" id="pf-interp"></div>
+          </div>
+          <div id="pf-berlin" style="margin-top:10px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:12px;line-height:1.8"></div>
+        </div>
+      </div>
+
+      <!-- Talla Estimada -->
+      <div class="calc-panel" id="calc-tallaEst">
+        <div class="calc-title">📏 Talla Estimada</div>
+        <div class="calc-sub">Estimación de talla por envergadura o rodilla-talón</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button onclick="setTallaMode('env',this)" class="score-btn active" style="flex:1;font-size:11px">Por Envergadura</button>
+          <button onclick="setTallaMode('rod',this)" class="score-btn" style="flex:1;font-size:11px">Por Rodilla-Talón</button>
+        </div>
+        <div id="talla-env-section">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Mide la distancia total entre las puntas de los dedos con brazos extendidos horizontalmente.</div>
+          <input type="number" class="calc-input" id="talla-env" placeholder="Envergadura (cm)" oninput="calcTallaEst()">
+        </div>
+        <div id="talla-rod-section" style="display:none">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Mide desde el talón hasta el borde superior de la rótula con rodilla a 90°.</div>
+          <input type="number" class="calc-input" id="talla-rod" placeholder="Longitud rodilla-talón (cm)" oninput="calcTallaEst()">
+          <div class="calc-group" style="margin:8px 0 12px">
+            <div class="calc-label" style="font-size:12px;margin-bottom:4px">Sexo</div>
+            <div style="display:flex;gap:8px">
+              <button onclick="setTallaSexo('M',this)" id="talla-btn-m" class="score-btn active" style="flex:1">Masculino</button>
+              <button onclick="setTallaSexo('F',this)" id="talla-btn-f" class="score-btn" style="flex:1">Femenino</button>
+            </div>
+          </div>
+          <input type="number" class="calc-input" id="talla-edad" placeholder="Edad (años)" oninput="calcTallaEst()">
+        </div>
+        <div id="talla-result" style="display:none">
+          <div class="result-box" style="color:var(--success);border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.1)">
+            <div class="result-label">TALLA ESTIMADA</div>
+            <div class="result-value" id="talla-valor"></div>
+            <div class="result-sub" id="talla-sub"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cockroft-Gault -->
+      <div class="calc-panel" id="calc-cockroft">
+        <div class="calc-title">🫘 Clearance de Creatinina</div>
+        <div class="calc-sub">Fórmula Cockcroft-Gault — Función renal estimada</div>
+        <input type="number" class="calc-input" id="cg-edad" placeholder="Edad (años)" oninput="calcCockroft()">
+        <input type="number" class="calc-input" id="cg-peso" placeholder="Peso (kg)" oninput="calcCockroft()">
+        <input type="number" class="calc-input" id="cg-crea" placeholder="Creatinina sérica (mg/dL)" step="0.1" oninput="calcCockroft()">
+        <div class="calc-group" style="margin-bottom:12px">
+          <div class="calc-label" style="font-size:12px;margin-bottom:4px">Sexo</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="setCGSexo('M',this)" id="cg-btn-m" class="score-btn active" style="flex:1">Masculino</button>
+            <button onclick="setCGSexo('F',this)" id="cg-btn-f" class="score-btn" style="flex:1">Femenino</button>
+          </div>
+        </div>
+        <div id="cg-result" style="display:none">
+          <div class="result-box" id="cg-box">
+            <div class="result-label">ClCr (Cockcroft-Gault)</div>
+            <div class="result-value" id="cg-valor"></div>
+            <div class="result-sub" id="cg-estadio"></div>
+          </div>
+          <div id="cg-detalle" style="margin-top:10px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:12px;line-height:1.8"></div>
+        </div>
+      </div>
     <div style="padding:16px">
       <div class="calc-tabs" style="flex-wrap:wrap;gap:6px;margin-bottom:16px">
         <button class="calc-tab active" onclick="switchEnfCalc('goteo',this)">💧 Goteo IV</button>
