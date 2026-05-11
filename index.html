@@ -2027,6 +2027,37 @@ body.vad-mode [id^="pfb-"]{display:none!important}
         <div class="appbar-sub" style="color:#ec4899">Calculadoras clínicas offline</div>
       </div>
     </div>
+    <!-- Percentil FMB -->
+<div class="calc-panel" id="calc-percFMB">
+  <div class="calc-title">👶 Percentil Fetal FMB</div>
+  <div class="calc-sub">Medicina Fetal Barcelona · Hadlock</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div><div style="font-size:12px;margin-bottom:4px">EG (semanas)</div><input type="number" class="calc-input" id="gf-sem" placeholder="20-42" oninput="calcGPercFMB()"></div>
+    <div><div style="font-size:12px;margin-bottom:4px">Días</div><input type="number" class="calc-input" id="gf-dias" placeholder="0-6" oninput="calcGPercFMB()"></div>
+    <div><div style="font-size:12px;margin-bottom:4px">DBP (mm)</div><input type="number" class="calc-input" id="gf-dbp" placeholder="ej. 72" oninput="calcGPercFMB()"></div>
+    <div><div style="font-size:12px;margin-bottom:4px">CC (mm)</div><input type="number" class="calc-input" id="gf-cc" placeholder="ej. 260" oninput="calcGPercFMB()"></div>
+    <div><div style="font-size:12px;margin-bottom:4px">CA (mm)</div><input type="number" class="calc-input" id="gf-ca" placeholder="ej. 240" oninput="calcGPercFMB()"></div>
+    <div><div style="font-size:12px;margin-bottom:4px">LF (mm)</div><input type="number" class="calc-input" id="gf-lf" placeholder="ej. 53" oninput="calcGPercFMB()"></div>
+  </div>
+  <select class="calc-input" id="gf-sexo" onchange="calcGPercFMB()" style="margin-top:10px">
+    <option value="0">Sexo: No determinado</option>
+    <option value="F">Femenino</option>
+    <option value="M">Masculino</option>
+  </select>
+  <div id="gf-result" style="display:none;margin-top:12px">
+    <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600">PESO FETAL ESTIMADO</div>
+      <div style="font-size:26px;font-weight:800;color:#38bdf8" id="gf-efw"></div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:4px" id="gf-rango"></div>
+    </div>
+    <div id="gf-pcard" style="border-radius:12px;padding:14px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600">PERCENTIL</div>
+      <div style="font-size:36px;font-weight:800" id="gf-pval"></div>
+      <div style="font-size:13px;font-weight:600;margin-top:2px" id="gf-clasif"></div>
+    </div>
+    <div id="gf-conducta" style="border-radius:12px;padding:12px;font-size:13px"></div>
+  </div>
+</div>
 <!-- Regla de los 9s -->
       <div class="calc-panel" id="calc-regla9">
         <div class="calc-title">🔥 Regla de los 9s</div>
