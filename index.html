@@ -2216,7 +2216,30 @@ body.vad-mode [id^="pfb-"]{display:none!important}
           </div>
         </div>
       </div>
-
+<!-- NANDA NOC NIC -->
+<div class="enf-calc" id="enf-nanda">
+  <div style="margin-bottom:14px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px">🏥 NANDA · NOC · NIC</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Taxonomía NANDA-I 2021-2023 · Diagnósticos de enfermería</div>
+    <input type="text" id="nanda-search" placeholder="🔍 Buscar diagnóstico, código o palabra clave..." oninput="filterNanda()" style="width:100%;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px">
+    <div id="nanda-cats" style="display:flex;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none">
+      <button onclick="setNandaCat('todos',this)" class="vad-cat-btn active">Todos</button>
+      <button onclick="setNandaCat('cardiovascular',this)" class="vad-cat-btn">🫀 Cardiovascular</button>
+      <button onclick="setNandaCat('respiratorio',this)" class="vad-cat-btn">🫁 Respiratorio</button>
+      <button onclick="setNandaCat('neurologico',this)" class="vad-cat-btn">🧠 Neurológico</button>
+      <button onclick="setNandaCat('renal',this)" class="vad-cat-btn">🫘 Renal</button>
+      <button onclick="setNandaCat('gastrointestinal',this)" class="vad-cat-btn">🫃 GI</button>
+      <button onclick="setNandaCat('endocrino',this)" class="vad-cat-btn">⚡ Endocrino</button>
+      <button onclick="setNandaCat('tegumentario',this)" class="vad-cat-btn">🩹 Tegumentario</button>
+      <button onclick="setNandaCat('dolor',this)" class="vad-cat-btn">😣 Dolor</button>
+      <button onclick="setNandaCat('psicosocial',this)" class="vad-cat-btn">🧘 Psicosocial</button>
+      <button onclick="setNandaCat('materno',this)" class="vad-cat-btn">🤰 Materno</button>
+      <button onclick="setNandaCat('movilidad',this)" class="vad-cat-btn">🦽 Movilidad</button>
+    </div>
+  </div>
+  <div id="nanda-count" style="font-size:12px;color:var(--text-muted);margin-bottom:10px"></div>
+  <div id="nanda-lista"></div>
+</div>
       <!-- Percentil Fetal Barcelona -->
       <div class="enf-calc" id="enf-percentil-fetal">
         <div class="calc-card">
