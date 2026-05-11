@@ -5726,20 +5726,12 @@ function switchEnfCalc(name, btn) {try{var _v=document.getElementById('enf-vadem
   if (name === 'norton') calcNorton();
 }
 function switchVademecum(btn) {
-  try {
-    document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('#tab-enfermeria .calc-tab').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-    var pf = document.getElementById('enf-percentil-fetal');
-    var vad = document.getElementById('enf-vademecum');
-    if(!pf || !vad) return;
-    pf.classList.add('active');
-    vad.classList.add('active');
-    vad.style.display = 'block';
-    Array.from(vad.parentElement.children).forEach(function(c){
-      if(c !== vad) c.style.display = 'none';
-    });
-  } catch(e) {}
+  document.querySelectorAll('.enf-calc').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#tab-enfermeria .calc-tab').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  var pf = document.getElementById('enf-percentil-fetal');
+  if(pf) pf.classList.add('active');
+  document.body.classList.add('vad-mode');
 }
 function calcGoteo() {
   const vol = parseFloat(document.getElementById('goteo-vol').value);
