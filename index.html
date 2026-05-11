@@ -3484,6 +3484,11 @@ window.addEventListener('load', async () => {
   renderCustomCases();
   initMedScan();initVademecum();
   initNanda();
+  // Mover paneles Guardia al calc-content correcto
+const _gc = document.querySelector('#tab-guardia .calc-content');
+['calc-regla9','calc-naCorr','calc-anionGap','calc-pfRatio','calc-tallaEst','calc-cockroft'].forEach(id => {
+  const p = document.getElementById(id); if(p && _gc) _gc.appendChild(p);
+});
   initSTT();
   initChatMic();
   setTimeout(async () => {
