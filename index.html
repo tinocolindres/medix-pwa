@@ -6389,6 +6389,39 @@ function calcTallaEst(){
 
 let cgSexo='M';
 function setCGSexo(s,el){cgSexo=s;document.querySelectorAll('#calc-cockroft .score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calcCockroft();}
+  function calcGPercFMB(){
+  const sem=parseInt(document.getElementById('gf-sem').value)||0;
+  const dias=parseInt(document.getElementById('gf-dias').value)||0;
+  const cc=parseFloat(document.getElementById('gf-cc').value);
+  const ca=parseFloat(document.getElementById('gf-ca').value);
+  const lf=parseFloat(document.getElementById('gf-lf').value);
+  const dbp=parseFloat(document.getElementById('gf-dbp').value);
+  if(!sem||sem<20||sem>42||!cc||!ca||!lf){document.getElementById('gf-result').style.display='none';return;}
+  const CC=cc/10,CA=ca/10,LF=lf/10,DBP=dbp?dbp/10:null;
+  const logEFW=DBP?1.3596+0.0064*CC+0.0424*CA+0.174*LF+0.00061*DBP*CA-0.00386*CA*LF:1.326-0.00326*CA*LF+0.0107*CC+0.0438*CA+0.158*LF;
+  const efw=Math.round(Math.pow(10,logEFW));
+  const ref={20:{m:325,sd:55},21:{m:390,sd:65},22:{m:465,sd:78},23:{m:550,sd:92},24:{m:645,sd:107},25:{m:755,sd:127},26:{m:875,sd:147},27:{m:1005,sd:169},28:{m:1150,sd:193},29:{m:1305,sd:218},30:{m:1475,sd:245},31:{m:1650,sd:273},32:{m:1840,sd:302},33:{m:2040,sd:332},34:{m:2250,sd:361},35:{m:2470,sd:391},36:{m:2700,sd:419},37:{m:2930,sd:443},38:{m:3150,sd:463},39:{m:3360,sd:476},40:{m:3540,sd:482},41:{m:3690,sd:482},42:{m:3800,sd:476}};
+  const r1=ref[sem],r2=ref[Math.min(sem+1,42)],fr=dias/7;
+  const media=r1.m+(r2.m-r1.m)*fr,sd=r1.sd+(r2.sd-r1.sd)*fr;
+  const p=Math.max(1,Math.min(99,Math.round(normCDF((efw-media)/sd)*100)));
+  const p3=Math.round(media-1.88*sd),p10=Math.round(media-1.28*sd),p50=Math.round(media),p90=Math.round(media+1.28*sd),p97=Math.round(media+1.88*sd);
+  document.getElementById('gf-efw').textContent=efw.toLocaleString()+' g';
+  document.getElementById('gf-rango').textContent=`p3:${p3}g · p50:${p50}g · p90:${p90}g`;
+  let clasif,color,bg,conducta;
+  if(p<3){clasif='PEG severo — RCIU';color='#f87171';bg='rgba(248,113,113,0.1)';conducta='🔴 Doppler urgente. Referir perinatología.';}
+  else if(p<10){clasif='Pequeño para EG — PEG';color='#f97316';bg='rgba(249,115,22,0.1)';conducta='⚠️ Vigilancia estrecha. Doppler umbilical c/2 semanas.';}
+  else if(p<=90){clasif='Adecuado para EG — AEG';color='#4ade80';bg='rgba(74,222,128,0.1)';conducta='✅ Crecimiento normal. Controles rutina.';}
+  else if(p<=97){clasif='Grande para EG — GEG';color='#fbbf24';bg='rgba(251,191,36,0.1)';conducta='⚠️ Macrosomía. Descartar DG.';}
+  else{clasif='GEG severo';color='#f87171';bg='rgba(248,113,113,0.1)';conducta='⚠️ Macrosomía severa. Evaluación obstétrica urgente.';}
+  document.getElementById('gf-pcard').style.cssText=`border-radius:12px;padding:14px;margin-bottom:8px;background:${bg};border:1px solid ${color}40`;
+  document.getElementById('gf-pval').style.color=color;
+  document.getElementById('gf-pval').textContent='p'+p;
+  document.getElementById('gf-clasif').style.color=color;
+  document.getElementById('gf-clasif').textContent=clasif;
+  document.getElementById('gf-conducta').style.cssText=`border-radius:12px;padding:12px;font-size:13px;background:${bg};border:1px solid ${color}40`;
+  document.getElementById('gf-conducta').textContent=conducta;
+  document.getElementById('gf-result').style.display='block';
+}
   function limpiarCalc(panelId) {
   const panel = document.getElementById(panelId);
   if (!panel) return;
