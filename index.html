@@ -861,7 +861,12 @@
       white-space: nowrap;
     }
 
-    .toast.show { opacity: 1; }/* ── Vademécum ── */
+    .toast.show { opacity: 1; }/* ── Vademécum ── */#vad-wrapper,#vad-count,#vad-lista{display:none!important}
+body.vad-mode #vad-wrapper{display:block!important}
+body.vad-mode #vad-count{display:block!important}
+body.vad-mode #vad-lista{display:block!important}
+body.vad-mode #enf-percentil-fetal .calc-title{display:none!important}
+body.vad-mode [id^="pfb-"]{display:none!important}
     .vad-cat-btn {
       padding:7px 14px;border-radius:20px;font-size:12px;cursor:pointer;white-space:nowrap;
       background:var(--bg-surface);border:1.5px solid var(--border);
