@@ -6555,6 +6555,158 @@ function calcTallaEst(){
 
 let cgSexo='M';
 function setCGSexo(s,el){cgSexo=s;document.querySelectorAll('#calc-cockroft .score-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');calcCockroft();}
+  // ── FMB Medicina Fetal Barcelona ─────────────────────────────
+const fmbUA={20:{m:1.53,sd:0.22},21:{m:1.49,sd:0.21},22:{m:1.43,sd:0.21},23:{m:1.38,sd:0.20},24:{m:1.32,sd:0.19},25:{m:1.26,sd:0.19},26:{m:1.20,sd:0.18},27:{m:1.14,sd:0.17},28:{m:1.08,sd:0.17},29:{m:1.02,sd:0.16},30:{m:0.96,sd:0.15},31:{m:0.90,sd:0.15},32:{m:0.84,sd:0.14},33:{m:0.79,sd:0.14},34:{m:0.74,sd:0.13},35:{m:0.68,sd:0.13},36:{m:0.63,sd:0.12},37:{m:0.59,sd:0.11},38:{m:0.55,sd:0.11},39:{m:0.52,sd:0.10},40:{m:0.49,sd:0.10}};
+const fmbACM={20:{m:1.55,sd:0.25},21:{m:1.62,sd:0.26},22:{m:1.69,sd:0.27},23:{m:1.74,sd:0.28},24:{m:1.79,sd:0.29},25:{m:1.83,sd:0.29},26:{m:1.87,sd:0.30},27:{m:1.90,sd:0.30},28:{m:1.90,sd:0.30},29:{m:1.89,sd:0.30},30:{m:1.87,sd:0.29},31:{m:1.84,sd:0.29},32:{m:1.79,sd:0.28},33:{m:1.74,sd:0.27},34:{m:1.68,sd:0.26},35:{m:1.62,sd:0.25},36:{m:1.55,sd:0.24},37:{m:1.50,sd:0.23},38:{m:1.47,sd:0.23},39:{m:1.46,sd:0.22},40:{m:1.45,sd:0.22}};
+const fmbUTA={20:{m:0.89,sd:0.18},21:{m:0.86,sd:0.17},22:{m:0.83,sd:0.16},23:{m:0.80,sd:0.16},24:{m:0.77,sd:0.15},25:{m:0.75,sd:0.15},26:{m:0.73,sd:0.14},27:{m:0.72,sd:0.14},28:{m:0.70,sd:0.14},29:{m:0.69,sd:0.13},30:{m:0.68,sd:0.13},31:{m:0.67,sd:0.13},32:{m:0.66,sd:0.13},33:{m:0.66,sd:0.13},34:{m:0.65,sd:0.12},35:{m:0.65,sd:0.12},36:{m:0.64,sd:0.12},37:{m:0.64,sd:0.12},38:{m:0.64,sd:0.12},39:{m:0.64,sd:0.12},40:{m:0.64,sd:0.12}};
+const fmbDV={20:{m:0.55,sd:0.10},21:{m:0.53,sd:0.10},22:{m:0.52,sd:0.09},23:{m:0.51,sd:0.09},24:{m:0.50,sd:0.09},25:{m:0.49,sd:0.09},26:{m:0.48,sd:0.08},27:{m:0.47,sd:0.08},28:{m:0.46,sd:0.08},29:{m:0.45,sd:0.08},30:{m:0.44,sd:0.08},31:{m:0.43,sd:0.08},32:{m:0.42,sd:0.07},33:{m:0.41,sd:0.07},34:{m:0.41,sd:0.07},35:{m:0.40,sd:0.07},36:{m:0.40,sd:0.07},37:{m:0.39,sd:0.07},38:{m:0.39,sd:0.07},39:{m:0.38,sd:0.07},40:{m:0.38,sd:0.07}};
+const fmbPSV={18:22.0,19:22.9,20:23.2,21:24.3,22:25.5,23:26.7,24:27.9,25:29.3,26:30.7,27:32.1,28:33.6,29:35.2,30:36.9,31:38.6,32:40.5,33:42.4,34:44.4,35:46.5,36:48.7,37:51.0,38:53.5,39:56.1,40:58.7};
+
+function fmbPerc(pi,ga,table){if(!pi||!ga||!table[ga])return null;const r=table[ga];const z=(pi-r.m)/r.sd;return Math.max(1,Math.min(99,Math.round(normCDF(z)*100)));}
+function fmbInterp(p,tipo){if(tipo==='high'){if(p>=95)return{t:'🔴 ELEVADO >p95',c:'var(--danger)'};if(p>=90)return{t:'🟡 Límite p90-95',c:'var(--warning)'};return{t:'🟢 Normal <p90',c:'var(--success)'};}else{if(p<=5)return{t:'🔴 BAJO <p5',c:'var(--danger)'};if(p<=10)return{t:'🟡 Límite p5-10',c:'var(--warning)'};return{t:'🟢 Normal >p10',c:'var(--success)'};}}
+function fmbRow(label,pi,p,i,ref){return `<div style="padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px"><div style="font-size:12px;font-weight:700;margin-bottom:4px">${label}</div><div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:18px;font-weight:800">${pi.toFixed(2)}</span><span style="font-size:11px;color:var(--text-muted);margin-left:6px">p${p}</span></div><span style="font-size:11px;font-weight:600;color:${i.c}">${i.t}</span></div>${ref?`<div style="font-size:10px;color:var(--text-muted);margin-top:2px">p5=${(ref.m-1.645*ref.sd).toFixed(2)} · p50=${ref.m.toFixed(2)} · p95=${(ref.m+1.645*ref.sd).toFixed(2)}</div>`:''}</div>`;}
+
+function calcFMBDoppler(){
+  const ga=parseInt(document.getElementById('fmb-dop-ga').value)||0;
+  if(!ga||ga<20||ga>40)return;
+  let html='';
+  const au=parseFloat(document.getElementById('fmb-dop-au').value);
+  const acm=parseFloat(document.getElementById('fmb-dop-acm').value);
+  const uta=parseFloat(document.getElementById('fmb-dop-uta').value);
+  const dv=parseFloat(document.getElementById('fmb-dop-dv').value);
+  if(au){const p=fmbPerc(au,ga,fmbUA);html+=fmbRow('🫀 Arteria Umbilical IP',au,p,fmbInterp(p,'high'),fmbUA[ga]);}
+  if(acm){const p=fmbPerc(acm,ga,fmbACM);html+=fmbRow('🧠 ACM — Art. Cerebral Media IP',acm,p,fmbInterp(p,'low'),fmbACM[ga]);}
+  if(au&&acm){const cpr=acm/au;const ok=cpr>=1.08;html+=`<div style="padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px"><div style="font-size:12px;font-weight:700">⚖️ CPR (Cerebro-Placentario = ACM/AU)</div><div style="font-size:20px;font-weight:800;color:${ok?'var(--success)':'var(--danger)'}">${cpr.toFixed(2)}</div><div style="font-size:12px;color:${ok?'var(--success)':'var(--danger)'}">${ok?'🟢 Normal (≥1.0)':'🔴 ANORMAL (<1.0) — Redistribución cerebral'}</div></div>`;}
+  if(uta){const p=fmbPerc(uta,ga,fmbUTA);html+=fmbRow('🫄 Art. Uterinas IP medio',uta,p,fmbInterp(p,'high'),fmbUTA[ga]);}
+  if(dv){const p=fmbPerc(dv,ga,fmbDV);html+=fmbRow('🩸 Ductus Venoso PIV',dv,p,fmbInterp(p,'high'),fmbDV[ga]);}
+  if(html){document.getElementById('fmb-dop-result').innerHTML=html;document.getElementById('fmb-dop-result').style.display='block';}
+}
+
+function calcFMBAnemia(){
+  const ga=parseInt(document.getElementById('fmb-an-ga').value)||0;
+  const psv=parseFloat(document.getElementById('fmb-an-psv').value)||0;
+  if(!ga||ga<18||ga>40||!psv)return;
+  const exp=fmbPSV[ga]||fmbPSV[20];
+  const mom=psv/exp;
+  let nivel,color;
+  if(mom<1.29){nivel='Sin anemia';color='success';}
+  else if(mom<1.50){nivel='Anemia LEVE';color='warning';}
+  else if(mom<1.55){nivel='Anemia MODERADA';color='danger';}
+  else{nivel='Anemia SEVERA — Cordocentesis urgente';color='danger';}
+  document.getElementById('fmb-an-mom').textContent=mom.toFixed(2);
+  document.getElementById('fmb-an-nivel').textContent=nivel;
+  document.getElementById('fmb-an-esperado').textContent=exp.toFixed(1)+' cm/s';
+  document.getElementById('fmb-an-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('fmb-an-result').style.display='block';
+}
+
+function calcFMBTransfusion(){
+  const ga=parseInt(document.getElementById('fmb-tr-ga').value)||0;
+  const hctD=parseFloat(document.getElementById('fmb-tr-hctdon').value)||0;
+  const hctDes=parseFloat(document.getElementById('fmb-tr-hctdes').value)||0;
+  const hctO=parseFloat(document.getElementById('fmb-tr-hctobs').value)||0;
+  if(!ga||!hctD||!hctDes||!hctO)return;
+  const efwRef={20:325,24:645,28:1150,32:1840,36:2700,40:3540};
+  const gaR=Object.keys(efwRef).reduce((a,b)=>Math.abs(b-ga)<Math.abs(a-ga)?b:a);
+  const efwKg=efwRef[gaR]/1000;
+  const vol=efwKg*50*(hctDes-hctO)/hctD;
+  document.getElementById('fmb-tr-vol').textContent=Math.max(0,vol).toFixed(0)+' mL';
+  document.getElementById('fmb-tr-result').style.display='block';
+}
+
+function calcFMBPreeclampsia(){
+  const paridad=document.getElementById('fmb-pe-paridad').value;
+  const pePrev=document.getElementById('fmb-pe-pe').value;
+  const hta=document.getElementById('fmb-pe-hta').value;
+  const renal=document.getElementById('fmb-pe-renal').value;
+  const etnia=document.getElementById('fmb-pe-etnia').value;
+  const edad=parseFloat(document.getElementById('fmb-pe-edad').value)||0;
+  const talla=parseFloat(document.getElementById('fmb-pe-talla').value)||0;
+  const peso=parseFloat(document.getElementById('fmb-pe-peso').value)||0;
+  const pas=parseFloat(document.getElementById('fmb-pe-pas').value)||0;
+  const pad=parseFloat(document.getElementById('fmb-pe-pad').value)||0;
+  const uta=parseFloat(document.getElementById('fmb-pe-uta').value)||0;
+  if(!edad||!talla||!peso)return;
+  const bmi=peso/((talla/100)**2);
+  const map=pas&&pad?(pas+2*pad)/3:0;
+  let score=0,factores=[];
+  if(paridad==='nulipara'){score+=2;factores.push('Nulípara (+2)');}
+  if(pePrev==='si'){score+=4;factores.push('PE previa (+4)');}
+  if(hta==='si'){score+=3;factores.push('HTA crónica (+3)');}
+  if(renal==='si'){score+=3;factores.push('Enf. renal (+3)');}
+  if(etnia==='negra'){score+=2;factores.push('Afrodescendiente (+2)');}
+  if(edad>=35){score+=1;factores.push('Edad ≥35 (+1)');}
+  if(bmi>=30){score+=1;factores.push(`IMC ≥30 [${bmi.toFixed(1)}] (+1)`);}
+  if(map>=90){score+=2;factores.push(`TAM elevada [${map.toFixed(0)}mmHg] (+2)`);}
+  if(uta>1.6){score+=3;factores.push(`IP UtA elevado [${uta}] (+3)`);}
+  let riesgo,color,conducta;
+  if(score<=2){riesgo='BAJO (<1:500)';color='success';conducta='Control prenatal rutina. Sin intervención adicional.';}
+  else if(score<=5){riesgo='INTERMEDIO (1:100-1:500)';color='warning';conducta='Aspirina 100-150mg/día desde semana 11-14. Monitoreo reforzado de PA y proteinuria.';}
+  else{riesgo='ALTO (>1:100)';color='danger';conducta='⚠️ ALTO RIESGO. Aspirina 150mg/día OBLIGATORIA desde sem. 11-14. Vigilancia estrecha. Control UtA Doppler. Valorar PlGF.';}
+  document.getElementById('fmb-pe-riesgo').textContent=riesgo;
+  document.getElementById('fmb-pe-score').textContent='Score: '+score+'/18';
+  document.getElementById('fmb-pe-box').style.cssText=`color:var(--${color});border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)`;
+  document.getElementById('fmb-pe-bmi').textContent=bmi.toFixed(1)+' kg/m²';
+  document.getElementById('fmb-pe-map').textContent=map?map.toFixed(0)+' mmHg':'—';
+  document.getElementById('fmb-pe-conducta').textContent=conducta;
+  document.getElementById('fmb-pe-factores').innerHTML=factores.map(f=>`<div style="font-size:11px;padding:2px 0">• ${f}</div>`).join('');
+  document.getElementById('fmb-pe-result').style.display='block';
+}
+
+function calcFMBPercIIITM(){
+  const ga=parseInt(document.getElementById('fmb-p3-ga').value)||0;
+  const efw=parseInt(document.getElementById('fmb-p3-efw').value)||0;
+  const sexo=document.getElementById('fmb-p3-sexo').value;
+  if(!ga||ga<28||ga>42||!efw)return;
+  const rM={28:{m:1095,sd:165},29:{m:1220,sd:180},30:{m:1360,sd:200},31:{m:1520,sd:220},32:{m:1695,sd:245},33:{m:1885,sd:270},34:{m:2095,sd:295},35:{m:2310,sd:325},36:{m:2535,sd:355},37:{m:2760,sd:380},38:{m:2960,sd:400},39:{m:3140,sd:415},40:{m:3295,sd:425},41:{m:3420,sd:430},42:{m:3510,sd:430}};
+  const rF={28:{m:1030,sd:150},29:{m:1150,sd:165},30:{m:1285,sd:185},31:{m:1435,sd:205},32:{m:1600,sd:225},33:{m:1785,sd:250},34:{m:1985,sd:280},35:{m:2200,sd:310},36:{m:2420,sd:335},37:{m:2640,sd:360},38:{m:2840,sd:380},39:{m:3015,sd:395},40:{m:3165,sd:405},41:{m:3285,sd:410},42:{m:3370,sd:415}};
+  const rN={28:{m:1065,sd:155},29:{m:1185,sd:170},30:{m:1325,sd:190},31:{m:1480,sd:210},32:{m:1650,sd:235},33:{m:1840,sd:260},34:{m:2045,sd:290},35:{m:2260,sd:315},36:{m:2480,sd:345},37:{m:2700,sd:370},38:{m:2900,sd:390},39:{m:3075,sd:405},40:{m:3225,sd:415},41:{m:3350,sd:420},42:{m:3440,sd:425}};
+  const ref=sexo==='M'?rM:sexo==='F'?rF:rN;
+  const r=ref[ga];
+  const p=Math.max(1,Math.min(99,Math.round(normCDF((efw-r.m)/r.sd)*100)));
+  let clasif,color,bg,conducta;
+  if(p<3){clasif='PEG severo p<3';color='#f87171';bg='rgba(248,113,113,0.1)';conducta='🔴 RCIU severo — Doppler + perfil biofísico urgente. Referir perinatología.';}
+  else if(p<10){clasif='Pequeño EG p3-10';color='#f97316';bg='rgba(249,115,22,0.1)';conducta='⚠️ PEG — Doppler umbilical. Control ecográfico c/2 semanas.';}
+  else if(p<=90){clasif='Adecuado EG p10-90';color='#4ade80';bg='rgba(74,222,128,0.1)';conducta='✅ Crecimiento normal. Controles prenatales rutina.';}
+  else if(p<=97){clasif='Grande EG p90-97';color='#fbbf24';bg='rgba(251,191,36,0.1)';conducta='⚠️ GEG — Descartar DG. Control glucémico.';}
+  else{clasif='GEG severo p>97';color='#f87171';bg='rgba(248,113,113,0.1)';conducta='⚠️ Macrosomía severa. Evaluación obstétrica. Valorar vía del parto.';}
+  const card=document.getElementById('fmb-p3-card');
+  card.style.cssText=`border-radius:12px;padding:14px;margin-bottom:8px;background:${bg};border:1px solid ${color}40`;
+  document.getElementById('fmb-p3-pval').style.color=color;
+  document.getElementById('fmb-p3-pval').textContent='p'+p;
+  document.getElementById('fmb-p3-clasif').style.color=color;
+  document.getElementById('fmb-p3-clasif').textContent=clasif;
+  document.getElementById('fmb-p3-ref').textContent=`p3:${Math.round(r.m-1.88*r.sd)}g · p10:${Math.round(r.m-1.28*r.sd)}g · p50:${r.m}g · p90:${Math.round(r.m+1.28*r.sd)}g · p97:${Math.round(r.m+1.88*r.sd)}g`;
+  document.getElementById('fmb-p3-conducta').style.cssText=`padding:10px;border-radius:10px;font-size:12px;background:${bg};border:1px solid ${color}40`;
+  document.getElementById('fmb-p3-conducta').textContent=conducta;
+  document.getElementById('fmb-p3-result').style.display='block';
+}
+
+function calcFMBGemelos(){
+  const ga=parseInt(document.getElementById('fmb-gem-ga').value)||0;
+  const efwA=parseInt(document.getElementById('fmb-gem-efwa').value)||0;
+  const efwB=parseInt(document.getElementById('fmb-gem-efwb').value)||0;
+  if(!ga||ga<24||ga>40||!efwA||!efwB)return;
+  const rT={24:{m:590,sd:95},26:{m:810,sd:125},28:{m:1080,sd:160},30:{m:1400,sd:200},32:{m:1750,sd:245},34:{m:2100,sd:290},36:{m:2440,sd:330},38:{m:2720,sd:355},40:{m:2920,sd:375}};
+  const gaR=Object.keys(rT).reduce((a,b)=>Math.abs(b-ga)<Math.abs(a-ga)?b:a);
+  const r=rT[gaR];
+  const pA=Math.max(1,Math.min(99,Math.round(normCDF((efwA-r.m)/r.sd)*100)));
+  const pB=Math.max(1,Math.min(99,Math.round(normCDF((efwB-r.m)/r.sd)*100)));
+  const disc=Math.abs(efwA-efwB)/Math.max(efwA,efwB)*100;
+  let dc,dColor;
+  if(disc<15){dc='Normal (<15%)';dColor='var(--success)';}
+  else if(disc<25){dc='Leve (15-25%)';dColor='var(--warning)';}
+  else{dc='Significativa (>25%) — Vigilar TTTS/sIUGR';dColor='var(--danger)';}
+  document.getElementById('fmb-gem-result').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"><div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text-muted);font-weight:600">GEMELO A</div><div style="font-size:24px;font-weight:800;color:${pA<10?'var(--danger)':pA>90?'var(--warning)':'var(--success)'}">p${pA}</div><div style="font-size:11px;color:var(--text-muted)">${efwA}g</div></div><div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text-muted);font-weight:600">GEMELO B</div><div style="font-size:24px;font-weight:800;color:${pB<10?'var(--danger)':pB>90?'var(--warning)':'var(--success)'}">p${pB}</div><div style="font-size:11px;color:var(--text-muted)">${efwB}g</div></div></div><div style="padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px"><div style="font-size:12px;font-weight:700">Discordancia de crecimiento</div><div style="font-size:20px;font-weight:800;color:${dColor}">${disc.toFixed(1)}%</div><div style="font-size:12px;color:${dColor}">${dc}</div></div>`;
+  document.getElementById('fmb-gem-result').style.display='block';
+}
+
+function switchFMB(section,btn){
+  document.querySelectorAll('.fmb-section').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.fmb-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('fmb-'+section).style.display='block';
+  if(btn)btn.classList.add('active');
+}
   function calcGPercFMB(){
   const sem=parseInt(document.getElementById('gf-sem').value)||0;
   const dias=parseInt(document.getElementById('gf-dias').value)||0;
