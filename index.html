@@ -6700,7 +6700,13 @@ function calcFMBGemelos(){
   document.getElementById('fmb-gem-result').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px"><div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text-muted);font-weight:600">GEMELO A</div><div style="font-size:24px;font-weight:800;color:${pA<10?'var(--danger)':pA>90?'var(--warning)':'var(--success)'}">p${pA}</div><div style="font-size:11px;color:var(--text-muted)">${efwA}g</div></div><div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--text-muted);font-weight:600">GEMELO B</div><div style="font-size:24px;font-weight:800;color:${pB<10?'var(--danger)':pB>90?'var(--warning)':'var(--success)'}">p${pB}</div><div style="font-size:11px;color:var(--text-muted)">${efwB}g</div></div></div><div style="padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px"><div style="font-size:12px;font-weight:700">Discordancia de crecimiento</div><div style="font-size:20px;font-weight:800;color:${dColor}">${disc.toFixed(1)}%</div><div style="font-size:12px;color:${dColor}">${dc}</div></div>`;
   document.getElementById('fmb-gem-result').style.display='block';
 }
-
+function limpiarFMB(section) {
+  const panel = document.getElementById('fmb-' + section);
+  if (!panel) return;
+  panel.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+  panel.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  panel.querySelectorAll('[id$="-result"]').forEach(d => d.style.display = 'none');
+}
 function switchFMB(section,btn){
   document.querySelectorAll('.fmb-section').forEach(s=>s.style.display='none');
   document.querySelectorAll('.fmb-tab').forEach(b=>b.classList.remove('active'));
