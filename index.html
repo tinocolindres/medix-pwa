@@ -2474,6 +2474,168 @@ body.vad-mode [id^="pfb-"]{display:none!important}
           </div>
         </div>
       </div>
+      <!-- FMB Medicina Fetal Barcelona -->
+<div class="enf-calc" id="enf-fmb">
+  <div style="font-size:15px;font-weight:700;margin-bottom:10px">🏥 Medicina Fetal Barcelona</div>
+  <div style="display:flex;overflow-x:auto;gap:6px;margin-bottom:14px;scrollbar-width:none">
+    <button class="vad-cat-btn active fmb-tab" onclick="switchFMB('doppler',this)">🫀 Doppler</button>
+    <button class="vad-cat-btn fmb-tab" onclick="switchFMB('anemia',this)">🩸 Anemia</button>
+    <button class="vad-cat-btn fmb-tab" onclick="switchFMB('preeclampsia',this)">🩺 Preeclampsia</button>
+    <button class="vad-cat-btn fmb-tab" onclick="switchFMB('percIII',this)">📊 P. III TM</button>
+    <button class="vad-cat-btn fmb-tab" onclick="switchFMB('gemelos',this)">👥 Gemelos</button>
+  </div>
+
+  <!-- DOPPLER -->
+  <div class="fmb-section" id="fmb-doppler">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--cyan)">🫀 Doppler Fetal — Índices de Pulsatilidad</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <div style="flex:1"><div style="font-size:12px;margin-bottom:4px">EG (semanas)</div><input type="number" class="calc-input" id="fmb-dop-ga" placeholder="20-40" oninput="calcFMBDoppler()"></div>
+      <div style="flex:1"><div style="font-size:12px;margin-bottom:4px">Días</div><input type="number" class="calc-input" id="fmb-dop-dias" placeholder="0-6" oninput="calcFMBDoppler()"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Ingresa los IP disponibles (todos opcionales):</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><div style="font-size:11px;margin-bottom:3px">AU — Art. Umbilical IP</div><input type="number" class="calc-input" id="fmb-dop-au" placeholder="ej. 0.85" step="0.01" oninput="calcFMBDoppler()"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">ACM — Art. Cerebral Media IP</div><input type="number" class="calc-input" id="fmb-dop-acm" placeholder="ej. 1.65" step="0.01" oninput="calcFMBDoppler()"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Ut.A — Art. Uterinas IP medio</div><input type="number" class="calc-input" id="fmb-dop-uta" placeholder="ej. 0.70" step="0.01" oninput="calcFMBDoppler()"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">DV — Ductus Venoso PIV</div><input type="number" class="calc-input" id="fmb-dop-dv" placeholder="ej. 0.45" step="0.01" oninput="calcFMBDoppler()"></div>
+    </div>
+    <div id="fmb-dop-result" style="display:none"></div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px">📚 Arduini 1990 (AU) · Baschat 2003 (ACM) · Bower 1993 (UtA) · Hecher 1994 (DV)</div>
+  </div>
+
+  <!-- ANEMIA -->
+  <div class="fmb-section" id="fmb-anemia" style="display:none">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--cyan)">🩸 Anemia Fetal — PSV ACM</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <div style="flex:1"><div style="font-size:12px;margin-bottom:4px">EG (semanas)</div><input type="number" class="calc-input" id="fmb-an-ga" placeholder="18-40" oninput="calcFMBAnemia()"></div>
+      <div style="flex:1"><div style="font-size:12px;margin-bottom:4px">PSV ACM (cm/s)</div><input type="number" class="calc-input" id="fmb-an-psv" placeholder="ej. 55" step="0.1" oninput="calcFMBAnemia()"></div>
+    </div>
+    <div id="fmb-an-result" style="display:none">
+      <div class="result-box" id="fmb-an-box" style="color:var(--blue);border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.1)">
+        <div class="result-label">MoM — Múltiplo de la Mediana</div>
+        <div class="result-value" id="fmb-an-mom"></div>
+        <div class="result-sub" id="fmb-an-nivel"></div>
+      </div>
+      <div style="margin-top:8px;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:12px">
+        PSV esperada: <span id="fmb-an-esperado" style="font-weight:700"></span><br>
+        <span style="color:var(--text-muted)">Normal <1.29 · Leve 1.29-1.5 · Moderada 1.5-1.55 · Severa >1.55</span>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:13px;font-weight:700;color:var(--cyan)">💉 Volumen de Transfusión</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div><div style="font-size:11px;margin-bottom:3px">EG (sem)</div><input type="number" class="calc-input" id="fmb-tr-ga" placeholder="24-36"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Hto donante (%)</div><input type="number" class="calc-input" id="fmb-tr-hctdon" placeholder="ej. 80"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Hto deseado (%)</div><input type="number" class="calc-input" id="fmb-tr-hctdes" placeholder="ej. 40"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Hto observado (%)</div><input type="number" class="calc-input" id="fmb-tr-hctobs" placeholder="ej. 15"></div>
+    </div>
+    <button onclick="calcFMBTransfusion()" style="width:100%;margin-top:8px;padding:10px;background:var(--cyan);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer">Calcular volumen</button>
+    <div id="fmb-tr-result" style="display:none;margin-top:8px">
+      <div class="result-box" style="color:var(--cyan);border-color:rgba(6,182,212,0.3);background:rgba(6,182,212,0.1)">
+        <div class="result-label">VOLUMEN A TRANSFUNDIR</div>
+        <div class="result-value" id="fmb-tr-vol"></div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px">📚 Mari 2000 (NEJM) · Fórmula: EFW×50×(Hct_des-Hct_obs)/Hct_don</div>
+  </div>
+
+  <!-- PREECLAMPSIA -->
+  <div class="fmb-section" id="fmb-preeclampsia" style="display:none">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--cyan)">🩺 Preeclampsia — Riesgo 1er Trimestre</div>
+    <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px">Basado en factores de riesgo FMB + biomarcadores</div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:6px">Historia materna</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><div style="font-size:11px;margin-bottom:3px">Paridad</div>
+        <select class="calc-input" id="fmb-pe-paridad" style="padding:8px">
+          <option value="nulipara">Nulípara</option>
+          <option value="multipara">Multípara</option>
+        </select></div>
+      <div><div style="font-size:11px;margin-bottom:3px">PE previa</div>
+        <select class="calc-input" id="fmb-pe-pe" style="padding:8px">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select></div>
+      <div><div style="font-size:11px;margin-bottom:3px">HTA crónica</div>
+        <select class="calc-input" id="fmb-pe-hta" style="padding:8px">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Enfermedad renal</div>
+        <select class="calc-input" id="fmb-pe-renal" style="padding:8px">
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Etnia</div>
+        <select class="calc-input" id="fmb-pe-etnia" style="padding:8px">
+          <option value="europea">Europea/Latina</option>
+          <option value="negra">Afrodescendiente</option>
+          <option value="otra">Otra</option>
+        </select></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:6px">Datos biométricos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><div style="font-size:11px;margin-bottom:3px">Edad (años)</div><input type="number" class="calc-input" id="fmb-pe-edad" placeholder="ej. 28"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Talla (cm)</div><input type="number" class="calc-input" id="fmb-pe-talla" placeholder="ej. 160"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">Peso (kg)</div><input type="number" class="calc-input" id="fmb-pe-peso" placeholder="ej. 65"></div>
+    </div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:6px">Datos 1er trimestre</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><div style="font-size:11px;margin-bottom:3px">PAS (mmHg)</div><input type="number" class="calc-input" id="fmb-pe-pas" placeholder="ej. 110"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">PAD (mmHg)</div><input type="number" class="calc-input" id="fmb-pe-pad" placeholder="ej. 70"></div>
+      <div><div style="font-size:11px;margin-bottom:3px">IP Art. Uterinas</div><input type="number" class="calc-input" id="fmb-pe-uta" placeholder="ej. 1.4" step="0.01"></div>
+    </div>
+    <button onclick="calcFMBPreeclampsia()" style="width:100%;padding:10px;background:var(--danger);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px">Calcular riesgo PE</button>
+    <div id="fmb-pe-result" style="display:none">
+      <div class="result-box" id="fmb-pe-box">
+        <div class="result-label">RIESGO PREECLAMPSIA TEMPRANA</div>
+        <div class="result-value" style="font-size:18px" id="fmb-pe-riesgo"></div>
+        <div class="result-sub" id="fmb-pe-score"></div>
+      </div>
+      <div style="margin-top:8px;padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:12px">
+        IMC: <span id="fmb-pe-bmi" style="font-weight:700"></span> · TAM: <span id="fmb-pe-map" style="font-weight:700"></span><br>
+        <div id="fmb-pe-factores" style="margin-top:6px"></div>
+      </div>
+      <div id="fmb-pe-conducta" style="margin-top:8px;padding:10px;border-radius:10px;font-size:12px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2)"></div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px">📚 Basado en factores de riesgo FMB · Wright 2015</div>
+  </div>
+
+  <!-- PERCENTIL III TM -->
+  <div class="fmb-section" id="fmb-percIII" style="display:none">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--cyan)">📊 Percentil III Trimestre — Singleton</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><div style="font-size:12px;margin-bottom:4px">EG (semanas)</div><input type="number" class="calc-input" id="fmb-p3-ga" placeholder="28-42" oninput="calcFMBPercIIITM()"></div>
+      <div><div style="font-size:12px;margin-bottom:4px">PFE (gramos)</div><input type="number" class="calc-input" id="fmb-p3-efw" placeholder="ej. 2500" oninput="calcFMBPercIIITM()"></div>
+    </div>
+    <select class="calc-input" id="fmb-p3-sexo" onchange="calcFMBPercIIITM()" style="margin-bottom:10px">
+      <option value="0">Sexo: No determinado</option>
+      <option value="M">Masculino</option>
+      <option value="F">Femenino</option>
+    </select>
+    <div id="fmb-p3-result" style="display:none">
+      <div id="fmb-p3-card" style="border-radius:12px;padding:14px;margin-bottom:8px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">PERCENTIL (Figueras 2008)</div>
+        <div style="font-size:36px;font-weight:800" id="fmb-p3-pval"></div>
+        <div style="font-size:13px;font-weight:600" id="fmb-p3-clasif"></div>
+      </div>
+      <div style="padding:10px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--text-muted);margin-bottom:8px" id="fmb-p3-ref"></div>
+      <div style="padding:10px;border-radius:10px;font-size:12px" id="fmb-p3-conducta"></div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px">📚 Figueras F. EJOGRM 2008 · Población española</div>
+  </div>
+
+  <!-- GEMELOS -->
+  <div class="fmb-section" id="fmb-gemelos" style="display:none">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--cyan)">👥 Percentil III TM — Gemelos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div><div style="font-size:12px;margin-bottom:4px">EG (semanas)</div><input type="number" class="calc-input" id="fmb-gem-ga" placeholder="24-40" oninput="calcFMBGemelos()"></div>
+      <div></div>
+      <div><div style="font-size:12px;margin-bottom:4px">PFE Gemelo A (g)</div><input type="number" class="calc-input" id="fmb-gem-efwa" placeholder="ej. 1800" oninput="calcFMBGemelos()"></div>
+      <div><div style="font-size:12px;margin-bottom:4px">PFE Gemelo B (g)</div><input type="number" class="calc-input" id="fmb-gem-efwb" placeholder="ej. 2100" oninput="calcFMBGemelos()"></div>
+    </div>
+    <div id="fmb-gem-result" style="display:none"></div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px">📚 Kuno A. Hum Reprod 1999 · Discordancia >25% = significativa</div>
+  </div>
+</div>
 <!-- NANDA NOC NIC -->
 <div class="enf-calc" id="enf-nanda">
   <div style="margin-bottom:14px">
