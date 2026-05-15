@@ -4136,7 +4136,7 @@ function restorePWAConversation(i) {
   chatMessages.forEach(m => {
     const div = document.createElement('div');
     div.className = `msg msg-${m.type === 'error' ? 'ai msg-error' : m.type}`;
-    div.innerHTML = `<div class="msg-bubble">${m.text.replace(/\n/g,'<br>')}</div>`;
+   div.innerHTML = `<div class="msg-bubble">${renderMarkdown(m.text)}</div>`;
     document.getElementById('chatMessages').appendChild(div);
   });
   document.getElementById('chatMessages').scrollTop = 999999;
