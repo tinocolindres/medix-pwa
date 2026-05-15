@@ -3986,6 +3986,8 @@ function switchTab(tab) {
   el.scrollTop = 0;
 window.scrollTo(0, 0);
   el.style.display = tab === 'chat' ? 'flex' : 'block';
+  el.scrollTop = 0;
+window.scrollTo(0, 0);
  document.getElementById(`nav-${tab}`)?.classList.add('active');
   window.scrollTo(0, 0);
   // Restaurar mensajes del chat al regresar
