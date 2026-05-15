@@ -4260,13 +4260,13 @@ function appendMessage(text, type, tokens) {
   div.className = `msg msg-${type === 'error' ? 'ai msg-error' : type} slide-up`;
   const msgIndex = chatMessages.length - 1;
   if (type === 'ai') {
-    div.innerHTML = `<div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>
+    div.innerHTML = `<div class="msg-bubble">${renderMarkdown(text)}</div>
       ${tokens ? `<div class="msg-tokens">${tokens} tokens</div>` : ''}
       <div style="display:flex;justify-content:flex-end;margin-top:4px">
         <button onclick="deleteMessage(${msgIndex},this)" style="background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;padding:2px 6px;border-radius:6px" title="Borrar respuesta">🗑 borrar</button>
       </div>`;
   } else {
-    div.innerHTML = `<div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>
+    div.innerHTML = `<div class="msg-bubble">${renderMarkdown(text)}</div>
       ${tokens ? `<div class="msg-tokens">${tokens} tokens</div>` : ''}`;
   }
   container.appendChild(div);
