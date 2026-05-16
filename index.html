@@ -6764,6 +6764,59 @@ function switchFMB(section,btn){
   document.getElementById('gf-conducta').textContent=conducta;
   document.getElementById('gf-result').style.display='block';
 }
+  // ── Sistema de Notificaciones ─────────────────────────────────
+let alertSoundEnabled = true;
+let notifPanelOpen = false;
+
+function toggleNotifPanel() {
+  notifPanelOpen = !notifPanelOpen;
+  document.getElementById('notif-panel').style.display = notifPanelOpen ? 'block' : 'none';
+  document.getElementById('notif-overlay').style.display = notifPanelOpen ? 'block' : 'none';
+  if (notifPanelOpen) renderNotifList();
+}
+
+function toggleAlertSound() {
+  alertSoundEnabled = !alertSoundEnabled;
+  const btn = document.getElementById('sound-toggle-btn');
+  const status = document.getElementById('sound-status');
+  btn.textContent = alertSoundEnabled ? '🔊 ON' : '🔕 OFF';
+  btn.style.background = alertSoundEnabled ? 'var(--success)' : 'var(--text-muted)';
+  status.textContent = alertSoundEnabled ? 'Activadas' : 'Silenciadas';
+  document.getElementById('bell-btn').textContent = alertSoundEnabled ? '🔔' : '🔕';
+}
+
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  const reminders = getActiveReminders();
+  if (!reminders.length) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">Sin recordatorios activos</div>';
+    return;
+  }
+  list.innerHTML = reminders.map((r,i) => `
+    <div style="padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:13px;font-weight:600">${r.paciente||'Paciente'}</div>
+          <div style="font-size:12px;color:var(--cyan);margin-top:2px">${r.tipo||'Recordatorio'}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">⏰ ${r.hora||''}</div>
+        </div>
+        <span style="font-size:18px">${r.icono||'⏰'}</span>
+      </div>
+    </div>`).join('');
+}
+
+function getActiveReminders() {
+  if (typeof recordatoriosActivos !== 'undefined' && recordatoriosActivos.length) return recordatoriosActivos;
+  if (typeof reminders !== 'undefined' && reminders.length) return reminders;
+  return [];
+}
+
+function updateBellBadge(count) {
+  const badge = document.getElementById('bell-badge');
+  if (!badge) return;
+  if (count > 0) { badge.textContent = count > 9 ? '9+' : count; badge.style.display = 'block'; }
+  else { badge.style.display = 'none'; }
+}
   function limpiarCalc(panelId) {
   const panel = document.getElementById(panelId);
   if (!panel) return;
