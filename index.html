@@ -5309,6 +5309,8 @@ function agregarRecordatorio() {
     if (restante <= 0) {
       clearInterval(recIntervals[id]);
       // Notificación
+      playAlertSound();
+updateBellBadge(recordatorios.length);
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('⏰ Medix AI — Recordatorio', { body: texto, icon: '/icon-192.png' });
       }
