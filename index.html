@@ -7702,5 +7702,28 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
+<!-- Panel Notificaciones -->
+<div id="notif-overlay" onclick="toggleNotifPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999"></div>
+<div id="notif-panel" style="display:none;position:fixed;top:0;right:0;width:88%;max-width:360px;height:100%;background:var(--bg-card);z-index:1000;box-shadow:-4px 0 20px rgba(0,0,0,0.4);overflow-y:auto;padding:0">
+  <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+    <div style="font-size:16px;font-weight:700">🔔 Notificaciones</div>
+    <button onclick="toggleNotifPanel()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer">✕</button>
+  </div>
+  <div style="padding:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--bg-surface);border-radius:10px;margin-bottom:14px">
+      <div>
+        <div style="font-size:13px;font-weight:600">Alertas sonoras</div>
+        <div style="font-size:11px;color:var(--text-muted)" id="sound-status">Activadas</div>
+      </div>
+      <button id="sound-toggle-btn" onclick="toggleAlertSound()" style="padding:6px 14px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:var(--success);color:white">🔊 ON</button>
+    </div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px">RECORDATORIOS ACTIVOS</div>
+    <div id="notif-list">
+      <div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">
+        Sin recordatorios activos
+      </div>
+    </div>
+  </div>
+</div>  
 </body>
 </html>
