@@ -5300,6 +5300,7 @@ function agregarRecordatorio() {
   const fin = Date.now() + totalMs;
   const rec = { id, texto, fin, horas, minutos };
   recordatorios.push(rec);
+  updateBellBadge(recordatorios.length);
   renderRecordatorios();
 
   // Intervalo para countdown
