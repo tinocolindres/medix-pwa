@@ -5287,7 +5287,9 @@ function setRecPreset(h, m) {
   document.getElementById('rec-horas').value = h;
   document.getElementById('rec-minutos').value = m;
 }
-
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
 function agregarRecordatorio() {
   const texto = document.getElementById('rec-texto').value.trim();
   const horas = parseInt(document.getElementById('rec-horas').value)||0;
