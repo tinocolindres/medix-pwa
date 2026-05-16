@@ -6774,7 +6774,24 @@ function toggleNotifPanel() {
   document.getElementById('notif-overlay').style.display = notifPanelOpen ? 'block' : 'none';
   if (notifPanelOpen) renderNotifList();
 }
-
+function playAlertSound() {
+  if (!alertSoundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.3, 0.6].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.5, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.3);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.3);
+    });
+  } catch(e) {}
+}
 function toggleAlertSound() {
   alertSoundEnabled = !alertSoundEnabled;
   const btn = document.getElementById('sound-toggle-btn');
