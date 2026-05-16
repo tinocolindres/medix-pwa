@@ -1109,7 +1109,10 @@ body.vad-mode [id^="pfb-"]{display:none!important}
         <div class="appbar-title">Medix AI</div>
       </div>
       <div class="appbar-actions">
-        <button style="background:none;border:none;color:var(--text-secondary);font-size:22px;cursor:pointer">🔔</button>
+      <div style="position:relative;display:inline-block">
+  <button id="bell-btn" onclick="toggleNotifPanel()" style="background:none;border:none;color:var(--text-secondary);font-size:22px;cursor:pointer" title="Notificaciones">🔔</button>
+  <span id="bell-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;line-height:16px;text-align:center">0</span>
+</div>
       </div>
     </div>
     <div class="dashboard-content">
