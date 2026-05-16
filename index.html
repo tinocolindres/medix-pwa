@@ -6806,8 +6806,7 @@ function renderNotifList() {
 }
 
 function getActiveReminders() {
-  if (typeof recordatoriosActivos !== 'undefined' && recordatoriosActivos.length) return recordatoriosActivos;
-  if (typeof reminders !== 'undefined' && reminders.length) return reminders;
+  if (typeof recordatorios !== 'undefined' && recordatorios.length) return recordatorios;
   return [];
 }
 
