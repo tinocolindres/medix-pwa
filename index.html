@@ -3842,6 +3842,13 @@ async function doRegister() {
 function doLogout() {
   token = null; sessionId = null;
   localStorage.removeItem('jwt_token');
+  localStorage.removeItem('medix_session');
+  document.querySelectorAll('.tab-content').forEach(t => {
+    t.classList.remove('active');
+    t.style.display = 'none';
+    t.style.position = '';
+  });
+  document.getElementById('auth').style.zIndex = '999';
   showScreen('auth');
 }
 
