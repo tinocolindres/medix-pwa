@@ -2,7 +2,7 @@
   "name": "Medix AI",
   "short_name": "Medix AI",
   "description": "Plataforma médica con IA para Honduras",
-  "start_url": "/",
+  "start_url": "/medix-pwa/",
   "display": "standalone",
   "background_color": "#0a0f1e",
   "theme_color": "#0a0f1e",
