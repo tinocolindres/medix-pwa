@@ -3718,7 +3718,7 @@ if(_gfp&&_gc){_gc.appendChild(_gfp);const _gb=document.createElement('button');_
   setTimeout(async () => {
     if (token) {
       await loadProfile();
-      showScreen('app');
+      showScreen('app'); switchTab('dashboard');
     } else {
       showScreen('auth');
     }
@@ -3780,7 +3780,7 @@ async function doLogin() {
     token = data.access_token;
     localStorage.setItem('jwt_token', token);
     await loadProfile();
-    showScreen('app');
+    showScreen('app'); switchTab('dashboard');
   } catch(e) {
     showError('loginError', e.message);
   } finally {
@@ -3828,7 +3828,7 @@ async function doRegister() {
     token = data.access_token;
     localStorage.setItem('jwt_token', token);
     await loadProfile();
-    showScreen('app');
+    showScreen('app'); switchTab('dashboard');
   } catch(e) {
     showError('registerError', e.message);
   } finally {
