@@ -3839,8 +3839,7 @@ async function doRegister() {
   }
 }
 
-git pull origin main
-git push
+function doLogout() {
   token = null; sessionId = null;
   localStorage.removeItem('jwt_token');
   localStorage.removeItem('medix_session');
