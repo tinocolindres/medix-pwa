@@ -6799,7 +6799,7 @@ function toggleNotifPanel() {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'alert-banner';
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(239,68,68,0.5);transform:translateY(-100%);transition:transform 0.4s ease;font-family:"DM Sans",sans-serif';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(239,68,68,0.5);transform:translateY(-100%);transition:transform 0.4s ease;font-family:"DM Sans",sans-serif';
     banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">🔔</span><div><div style="font-weight:700;font-size:14px">⏰ Recordatorio Medix AI</div><div id="alert-banner-text" style="font-size:12px;opacity:0.9;margin-top:2px"></div></div></div><button onclick="document.getElementById(\'alert-banner\').style.transform=\'translateY(-100%)\'" style="background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>';
     document.body.appendChild(banner);
   }
@@ -6813,7 +6813,7 @@ function playAlertSound() {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'alert-banner';
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(239,68,68,0.5);transform:translateY(-100%);transition:transform 0.4s ease;font-family:"DM Sans",sans-serif';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(239,68,68,0.5);transform:translateY(-100%);transition:transform 0.4s ease;font-family:"DM Sans",sans-serif';
     banner.innerHTML = '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">🔔</span><div><div style="font-weight:700;font-size:14px">⏰ Recordatorio Medix AI</div><div id="alert-banner-text" style="font-size:12px;opacity:0.9;margin-top:2px"></div></div></div><button onclick="document.getElementById(\'alert-banner\').style.transform=\'translateY(-100%)\'" style="background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0">✕</button>';
     document.body.appendChild(banner);
   }
