@@ -3727,6 +3727,8 @@ if(_gfp&&_gc){_gc.appendChild(_gfp);const _gb=document.createElement('button');_
 
 // ── Screens ────────────────────────────────────────────────────
 function showScreen(id) {
+  const nav = document.querySelector('.bottom-nav');
+  if (nav) nav.style.display = id === 'app' ? 'flex' : 'none';
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
