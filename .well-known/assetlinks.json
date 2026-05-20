@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.medixai.hn",
+    "sha256_cert_fingerprints": [
+      "4C:6A:06:3E:D6:95:87:3A:36:30:88:3D:DB:C8:31:F2:32:A7:76:EE:3F:E6:D3:F5:DC:4C:6C:92:56:9F:45:49"
+    ]
+  }
+}]
