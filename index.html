@@ -6071,9 +6071,9 @@ async function analyzeScan() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || 'Error en análisis');
 
-    document.getElementById('scan-summary').textContent = data.summary || '';
-    document.getElementById('scan-findings').textContent = data.findings || '';
-    document.getElementById('scan-recs').textContent = data.recommendations || '';
+    document.getElementById('scan-summary').innerHTML = renderMarkdown(data.summary || '');
+    document.getElementById('scan-findings').innerHTML = renderMarkdown(data.findings || '');
+    document.getElementById('scan-recs').innerHTML = renderMarkdown(data.recommendations || '');
 
     const urgency = data.urgency_level || 'low';
     const urgencyColors = { low: 'var(--success)', medium: 'var(--warning)', high: 'var(--danger)', critical: 'var(--danger)' };
