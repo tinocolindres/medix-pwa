@@ -5185,9 +5185,9 @@ function renderECGFromScan(data, contexto) {
     badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--success)';
     badge.textContent = '✅ Sin hallazgos críticos inmediatos';
   }
-  document.getElementById('ecg-dx').textContent = data.summary || data.analysis || 'Ver hallazgos';
-  document.getElementById('ecg-hallazgos').textContent = data.findings || data.details || '—';
-  document.getElementById('ecg-conducta').textContent = data.recommendations || data.recommendation || '—';
+  document.getElementById('ecg-dx').innerHTML = renderMarkdown(data.summary || data.analysis || 'Ver hallazgos'));
+  document.getElementById('ecg-hallazgos').innerHTML = renderMarkdown(data.findings || data.details || '—');
+  document.getElementById('ecg-conducta').innerHTML = renderMarkdown(data.recommendations || data.recommendation || '—');
   document.getElementById('ecg-result').style.display = 'block';
 }
 
@@ -5208,9 +5208,9 @@ function renderECGResult(ecg) {
   document.getElementById('ecg-fc').textContent = ecg.fc || '—';
   document.getElementById('ecg-eje').textContent = ecg.eje || '—';
   document.getElementById('ecg-intervalos').textContent = ecg.intervalos || '—';
-  document.getElementById('ecg-dx').textContent = ecg.diagnostico || '—';
-  document.getElementById('ecg-hallazgos').textContent = ecg.hallazgos || '—';
-  document.getElementById('ecg-conducta').textContent = ecg.conducta || '—';
+  document.getElementById('ecg-dx').innerHTML = renderMarkdown(ecg.diagnostico || '—'));
+  document.getElementById('ecg-hallazgos').innerHTML = renderMarkdown(ecg.hallazgos || '—');
+  document.getElementById('ecg-conducta').innerHTML = renderMarkdown(ecg.conducta || '—');
   document.getElementById('ecg-result').style.display = 'block';
 }
 
