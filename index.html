@@ -5182,6 +5182,9 @@ function renderECGFromScan(data, contexto) {
   } else if (urgency === 'high') {
     badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:var(--warning)';
     badge.textContent = '⚠️ URGENTE — Evaluación médica inmediata';
+  } else if (urgency === "medium") {
+    badge.style.cssText = "padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);color:#f59e0b";
+    badge.textContent = "🟡 MODERADO — Seguimiento recomendado";
   } else {
     badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--success)';
     badge.textContent = '✅ Sin hallazgos críticos inmediatos';
@@ -5201,6 +5204,9 @@ function renderECGResult(ecg) {
   } else if (urgencia === 'URGENTE') {
     badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:var(--warning)';
     badge.textContent = '⚠️ URGENTE — Evaluación médica inmediata';
+  } else if (urgencia === "MODERADO") {
+    badge.style.cssText = "padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);color:#f59e0b";
+    badge.textContent = "🟡 MODERADO — Seguimiento recomendado";
   } else {
     badge.style.cssText = 'padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px;font-weight:600;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:var(--success)';
     badge.textContent = '✅ Sin hallazgos críticos inmediatos';
