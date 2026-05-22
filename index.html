@@ -5173,7 +5173,16 @@ async function analyzeECG() {
   }
 }
 
+function calcularUrgenciaECG(text) {
+  const t = (text || "").toLowerCase();
+  if (t.includes("iam") || t.includes("stemi") || t.includes("fibrilacion ventricular") || t.includes("torsades") || t.includes("hiperkalemia severa") || t.includes("patron de brugada")) return "critical";
+  if (t.includes("bav 2") || t.includes("bav 3") || t.includes("bloqueo av completo") || t.includes("bloqueo bifascicular") || t.includes("qtc prolongado") || t.includes("isquemia aguda")) return "high";
+  if (t.includes("brd") || t.includes("bri") || t.includes("bloqueo de rama") || t.includes("hemibloqueo") || t.includes("hvi") || t.includes("bav 1") || t.includes("bloqueo av de primer") || t.includes("moderado")) return "medium";
+  return "low";
+}
 function renderECGFromScan(data, contexto) {
+  const textoCompleto = (data.summary || "") + " " + (data.findings || "") + " " + (data.recommendations || "");
+  data.urgency_level = calcularUrgenciaECG(textoCompleto) || data.urgency_level;
   const urgency = data.urgency_level || 'low';
   const badge = document.getElementById('ecg-urgencia-badge');
   if (urgency === 'critical') {
