@@ -4269,6 +4269,9 @@ async function sendMessage() {
     const msg = e.message || '';
     if (msg.includes('429') || msg.toLowerCase().includes('límite') || msg.toLowerCase().includes('limite')) {
       appendMessage('⚠️ Límite diario alcanzado. Intenta mañana o actualiza tu plan.', 'error');
+    } else if (msg.includes("401") || msg.toLowerCase().includes("token") || msg.toLowerCase().includes("expirado") || msg.toLowerCase().includes("credenciales")) {
+      appendMessage("🔐 Sesión expirada. Por favor inicia sesión nuevamente.", "error");
+      setTimeout(() => doLogout(), 2000);
     } else {
       appendMessage('⚠️ Error de conexión. Verifica tu internet e intenta de nuevo.', 'error');
     }
